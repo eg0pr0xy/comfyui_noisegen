@@ -13,13 +13,13 @@ class NoiseGeneratorNode:
     """Universal noise generator node with multiple noise types."""
     
     NOISE_TYPES = [
-        "white",
-        "pink", 
-        "brown",
-        "blue",
-        "violet",
-        "perlin",
-        "bandlimited"
+        "white",        # Pure static - flat frequency spectrum
+        "pink",         # Natural balance - 1/f slope  
+        "brown",        # Deep rumble - 1/f² slope
+        "blue",         # Bright/harsh - +3dB/octave
+        "violet",       # Ultra-bright - +6dB/octave
+        "perlin",       # Organic textures - natural variations
+        "bandlimited"   # Frequency filtered - targeted ranges
     ]
     
     @classmethod
@@ -119,7 +119,7 @@ class WhiteNoiseNode:
     RETURN_TYPES = ("AUDIO",)
     RETURN_NAMES = ("audio",)
     FUNCTION = "generate"
-    CATEGORY = "🎵 NoiseGen/Basic"
+    CATEGORY = "🎵 NoiseGen/Legacy"
     
     def generate(self, duration, sample_rate, amplitude, seed, channels, stereo_mode, stereo_width):
         """Generate white noise with optional stereo support."""
@@ -628,29 +628,36 @@ class VioletNoiseNode:
             audio_output = numpy_to_comfy_audio(silence, sample_rate)
             return (audio_output,)
 
-# Node mappings for ComfyUI
+# Node mappings for ComfyUI - OPTIMIZED UX
 NODE_CLASS_MAPPINGS = {
-    "NoiseGenerator": NoiseGeneratorNode,
-    "WhiteNoise": WhiteNoiseNode,
-    "PinkNoise": PinkNoiseNode,
-    "BrownNoise": BrownNoiseNode,
-    "BlueNoise": BlueNoiseNode,
-    "VioletNoise": VioletNoiseNode,
-    "PerlinNoise": PerlinNoiseNode,
-    "BandLimitedNoise": BandLimitedNoiseNode,
-    "ChaosNoiseMix": ChaosNoiseMixNode,
-    "AudioSave": AudioSaveNode,
+    # MAIN NODES - Clean and focused
+    "NoiseGenerator": NoiseGeneratorNode,        # Universal - handles all basic types
+    "PerlinNoise": PerlinNoiseNode,             # Unique parameters (frequency, octaves)
+    "BandLimitedNoise": BandLimitedNoiseNode,   # Unique parameters (freq filtering)
+    "ChaosNoiseMix": ChaosNoiseMixNode,         # Advanced mixing
+    "AudioSave": AudioSaveNode,                 # Utility
+    
+    # LEGACY NODES - Hidden from main menu, kept for compatibility
+    # Users can still access these if needed, but they're not promoted
+    "_WhiteNoise": WhiteNoiseNode,
+    "_PinkNoise": PinkNoiseNode,
+    "_BrownNoise": BrownNoiseNode,
+    "_BlueNoise": BlueNoiseNode,
+    "_VioletNoise": VioletNoiseNode,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "NoiseGenerator": "🎵 Noise Generator (Universal)",
-    "WhiteNoise": "🎵 White Noise",
-    "PinkNoise": "🎵 Pink Noise",
-    "BrownNoise": "🎵 Brown Noise",
-    "BlueNoise": "🎵 Blue Noise",
-    "VioletNoise": "🎵 Violet Noise",
-    "PerlinNoise": "🎵 Perlin Noise",
-    "BandLimitedNoise": "🎵 Band-Limited Noise",
+    # MAIN INTERFACE - Clean and discoverable
+    "NoiseGenerator": "🎵 Noise Generator (White•Pink•Brown•Blue•Violet)",
+    "PerlinNoise": "🌿 Perlin Noise (Organic Textures)",
+    "BandLimitedNoise": "🎯 Band-Limited Noise (Frequency Filter)", 
     "ChaosNoiseMix": "🔥 Chaos Noise Mix (Merzbow Style)",
-    "AudioSave": "🎵 Save Audio",
+    "AudioSave": "💾 Save Audio",
+    
+    # LEGACY - Hidden with underscore prefix
+    "_WhiteNoise": "🎵 White Noise (Legacy)",
+    "_PinkNoise": "🎵 Pink Noise (Legacy)", 
+    "_BrownNoise": "🎵 Brown Noise (Legacy)",
+    "_BlueNoise": "🎵 Blue Noise (Legacy)",
+    "_VioletNoise": "🎵 Violet Noise (Legacy)",
 } 
