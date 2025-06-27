@@ -65,6 +65,12 @@ input/
 *.log
 logs/
 
+# Error tracking (local only)
+error.md
+
+# Sync scripts (local only)
+sync_to_comfyui.bat
+
 # Test outputs
 noise_analysis.png
 test_output/ 

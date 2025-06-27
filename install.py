@@ -44,9 +44,9 @@ def check_package_availability(package):
         return False
 
 def main():
-    print("💀 NOISEGEN 💀")
+    print("NOISEGEN")
     print("ComfyUI-NoiseGen Installation Script")
-    print("=" * 50)
+    print("-" * 50)
     
     # Check if we're in the right directory
     if not os.path.exists("noise_nodes.py"):

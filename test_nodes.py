@@ -21,9 +21,10 @@ def test_imports():
         print(f"Failed to import: {e}")
         return None
 
-print("💀 NOISEGEN 💀")
-print("Testing ComfyUI NoiseGen Functions")
-print("-" * 50)
+print("NOISEGEN")
+print("=" * 50)
+print("Testing NoiseGen Node Pack")
+print("=" * 50)
 
 # Test imports
 mappings = test_imports()
@@ -254,7 +255,8 @@ def analyze_and_plot():
         return False
 
 if __name__ == "__main__":
-    print("💀 NOISEGEN 💀")
+    print("NOISEGEN")
+    print("=" * 50)
     print("ComfyUI NoiseGen Test Suite")
     print("=" * 50)
     

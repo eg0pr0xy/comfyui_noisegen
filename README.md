@@ -26,7 +26,7 @@ A comprehensive ComfyUI node pack for generating various types of audio noise wi
 
 ## Installation
 
-### **Method 1: ComfyUI Manager** ⭐ *Recommended*
+### **Method 1: ComfyUI Manager** *Recommended*
 1. Open ComfyUI Manager
 2. Search for `"ComfyUI-NoiseGen"`
 3. Click Install & restart ComfyUI
@@ -46,23 +46,23 @@ pip install -r requirements.txt
 
 | **Parameter** | **Range** | **Description** |
 |---------------|-----------|-----------------|
-| **Duration** | 0.1s → 300s | Audio length control |
-| **Sample Rate** | 8kHz → 96kHz | Quality settings (8k, 16k, 22k, 44.1k, 48k, 96k) |
-| **Amplitude** | 0.0 → 2.0 | Volume/loudness control |
-| **Channels** | 1 → 8 | Mono to surround sound |
+| **Duration** | 0.1s - 300s | Audio length control |
+| **Sample Rate** | 8kHz - 96kHz | Quality settings (8k, 16k, 22k, 44.1k, 48k, 96k) |
+| **Amplitude** | 0.0 - 2.0 | Volume/loudness control |
+| **Channels** | 1 - 8 | Mono to surround sound |
 | **Stereo Mode** | 3 modes | Independent, correlated, decorrelated |
-| **Seed** | 0 → 2147483647 | Reproducible random generation |
+| **Seed** | 0 - 2147483647 | Reproducible random generation |
 
 ### **ChaosNoiseMix Parameters**
 
 | **Parameter** | **Range** | **Description** |
 |---------------|-----------|-----------------|
 | **Mix Mode** | 11 types | add, multiply, xor, modulo, subtract, max, min, ring_mod, am_mod, fm_mod, chaos |
-| **Chaos Amount** | 0.0 → 1.0 | Non-linear mixing intensity |
-| **Distortion** | 0.0 → 1.0 | Multi-stage saturation |
-| **Bit Crush** | 1 → 16 bits | Digital degradation |
-| **Feedback** | 0.0 → 0.8 | Delay feedback amount |
-| **Ring Freq** | 1 → 5000 Hz | Ring modulation carrier |
+| **Chaos Amount** | 0.0 - 1.0 | Non-linear mixing intensity |
+| **Distortion** | 0.0 - 1.0 | Multi-stage saturation |
+| **Bit Crush** | 1 - 16 bits | Digital degradation |
+| **Feedback** | 0.0 - 0.8 | Delay feedback amount |
+| **Ring Freq** | 1 - 5000 Hz | Ring modulation carrier |
 
 ---
 
@@ -85,6 +85,12 @@ pip install -r requirements.txt
 
 ### **NoiseGen/Utils**
 - **Save Audio** - Export to WAV/FLAC/MP3
+- **Preview Audio** - Instant playback in ComfyUI interface
+
+---
+
+## NEW: Instant Audio Preview
+🎧 **Listen to your noise immediately in ComfyUI!** No more opening external files - just connect the new **"Preview Audio"** node and get instant playback with play/pause controls right in the interface.
 
 ---
 
@@ -141,10 +147,11 @@ pip install -r requirements.txt
 ## Workflow Examples
 
 ### **Simple Workflow**
-1. Add `White Noise` node
-2. Set duration and amplitude
-3. Connect to audio output
-4. Generate and export
+1. Add `Noise Generator` node
+2. Set noise type, duration, and amplitude  
+3. Connect to `Preview Audio` node for instant listening
+4. Optionally connect to `Save Audio` for file export
+5. Run workflow and listen immediately!
 
 ### **Complex Harsh Noise**
 1. Create multiple noise sources (white, brown, perlin)

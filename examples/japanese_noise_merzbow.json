@@ -5,490 +5,295 @@
     {
       "id": 1,
       "type": "NoiseGenerator",
-      "pos": [100, 100],
-      "size": [300, 350],
+      "pos": [50, 50],
+      "size": {"0": 315, "1": 426},
       "flags": {},
       "order": 0,
       "mode": 0,
-      "inputs": [],
       "outputs": [
-        {
-          "name": "audio",
-          "type": "AUDIO",
-          "links": [1]
-        }
+        {"name": "audio", "type": "AUDIO", "links": [1], "shape": 3}
       ],
-      "properties": {
-        "Node name for S&R": "NoiseGenerator"
-      },
-      "widgets_values": [
-        "white",
-        45.0,
-        44100,
-        1.2,
-        42069,
-        2,
-        "independent",
-        2.0,
-        1.0,
-        100.0,
-        8000.0,
-        4
-      ],
-      "title": "Harsh White Foundation"
+      "title": "LAYER 1: WHITE CHAOS",
+      "properties": {"Node name for S&R": "NoiseGenerator"},
+      "widgets_values": ["white", 15.0, 48000, 0.9, 666, 2, "independent", 2.0, 1.0, 100.0, 8000.0, 4]
     },
     {
       "id": 2,
-      "type": "NoiseGenerator",
-      "pos": [100, 500],
-      "size": [300, 350],
+      "type": "NoiseGenerator", 
+      "pos": [50, 520],
+      "size": {"0": 315, "1": 426},
       "flags": {},
       "order": 1,
       "mode": 0,
-      "inputs": [],
       "outputs": [
-        {
-          "name": "audio",
-          "type": "AUDIO",
-          "links": [2]
-        }
+        {"name": "audio", "type": "AUDIO", "links": [2], "shape": 3}
       ],
-      "properties": {
-        "Node name for S&R": "NoiseGenerator"
-      },
-      "widgets_values": [
-        "brown",
-        45.0,
-        44100,
-        0.9,
-        13666,
-        2,
-        "decorrelated",
-        1.8,
-        1.0,
-        100.0,
-        8000.0,
-        4
-      ],
-      "title": "Brown Rumble Layer"
+      "title": "LAYER 2: BROWN DESTRUCTION",
+      "properties": {"Node name for S&R": "NoiseGenerator"},
+      "widgets_values": ["brown", 15.0, 48000, 0.8, 1337, 2, "decorrelated", 1.8, 1.0, 100.0, 8000.0, 4]
     },
     {
       "id": 3,
-      "type": "BandLimitedNoise",
-      "pos": [100, 900],
-      "size": [300, 250],
+      "type": "PerlinNoise",
+      "pos": [50, 990],
+      "size": {"0": 315, "1": 246},
       "flags": {},
-      "order": 2,
+      "order": 2, 
       "mode": 0,
-      "inputs": [],
       "outputs": [
-        {
-          "name": "audio",
-          "type": "AUDIO",
-          "links": [3]
-        }
+        {"name": "audio", "type": "AUDIO", "links": [3], "shape": 3}
       ],
-      "properties": {
-        "Node name for S&R": "BandLimitedNoise"
-      },
-      "widgets_values": [
-        45.0,
-        3000.0,
-        12000.0,
-        44100,
-        0.8,
-        66699
-      ],
-      "title": "High Frequency Screech"
+      "title": "LAYER 3: ORGANIC BRUTALITY",
+      "properties": {"Node name for S&R": "PerlinNoise"},
+      "widgets_values": [15.0, 0.5, 8, 48000, 0.7, 420]
     },
     {
       "id": 4,
       "type": "ChaosNoiseMix",
-      "pos": [500, 200],
-      "size": [350, 400],
+      "pos": [400, 200],
+      "size": {"0": 315, "1": 386},
       "flags": {},
       "order": 3,
       "mode": 0,
       "inputs": [
-        {
-          "name": "noise_a",
-          "type": "AUDIO",
-          "link": 1
-        },
-        {
-          "name": "noise_b",
-          "type": "AUDIO",
-          "link": 2
-        },
-        {
-          "name": "noise_c",
-          "type": "AUDIO",
-          "link": 3
-        }
+        {"name": "noise_a", "type": "AUDIO", "link": 1},
+        {"name": "noise_b", "type": "AUDIO", "link": 2}
       ],
       "outputs": [
-        {
-          "name": "chaos_audio",
-          "type": "AUDIO",
-          "links": [4]
-        }
+        {"name": "chaos_audio", "type": "AUDIO", "links": [4, 5], "shape": 3}
       ],
-      "properties": {
-        "Node name for S&R": "ChaosNoiseMix"
-      },
-      "widgets_values": [
-        "chaos",
-        0.7,
-        0.6,
-        0.8,
-        6,
-        0.4,
-        177.0,
-        1.5,
-        0.3
-      ],
-      "title": "Merzbow Chaos Mix 1"
+      "title": "CHAOS MIX 1: XOR ANNIHILATION",
+      "properties": {"Node name for S&R": "ChaosNoiseMix"},
+      "widgets_values": ["xor", 0.3, 0.8, 0.9, 4, 0.6, 120.0, 1.2, 0.4]
     },
     {
       "id": 5,
-      "type": "NoiseGenerator",
-      "pos": [100, 1200],
-      "size": [300, 350],
+      "type": "AudioPreview",
+      "pos": [750, 150],
+      "size": {"0": 315, "1": 106},
       "flags": {},
       "order": 4,
       "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "audio",
-          "type": "AUDIO",
-          "links": [5]
-        }
+      "inputs": [
+        {"name": "audio", "type": "AUDIO", "link": 4}
       ],
-      "properties": {
-        "Node name for S&R": "NoiseGenerator"
-      },
-      "widgets_values": [
-        "perlin",
-        45.0,
-        44100,
-        1.0,
-        88888,
-        2,
-        "independent",
-        1.5,
-        0.3,
-        100.0,
-        8000.0,
-        6
-      ],
-      "title": "Chaotic Perlin Texture"
+      "title": "🎧 PREVIEW: FIRST CHAOS",
+      "properties": {"Node name for S&R": "AudioPreview"},
+      "widgets_values": ["XOR_Chaos_Stage1_"]
     },
     {
       "id": 6,
-      "type": "BandLimitedNoise",
-      "pos": [100, 1600],
-      "size": [300, 250],
+      "type": "ChaosNoiseMix",
+      "pos": [400, 650],
+      "size": {"0": 315, "1": 386},
       "flags": {},
       "order": 5,
       "mode": 0,
-      "inputs": [],
+      "inputs": [
+        {"name": "noise_a", "type": "AUDIO", "link": 5},
+        {"name": "noise_b", "type": "AUDIO", "link": 3}
+      ],
       "outputs": [
-        {
-          "name": "audio",
-          "type": "AUDIO",
-          "links": [6]
-        }
+        {"name": "chaos_audio", "type": "AUDIO", "links": [6, 7], "shape": 3}
       ],
-      "properties": {
-        "Node name for S&R": "BandLimitedNoise"
-      },
-      "widgets_values": [
-        45.0,
-        20.0,
-        500.0,
-        44100,
-        1.1,
-        99999
-      ],
-      "title": "Low End Brutality"
+      "title": "CHAOS MIX 2: MODULO DEVASTATION",
+      "properties": {"Node name for S&R": "ChaosNoiseMix"},
+      "widgets_values": ["modulo", 0.7, 0.9, 1.0, 2, 0.8, 80.0, 1.5, 0.6]
     },
     {
       "id": 7,
-      "type": "ChaosNoiseMix",
-      "pos": [500, 700],
-      "size": [350, 400],
+      "type": "AudioPreview",
+      "pos": [750, 600],
+      "size": {"0": 315, "1": 106},
       "flags": {},
       "order": 6,
       "mode": 0,
       "inputs": [
-        {
-          "name": "noise_a",
-          "type": "AUDIO",
-          "link": 5
-        },
-        {
-          "name": "noise_b",
-          "type": "AUDIO",
-          "link": 6
-        }
+        {"name": "audio", "type": "AUDIO", "link": 6}
       ],
-      "outputs": [
-        {
-          "name": "chaos_audio",
-          "type": "AUDIO",
-          "links": [7]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "ChaosNoiseMix"
-      },
-      "widgets_values": [
-        "xor",
-        0.4,
-        0.8,
-        0.9,
-        3,
-        0.6,
-        89.0,
-        1.3,
-        0.0
-      ],
-      "title": "Digital Harsh Mix"
+      "title": "🎧 PREVIEW: SECOND CHAOS",
+      "properties": {"Node name for S&R": "AudioPreview"},
+      "widgets_values": ["Modulo_Chaos_Stage2_"]
     },
     {
       "id": 8,
-      "type": "ChaosNoiseMix",
-      "pos": [900, 400],
-      "size": [350, 400],
+      "type": "NoiseGenerator",
+      "pos": [1100, 50],
+      "size": {"0": 315, "1": 426},
       "flags": {},
       "order": 7,
       "mode": 0,
-      "inputs": [
-        {
-          "name": "noise_a",
-          "type": "AUDIO",
-          "link": 4
-        },
-        {
-          "name": "noise_b",
-          "type": "AUDIO",
-          "link": 7
-        }
-      ],
       "outputs": [
-        {
-          "name": "chaos_audio",
-          "type": "AUDIO",
-          "links": [8]
-        }
+        {"name": "audio", "type": "AUDIO", "links": [8], "shape": 3}
       ],
-      "properties": {
-        "Node name for S&R": "ChaosNoiseMix"
-      },
-      "widgets_values": [
-        "ring_mod",
-        0.6,
-        0.9,
-        0.7,
-        4,
-        0.7,
-        333.0,
-        1.8,
-        0.0
-      ],
-      "title": "Final Chaos Master Mix"
+      "title": "LAYER 4: VIOLET ULTRASONICS",
+      "properties": {"Node name for S&R": "NoiseGenerator"},
+      "widgets_values": ["violet", 15.0, 48000, 0.6, 13, 2, "correlated", 1.5, 1.0, 100.0, 8000.0, 4]
     },
     {
       "id": 9,
-      "type": "AudioSave",
-      "pos": [1300, 300],
-      "size": [270, 120],
+      "type": "BandLimitedNoise",
+      "pos": [1100, 520],
+      "size": {"0": 315, "1": 226},
       "flags": {},
       "order": 8,
       "mode": 0,
-      "inputs": [
-        {
-          "name": "audio",
-          "type": "AUDIO",
-          "link": 8
-        }
-      ],
       "outputs": [
-        {
-          "name": "audio",
-          "type": "AUDIO",
-          "links": null
-        },
-        {
-          "name": "filepath",
-          "type": "STRING",
-          "links": null
-        }
+        {"name": "audio", "type": "AUDIO", "links": [9], "shape": 3}
       ],
-      "properties": {
-        "Node name for S&R": "AudioSave"
-      },
-      "widgets_values": [
-        "japanese_noise_merzbow_",
-        "wav"
-      ],
-      "title": "Save Japanoise Masterpiece"
+      "title": "LAYER 5: FREQUENCY TERRORISM",
+      "properties": {"Node name for S&R": "BandLimitedNoise"},
+      "widgets_values": [15.0, 50.0, 200.0, 48000, 0.9, 69]
     },
     {
       "id": 10,
-      "type": "NoiseGenerator",
-      "pos": [100, 1900],
-      "size": [300, 350],
+      "type": "ChaosNoiseMix",
+      "pos": [750, 800],
+      "size": {"0": 315, "1": 386},
       "flags": {},
       "order": 9,
       "mode": 0,
-      "inputs": [],
+      "inputs": [
+        {"name": "noise_a", "type": "AUDIO", "link": 7},
+        {"name": "noise_b", "type": "AUDIO", "link": 8},
+        {"name": "noise_c", "type": "AUDIO", "link": 9}
+      ],
       "outputs": [
-        {
-          "name": "audio",
-          "type": "AUDIO",
-          "links": [9]
-        }
+        {"name": "chaos_audio", "type": "AUDIO", "links": [10, 11], "shape": 3}
       ],
-      "properties": {
-        "Node name for S&R": "NoiseGenerator"
-      },
-      "widgets_values": [
-        "violet",
-        45.0,
-        44100,
-        0.7,
-        11111,
-        1,
-        "independent",
-        1.0,
-        1.0,
-        100.0,
-        8000.0,
-        4
-      ],
-      "title": "Violet Noise Spike"
+      "title": "CHAOS MIX 3: TRIPLE CHAOS MODE",
+      "properties": {"Node name for S&R": "ChaosNoiseMix"},
+      "widgets_values": ["chaos", 0.4, 1.0, 1.0, 1, 0.7, 200.0, 2.0, 0.8]
     },
     {
       "id": 11,
-      "type": "ChaosNoiseMix",
-      "pos": [500, 1200],
-      "size": [350, 400],
+      "type": "AudioPreview",
+      "pos": [1100, 800],
+      "size": {"0": 315, "1": 106},
       "flags": {},
       "order": 10,
       "mode": 0,
       "inputs": [
-        {
-          "name": "noise_a",
-          "type": "AUDIO",
-          "link": 9
-        },
-        {
-          "name": "noise_b",
-          "type": "AUDIO",
-          "link": 4
-        }
+        {"name": "audio", "type": "AUDIO", "link": 10}
       ],
-      "outputs": [
-        {
-          "name": "chaos_audio",
-          "type": "AUDIO",
-          "links": [10]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "ChaosNoiseMix"
-      },
-      "widgets_values": [
-        "modulo",
-        0.8,
-        1.0,
-        0.6,
-        2,
-        0.5,
-        666.0,
-        1.2,
-        0.0
-      ],
-      "title": "Modulo Madness"
+      "title": "🎧 PREVIEW: TRIPLE CHAOS",
+      "properties": {"Node name for S&R": "AudioPreview"},
+      "widgets_values": ["Triple_Chaos_Stage3_"]
     },
     {
       "id": 12,
-      "type": "AudioSave",
-      "pos": [1300, 500],
-      "size": [270, 120],
+      "type": "ChaosNoiseMix",
+      "pos": [1450, 400],
+      "size": {"0": 315, "1": 386},
       "flags": {},
       "order": 11,
       "mode": 0,
       "inputs": [
-        {
-          "name": "audio",
-          "type": "AUDIO",
-          "link": 10
-        }
+        {"name": "noise_a", "type": "AUDIO", "link": 11},
+        {"name": "noise_b", "type": "AUDIO", "link": 11}
       ],
       "outputs": [
-        {
-          "name": "audio",
-          "type": "AUDIO",
-          "links": null
-        },
-        {
-          "name": "filepath",
-          "type": "STRING",
-          "links": null
-        }
+        {"name": "chaos_audio", "type": "AUDIO", "links": [12, 13], "shape": 3}
       ],
-      "properties": {
-        "Node name for S&R": "AudioSave"
-      },
-      "widgets_values": [
-        "modulo_madness_",
-        "wav"
+      "title": "CHAOS MIX 4: SELF-FEEDBACK HELL",
+      "properties": {"Node name for S&R": "ChaosNoiseMix"},
+      "widgets_values": ["ring_mod", 0.8, 0.7, 0.8, 3, 0.8, 440.0, 1.8, 1.0]
+    },
+    {
+      "id": 13,
+      "type": "AudioPreview",
+      "pos": [1800, 350],
+      "size": {"0": 315, "1": 106},
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {"name": "audio", "type": "AUDIO", "link": 12}
       ],
-      "title": "Save Modulo Layer"
+      "title": "🎧 PREVIEW: FINAL DESTRUCTION",
+      "properties": {"Node name for S&R": "AudioPreview"},
+      "widgets_values": ["Final_Destruction_"]
+    },
+    {
+      "id": 14,
+      "type": "AudioSave",
+      "pos": [1800, 500],
+      "size": {"0": 315, "1": 126},
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {"name": "audio", "type": "AUDIO", "link": 13}
+      ],
+      "outputs": [
+        {"name": "audio", "type": "AUDIO", "links": [14], "shape": 3},
+        {"name": "filepath", "type": "STRING", "links": null, "shape": 3}
+      ],
+      "title": "💾 EXPORT: MERZBOW TRIBUTE",
+      "properties": {"Node name for S&R": "AudioSave"},
+      "widgets_values": ["JAPANESE_NOISE_MERZBOW_TRIBUTE_", "wav"]
+    },
+    {
+      "id": 15,
+      "type": "AudioPreview",
+      "pos": [1800, 650],
+      "size": {"0": 315, "1": 106},
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {"name": "audio", "type": "AUDIO", "link": 14}
+      ],
+      "title": "🎧 FINAL PLAYBACK CHECK",
+      "properties": {"Node name for S&R": "AudioPreview"},
+      "widgets_values": ["Final_Export_Check_"]
     }
   ],
   "links": [
     [1, 1, 0, 4, 0, "AUDIO"],
     [2, 2, 0, 4, 1, "AUDIO"],
-    [3, 3, 0, 4, 2, "AUDIO"],
-    [4, 4, 0, 8, 0, "AUDIO"],
-    [5, 5, 0, 7, 0, "AUDIO"],
-    [6, 6, 0, 7, 1, "AUDIO"],
-    [7, 7, 0, 8, 1, "AUDIO"],
-    [8, 8, 0, 9, 0, "AUDIO"],
-    [9, 10, 0, 11, 0, "AUDIO"],
-    [10, 11, 0, 12, 0, "AUDIO"]
+    [3, 3, 0, 6, 1, "AUDIO"],
+    [4, 4, 0, 5, 0, "AUDIO"],
+    [5, 4, 0, 6, 0, "AUDIO"],
+    [6, 6, 0, 7, 0, "AUDIO"],
+    [7, 6, 0, 10, 0, "AUDIO"],
+    [8, 8, 0, 10, 1, "AUDIO"],
+    [9, 9, 0, 10, 2, "AUDIO"],
+    [10, 10, 0, 11, 0, "AUDIO"],
+    [11, 10, 0, 12, 0, "AUDIO"],
+    [12, 12, 0, 13, 0, "AUDIO"],
+    [13, 12, 0, 14, 0, "AUDIO"],
+    [14, 14, 0, 15, 0, "AUDIO"]
   ],
   "groups": [
     {
-                      "title": "💀 JAPANESE NOISE / MERZBOW STYLE WORKFLOW 💀",
-      "bounding": [50, 50, 1550, 2000],
-      "color": "#FF4444",
-      "font_size": 24
-    },
-    {
-      "title": "Primary Noise Sources",
-      "bounding": [80, 80, 350, 1100],
+      "title": "SOURCE MATERIALS",
+      "bounding": [30, 10, 360, 1280],
       "color": "#8A2BE2",
-      "font_size": 16
+      "locked": false
     },
     {
-      "title": "Chaos Mixing Stage",
-      "bounding": [480, 180, 390, 1050],
-      "color": "#FF6666",
-      "font_size": 16
+      "title": "CHAOS PROCESSING CHAIN",
+      "bounding": [380, 160, 700, 880],
+      "color": "#FF4500",
+      "locked": false
     },
     {
-      "title": "Master Processing",
-      "bounding": [880, 380, 720, 250],
-      "color": "#FF0000",
-      "font_size": 16
+      "title": "ADDITIONAL SOURCES",
+      "bounding": [1080, 10, 360, 780],
+      "color": "#DC143C",
+      "locked": false
+    },
+    {
+      "title": "FINAL DESTRUCTION",
+      "bounding": [1430, 360, 720, 420],
+      "color": "#8B0000",
+      "locked": false
     }
   ],
   "config": {},
   "extra": {},
-  "version": 0.4
+  "version": 0.4,
+  "title": "JAPANESE NOISE / MERZBOW STYLE WORKFLOW - EXTREME EDITION",
+  "description": "🔥 ABSOLUTE AUDIO DEVASTATION - MERZBOW TRIBUTE 🔥\n\nThis workflow creates the most INSANE Japanese harsh noise possible:\n\n📡 5 DIFFERENT NOISE SOURCES:\n- White noise (max chaos, wide stereo)\n- Brown noise (decorrelated destruction) \n- Perlin noise (organic brutality, 8 octaves)\n- Violet noise (ultrasonic warfare)\n- Band-limited noise (frequency terrorism, 50-200Hz)\n\n⚡ 4-STAGE CHAOS PROCESSING CHAIN:\n- Stage 1: XOR mixing (digital harsh)\n- Stage 2: Modulo chaos (unpredictable wrapping)\n- Stage 3: Triple chaos mode (total devastation)\n- Stage 4: Ring modulation self-feedback (infinite chaos)\n\n🎧 INSTANT PREVIEW AT EVERY STAGE:\n- Listen to each chaos stage individually\n- Real-time feedback for maximum destruction\n- Preview before and after export\n\n⚙️ EXTREME PARAMETERS:\n- Bit crushing: 1-4 bits (maximum digital degradation)\n- Chaos amounts: 0.8-1.0 (total unpredictability)\n- Distortion: 0.7-1.0 (complete saturation)\n- Feedback: 0.6-0.8 (on the edge of stability)\n- Amplitude: Up to 2.0 (beyond normal limits)\n\n🎯 PERFECT FOR:\n- Merzbow-style power electronics\n- Harsh noise walls (HNW)\n- Industrial music production\n- Audio equipment stress testing\n- Clearing unwanted visitors\n\n⚠️ WARNING: This workflow produces EXTREMELY LOUD and HARSH audio!\nStart with low volume and protect your hearing!\n\nGenerate 15 seconds of pure Japanese noise chaos! 🇯🇵"
 } 

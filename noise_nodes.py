@@ -14,13 +14,13 @@ class NoiseGeneratorNode:
     Universal Noise Generator - All noise types in one node
     
     NOISE TYPES EXPLAINED:
-    • WHITE   → Pure static chaos (flat frequency spectrum) - Audio testing, masking
-    • PINK    → Natural balance (1/f slope) - Relaxation, natural ambience  
-    • BROWN   → Deep rumble (1/f² slope) - Deep relaxation, bass-heavy textures
-    • BLUE    → Bright/harsh (+3dB/octave) - High-freq testing, cutting textures
-    • VIOLET  → Ultra-bright (+6dB/octave) - Extreme high-freq, digital artifacts
-    • PERLIN  → Organic textures (natural variations) - Wind, water, organic sounds
-    • BANDLIMITED → Frequency filtered (targeted ranges) - Precise freq testing
+    - WHITE   - Pure static chaos (flat frequency spectrum) - Audio testing, masking
+    - PINK    - Natural balance (1/f slope) - Relaxation, natural ambience  
+    - BROWN   - Deep rumble (1/f² slope) - Deep relaxation, bass-heavy textures
+    - BLUE    - Bright/harsh (+3dB/octave) - High-freq testing, cutting textures
+    - VIOLET  - Ultra-bright (+6dB/octave) - Extreme high-freq, digital artifacts
+    - PERLIN  - Organic textures (natural variations) - Wind, water, organic sounds
+    - BANDLIMITED - Frequency filtered (targeted ranges) - Precise freq testing
     
     Perfect for: Experimental music, audio testing, relaxation, sound design
     """
@@ -41,7 +41,7 @@ class NoiseGeneratorNode:
             "required": {
                 "noise_type": (cls.NOISE_TYPES, {
                     "default": "white",
-                    "tooltip": "WHITE=static • PINK=natural • BROWN=deep • BLUE=bright • VIOLET=harsh • PERLIN=organic • BANDLIMITED=filtered"
+                    "tooltip": "WHITE=static | PINK=natural | BROWN=deep | BLUE=bright | VIOLET=harsh | PERLIN=organic | BANDLIMITED=filtered"
                 }),
                 "duration": ("FLOAT", {
                     "default": 5.0, "min": 0.1, "max": 300.0, "step": 0.1,
@@ -65,7 +65,7 @@ class NoiseGeneratorNode:
                 }),
                 "stereo_mode": (["independent", "correlated", "decorrelated"], {
                     "default": "independent",
-                    "tooltip": "INDEPENDENT=different L/R • CORRELATED=same L/R • DECORRELATED=opposite L/R"
+                    "tooltip": "INDEPENDENT=different L/R | CORRELATED=same L/R | DECORRELATED=opposite L/R"
                 }),
                 "stereo_width": ("FLOAT", {
                     "default": 1.0, "min": 0.0, "max": 2.0, "step": 0.1,
@@ -328,16 +328,16 @@ class ChaosNoiseMixNode:
     Chaos Noise Mix - Extreme processing for harsh noise / Merzbow-style chaos
     
     MIX MODES EXPLAINED:
-    • ADD       → Standard mixing (gentle)
-    • MULTIPLY  → Ring modulation style (metallic)  
-    • XOR       → Digital harsh mixing (glitchy)
-    • MODULO    → Chaotic wrapping (unpredictable)
-    • SUBTRACT  → Phase cancellation (hollow)
-    • MAX/MIN   → Peak/trough selection (dynamic)
-    • RING_MOD  → Classic ring modulation (carrier frequency)
-    • AM_MOD    → Amplitude modulation (tremolo-like)
-    • FM_MOD    → Frequency modulation style (complex harmonics)
-    • CHAOS     → Extreme non-linear mixing (total devastation)
+    - ADD       - Standard mixing (gentle)
+    - MULTIPLY  - Ring modulation style (metallic)  
+    - XOR       - Digital harsh mixing (glitchy)
+    - MODULO    - Chaotic wrapping (unpredictable)
+    - SUBTRACT  - Phase cancellation (hollow)
+    - MAX/MIN   - Peak/trough selection (dynamic)
+    - RING_MOD  - Classic ring modulation (carrier frequency)
+    - AM_MOD    - Amplitude modulation (tremolo-like)
+    - FM_MOD    - Frequency modulation style (complex harmonics)
+    - CHAOS     - Extreme non-linear mixing (total devastation)
     
     Perfect for: Japanese noise, power electronics, experimental music, harsh textures
     """
@@ -380,7 +380,7 @@ class ChaosNoiseMixNode:
     RETURN_TYPES = ("AUDIO",)
     RETURN_NAMES = ("chaos_audio",)
     FUNCTION = "mix_chaos"
-    CATEGORY = "NoiseGen/Advanced"
+    CATEGORY = "NoiseGen"
     
     def mix_chaos(self, noise_a, noise_b, mix_mode, mix_ratio, chaos_amount, 
                   distortion, bit_crush, feedback, ring_freq, amplitude,
@@ -647,8 +647,8 @@ class AudioSaveNode:
             # Save using torchaudio
             torchaudio.save(filepath, waveform, sample_rate)
             
-                          print(f"Audio saved to: {filepath}")
-              print(f"Output location: ComfyUI/output/audio/{filename}")
+            print(f"Audio saved to: {filepath}")
+            print(f"Output location: ComfyUI/output/audio/{filename}")
             return (audio, filepath)
             
         except Exception as e:
@@ -723,6 +723,71 @@ class VioletNoiseNode:
             audio_output = numpy_to_comfy_audio(silence, sample_rate)
             return (audio_output,)
 
+class AudioPreviewNode:
+    """Preview generated audio directly in ComfyUI interface."""
+    
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "audio": ("AUDIO",),
+                "filename_prefix": ("STRING", {"default": "NoiseGen_Preview_"}),
+            }
+        }
+    
+    RETURN_TYPES = ()
+    RETURN_NAMES = ()
+    FUNCTION = "preview_audio"
+    CATEGORY = "NoiseGen/Utils"
+    OUTPUT_NODE = True  # This makes it a preview/output node
+    
+    def preview_audio(self, audio, filename_prefix="NoiseGen_Preview_"):
+        """Preview audio in ComfyUI interface with temporary file."""
+        try:
+            import tempfile
+            import time
+            import folder_paths
+            
+            # Extract audio data
+            waveform = audio["waveform"]
+            sample_rate = audio["sample_rate"]
+            
+            # Convert to CPU if on GPU
+            if hasattr(waveform, 'cpu'):
+                waveform = waveform.cpu()
+            
+            # Ensure waveform is 2D for torchaudio.save [channels, samples]
+            if waveform.ndim == 1:
+                waveform = waveform.unsqueeze(0)  # [samples] -> [1, samples]
+            elif waveform.ndim > 2:
+                waveform = waveform.view(waveform.size(0), -1)
+            
+            # Ensure proper data type
+            waveform = waveform.float()
+            
+            # Create temporary preview file in ComfyUI's temp directory
+            temp_dir = folder_paths.get_temp_directory()
+            timestamp = str(int(time.time()))
+            temp_filename = f"{filename_prefix}{timestamp}.wav"
+            temp_filepath = os.path.join(temp_dir, temp_filename)
+            
+            # Save to temporary file for preview
+            torchaudio.save(temp_filepath, waveform, sample_rate)
+            
+            print(f"Audio preview ready: {temp_filename}")
+            print(f"Duration: {waveform.shape[-1] / sample_rate:.2f}s")
+            print(f"Sample Rate: {sample_rate}Hz")
+            print(f"Channels: {waveform.shape[0]}")
+            
+            # Return the temporary filepath for ComfyUI to handle preview
+            return {"ui": {"audio": [temp_filepath]}}
+            
+        except Exception as e:
+            print(f"Error creating audio preview: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            return {"ui": {"audio": []}}
+
 # Node mappings for ComfyUI - OPTIMIZED UX
 NODE_CLASS_MAPPINGS = {
     # MAIN NODES - Clean and focused
@@ -731,6 +796,7 @@ NODE_CLASS_MAPPINGS = {
     "BandLimitedNoise": BandLimitedNoiseNode,   # Unique parameters (freq filtering)
     "ChaosNoiseMix": ChaosNoiseMixNode,         # Advanced mixing
     "AudioSave": AudioSaveNode,                 # Utility
+    "AudioPreview": AudioPreviewNode,           # Preview playback
     
     # LEGACY NODES - Hidden from main menu, kept for compatibility
     # Users can still access these if needed, but they're not promoted
@@ -748,6 +814,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "BandLimitedNoise": "Band-Limited Noise", 
     "ChaosNoiseMix": "Chaos Noise Mix",
     "AudioSave": "Save Audio",
+    "AudioPreview": "Preview Audio",
     
     # LEGACY - Hidden with underscore prefix
     "_WhiteNoise": "White Noise (Legacy)",

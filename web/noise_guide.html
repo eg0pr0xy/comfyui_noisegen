@@ -2,72 +2,74 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>💀 NOISEGEN 💀 - Complete Guide</title>
+    <title>NOISEGEN - Complete Guide</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
-            color: #e0e0e0;
+            color: #fff;
             margin: 0;
             padding: 20px;
-            line-height: 1.6;
+            min-height: 100vh;
         }
+
         .container {
-            max-width: 900px;
+            max-width: 1200px;
             margin: 0 auto;
             background: rgba(30, 30, 30, 0.9);
             padding: 30px;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
+
         h1 {
-            color: #ff6b6b;
             text-align: center;
             font-size: 2.5em;
-            margin-bottom: 30px;
+            color: #ff6b6b;
             text-shadow: 0 0 20px rgba(255, 107, 107, 0.3);
+            margin-bottom: 10px;
         }
+
         h2 {
-            color: #4ecdc4;
             border-bottom: 2px solid #4ecdc4;
-            padding-bottom: 5px;
-            margin-top: 30px;
+            padding-bottom: 10px;
+            color: #4ecdc4;
         }
-        h3 {
-            color: #ffa726;
-            margin-top: 25px;
-        }
+
         .noise-type {
             background: #333;
-            margin: 20px 0;
             padding: 20px;
+            margin: 15px 0;
             border-radius: 10px;
             border-left: 5px solid #4ecdc4;
         }
-        .frequency-chart {
+
+        .code-block {
             font-family: 'Courier New', monospace;
             background: #1e1e1e;
             padding: 15px;
             border-radius: 5px;
-            color: #4ecdc4;
-            margin: 10px 0;
-        }
-        .parameter-table {
-            width: 100%;
-            border-collapse: collapse;
+            overflow-x: auto;
             margin: 15px 0;
         }
-        .parameter-table th,
-        .parameter-table td {
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
             border: 1px solid #555;
-            padding: 8px;
+            padding: 12px;
             text-align: left;
         }
-        .parameter-table th {
+
+        th {
             background: #444;
-            color: #4ecdc4;
         }
+
         .back-link {
             background: #ff6b6b;
             color: white;
@@ -75,19 +77,21 @@
             text-decoration: none;
             border-radius: 5px;
             display: inline-block;
-            margin-bottom: 20px;
+            margin: 10px 0;
         }
+
         .back-link:hover {
             background: #ff5252;
         }
-        .example-code {
+
+        .warning {
             background: #1e1e1e;
             padding: 15px;
             border-radius: 5px;
             font-family: 'Courier New', monospace;
-            color: #4ecdc4;
-            overflow-x: auto;
+            border-left: 4px solid #ffa726;
         }
+
         .use-case {
             background: #2a2a4a;
             padding: 15px;
@@ -99,9 +103,9 @@
 </head>
 <body>
     <div class="container">
-        <a href="index.html" class="back-link">← Back to NoiseGen</a>
+        <a href="index.html" class="back-link">Back to NoiseGen</a>
         
-        <h1>💀 NOISEGEN 💀 - Complete Guide</h1>
+        <h1>NOISEGEN - Complete Guide</h1>
         
         <p style="text-align: center; font-style: italic; color: #888; margin-bottom: 30px;">
             "Noise is the most impolite music." - Merzbow
@@ -112,7 +116,7 @@
         <div class="noise-type">
             <h3>White Noise</h3>
             <p><strong>Frequency Response:</strong> Flat across all frequencies</p>
-            <div class="frequency-chart">
+            <div class="code-block">
 Frequency Response: ████████████████████████
 20Hz    100Hz   1kHz    10kHz   20kHz
 Equal energy per frequency bin
@@ -132,7 +136,7 @@ Equal energy per frequency bin
         <div class="noise-type">
             <h3>Pink Noise (1/f)</h3>
             <p><strong>Frequency Response:</strong> -3dB per octave (equal energy per octave)</p>
-            <div class="frequency-chart">
+            <div class="code-block">
 Frequency Response: ████████████████▓▓▓▓░░░░
 20Hz    100Hz   1kHz    10kHz   20kHz
 Natural balance - equal energy per octave
@@ -152,7 +156,7 @@ Natural balance - equal energy per octave
         <div class="noise-type">
             <h3>Brown Noise (1/f²)</h3>
             <p><strong>Frequency Response:</strong> -6dB per octave (Brownian motion)</p>
-            <div class="frequency-chart">
+            <div class="code-block">
 Frequency Response: ████████████▓▓▓▓░░░░░░░░
 20Hz    100Hz   1kHz    10kHz   20kHz
 Deep bass emphasis - like ocean waves
@@ -174,7 +178,7 @@ Deep bass emphasis - like ocean waves
         <div class="noise-type">
             <h3>Perlin Noise</h3>
             <p><strong>Frequency Response:</strong> Organic, natural variations with controllable octaves</p>
-            <div class="frequency-chart">
+            <div class="code-block">
 Frequency Response: Organic/smooth variations
 Parameters: frequency (base rate), octaves (complexity)
 Creates natural-sounding textures
@@ -194,7 +198,7 @@ Creates natural-sounding textures
         <div class="noise-type">
             <h3>Band-Limited Noise</h3>
             <p><strong>Frequency Response:</strong> Precisely filtered to specific frequency ranges</p>
-            <div class="frequency-chart">
+            <div class="code-block">
 Frequency Response: ░░░░████████████░░░░░░░░
 20Hz    [low_freq]  [high_freq]   20kHz
 Only frequencies between low_freq and high_freq
@@ -216,7 +220,7 @@ Only frequencies between low_freq and high_freq
         <p>The most extreme processing node for harsh noise and Merzbow-style chaos generation.</p>
 
         <h3>Mixing Modes</h3>
-        <table class="parameter-table">
+        <table>
             <tr>
                 <th>Mode</th>
                 <th>Description</th>
@@ -275,7 +279,7 @@ Only frequencies between low_freq and high_freq
         </table>
 
         <h3>Processing Parameters</h3>
-        <table class="parameter-table">
+        <table>
             <tr>
                 <th>Parameter</th>
                 <th>Range</th>
@@ -314,9 +318,9 @@ Only frequencies between low_freq and high_freq
             <h3>Multi-Layer Chaos Chain</h3>
             <p>Connect multiple ChaosNoiseMix nodes in series:</p>
             <ol>
-                <li><strong>Layer 1:</strong> White + Brown noise → chaos mode, high distortion</li>
-                <li><strong>Layer 2:</strong> Result → xor mode, maximum bit crush</li>
-                <li><strong>Layer 3:</strong> Result → modulo mode, high feedback</li>
+                <li><strong>Layer 1:</strong> White + Brown noise - chaos mode, high distortion</li>
+                <li><strong>Layer 2:</strong> Result - xor mode, maximum bit crush</li>
+                <li><strong>Layer 3:</strong> Result - modulo mode, high feedback</li>
                 <li><strong>Final:</strong> Multiple parallel chains mixed together</li>
             </ol>
         </div>
@@ -358,7 +362,7 @@ Only frequencies between low_freq and high_freq
         </ul>
 
         <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 2px solid #333;">
-            <a href="index.html" class="back-link">← Back to NoiseGen</a>
+            <a href="index.html" class="back-link">Back to NoiseGen</a>
             <p style="color: #888; margin-top: 20px;">
                 <em>Generate chaos. Destroy silence. Create music.</em>
             </p>
