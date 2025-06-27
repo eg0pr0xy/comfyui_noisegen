@@ -13,7 +13,7 @@
         └─┘└─┘┴ ┴└   ┴ └─┘┴   ┘└┘└─┘┴└─┘└─┘  ┴  ┴ ┴└─┘┴ ┴
 
   ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
-  ██ UNDERGROUND NOISE GENERATION FOR THE DIGITAL UNDERGROUND ██
+  ██                   NOISE GENERATION                 ██
   ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
 
 ┌─ NOISE ARSENAL ──────────────────────────────────────────────────────┐
@@ -70,7 +70,7 @@
 │ └─                                                                   │
 └──────────────────────────────────────────────────────────────────────┘
 
-┌─ UNDERGROUND APPLICATIONS ───────────────────────────────────────────┐
+┌─ NOISE MUSIK APPLICATIONS ──────────────────────────────────────────┐
 │                                                                      │
 │ ◉ HARSH NOISE WALLS        :: white|brown + chaos mixing            │
 │ ◉ JAPANESE NOISE           :: merzbow-style chaos chains             │
@@ -83,7 +83,7 @@
 │                                                                      │
 └──────────────────────────────────────────────────────────────────────┘
 
-┌─ NODE NETWORK TOPOLOGY ──────────────────────────────────────────────┐
+┌─ NODE NETWORK TOPOLOGY──────────────────────────────────────────────┐
 │                                                                      │
 │ /NoiseGen/                                                           │
 │ ├── 🎵 Universal Generator    [all-in-one noise synthesis]           │
@@ -98,11 +98,11 @@
 │ │   ├── 🎵 Band-Limited      [frequency-targeted warfare]           │
 │ │   └── 🎵 ChaosNoiseMix     [merzbow-style devastation]            │
 │ └── /Utils/                                                          │
-│     └── 🎵 Audio Save        [export to underground]                │
+│     └── 🎵 Audio Save        [export audio files]                  │
 │                                                                      │
 └──────────────────────────────────────────────────────────────────────┘
 
-┌─ TECHNICAL UNDERGROUND ──────────────────────────────────────────────┐
+┌─ TECHNICAL SPECIFICATIONS ───────────────────────────────────────────┐
 │                                                                      │
 │ ∎ AUDIO FORMAT    :: ComfyUI native (32-bit float)                  │
 │ ∎ ALGORITHMS      :: professional-grade DSP                         │
@@ -145,11 +145,11 @@
 │ ├── test_nodes.py            ∎ validation suite                      │
 │ ├── CHANGELOG.md             ∎ version history                       │
 │ ├── LICENSE                  ∎ MIT freedom                           │
-│ └── README.md                ∎ this underground manual               │
+│ └── README.md                ∎ this manual                         │
 │                                                                      │
 └──────────────────────────────────────────────────────────────────────┘
 
-┌─ UNDERGROUND CONTACT ────────────────────────────────────────────────┐
+┌─ CONTACT ─────────────────────────────────────────────────────────────┐
 │                                                                      │
 │ REPOSITORY :: https://github.com/eg0pr0xy/noisegen.git              │
 │ LICENSE    :: MIT (freedom to modify and redistribute)              │
@@ -157,11 +157,11 @@
 │                                                                      │
 │ ∎ CONTRIBUTE :: help expand the noise arsenal                       │
 │ ∎ REPORT BUGS :: ensure stability in chaos                          │
-│ ∎ SHARE WORKFLOWS :: spread the underground knowledge               │
+│ ∎ SHARE WORKFLOWS :: spread the knowledge                           │
 │                                                                      │
 └──────────────────────────────────────────────────────────────────────┘
 
   ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
   ██ "NOISE IS THE MOST IMPOLITE MUSIC" - MERZBOW           ██
-  ██ GENERATE CHAOS. DESTROY SILENCE. CREATE UNDERGROUND.   ██
+  ██ GENERATE CHAOS. DESTROY SILENCE. CREATE MUSIC.         ██
   ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
