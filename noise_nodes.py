@@ -285,7 +285,7 @@ class ChaosNoiseMixNode:
     RETURN_TYPES = ("AUDIO",)
     RETURN_NAMES = ("chaos_audio",)
     FUNCTION = "mix_chaos"
-    CATEGORY = "🎵 NoiseGen/Chaos"
+    CATEGORY = "🎵 NoiseGen/Advanced"
     
     def mix_chaos(self, noise_a, noise_b, mix_mode, mix_ratio, chaos_amount, 
                   distortion, bit_crush, feedback, ring_freq, amplitude,
@@ -562,12 +562,80 @@ class AudioSaveNode:
             traceback.print_exc()
             return (audio, "Error: Could not save audio")
 
+class BlueNoiseNode:
+    """Dedicated blue noise generator."""
+    
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "duration": ("FLOAT", {"default": 5.0, "min": 0.1, "max": 300.0, "step": 0.1}),
+                "sample_rate": ([8000, 16000, 22050, 44100, 48000, 96000], {"default": 44100}),
+                "amplitude": ("FLOAT", {"default": 0.8, "min": 0.0, "max": 2.0, "step": 0.01}),
+                "seed": ("INT", {"default": 0, "min": 0, "max": 2147483647}),
+            }
+        }
+    
+    RETURN_TYPES = ("AUDIO",)
+    RETURN_NAMES = ("audio",)
+    FUNCTION = "generate"
+    CATEGORY = "🎵 NoiseGen/Advanced"
+    
+    def generate(self, duration, sample_rate, amplitude, seed):
+        """Generate blue noise."""
+        duration, sample_rate, amplitude = validate_audio_params(duration, sample_rate, amplitude)
+        
+        try:
+            audio_array = generate_blue_noise(duration, sample_rate, amplitude, seed)
+            audio_output = numpy_to_comfy_audio(audio_array, sample_rate)
+            return (audio_output,)
+        except Exception as e:
+            print(f"Error generating blue noise: {str(e)}")
+            silence = np.zeros(int(duration * sample_rate), dtype=np.float32)
+            audio_output = numpy_to_comfy_audio(silence, sample_rate)
+            return (audio_output,)
+
+class VioletNoiseNode:
+    """Dedicated violet noise generator."""
+    
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "duration": ("FLOAT", {"default": 5.0, "min": 0.1, "max": 300.0, "step": 0.1}),
+                "sample_rate": ([8000, 16000, 22050, 44100, 48000, 96000], {"default": 44100}),
+                "amplitude": ("FLOAT", {"default": 0.8, "min": 0.0, "max": 2.0, "step": 0.01}),
+                "seed": ("INT", {"default": 0, "min": 0, "max": 2147483647}),
+            }
+        }
+    
+    RETURN_TYPES = ("AUDIO",)
+    RETURN_NAMES = ("audio",)
+    FUNCTION = "generate"
+    CATEGORY = "🎵 NoiseGen/Advanced"
+    
+    def generate(self, duration, sample_rate, amplitude, seed):
+        """Generate violet noise."""
+        duration, sample_rate, amplitude = validate_audio_params(duration, sample_rate, amplitude)
+        
+        try:
+            audio_array = generate_violet_noise(duration, sample_rate, amplitude, seed)
+            audio_output = numpy_to_comfy_audio(audio_array, sample_rate)
+            return (audio_output,)
+        except Exception as e:
+            print(f"Error generating violet noise: {str(e)}")
+            silence = np.zeros(int(duration * sample_rate), dtype=np.float32)
+            audio_output = numpy_to_comfy_audio(silence, sample_rate)
+            return (audio_output,)
+
 # Node mappings for ComfyUI
 NODE_CLASS_MAPPINGS = {
     "NoiseGenerator": NoiseGeneratorNode,
     "WhiteNoise": WhiteNoiseNode,
     "PinkNoise": PinkNoiseNode,
     "BrownNoise": BrownNoiseNode,
+    "BlueNoise": BlueNoiseNode,
+    "VioletNoise": VioletNoiseNode,
     "PerlinNoise": PerlinNoiseNode,
     "BandLimitedNoise": BandLimitedNoiseNode,
     "ChaosNoiseMix": ChaosNoiseMixNode,
@@ -579,6 +647,8 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "WhiteNoise": "🎵 White Noise",
     "PinkNoise": "🎵 Pink Noise",
     "BrownNoise": "🎵 Brown Noise",
+    "BlueNoise": "🎵 Blue Noise",
+    "VioletNoise": "🎵 Violet Noise",
     "PerlinNoise": "🎵 Perlin Noise",
     "BandLimitedNoise": "🎵 Band-Limited Noise",
     "ChaosNoiseMix": "🔥 Chaos Noise Mix (Merzbow Style)",
