@@ -315,17 +315,18 @@ def generate_bandlimited_noise(duration: float, low_freq: float, high_freq: floa
     return filtered.astype(np.float32)
 
 def numpy_to_comfy_audio(audio_array: np.ndarray, sample_rate: int) -> dict:
-    """Convert numpy array to ComfyUI audio format.
+    """Convert numpy array to ComfyUI audio format with enhanced compatibility.
     
     This follows the standard ComfyUI audio format which should be compatible
-    with most audio nodes including ComfyUI-audio and VideoHelperSuite.
+    with most audio nodes including ComfyUI-audio, VideoHelperSuite, and other
+    audio processing extensions.
     
     Args:
         audio_array: Shape (channels, samples) or (samples,) for mono
         sample_rate: Sample rate in Hz
     
     Returns:
-        dict: {"waveform": tensor, "sample_rate": int}
+        dict: {"waveform": tensor, "sample_rate": int, "_type": "AUDIO"}
     """
     # Ensure audio is 2D (channels, samples)
     if audio_array.ndim == 1:
@@ -343,17 +344,27 @@ def numpy_to_comfy_audio(audio_array: np.ndarray, sample_rate: int) -> dict:
     if max_val > 1.2:
         waveform = waveform / max_val
     
-    # CRITICAL: Ensure tensor is ALWAYS 2D for torchaudio.save compatibility
+    # CRITICAL: Ensure tensor is ALWAYS 2D for maximum compatibility
     if waveform.ndim == 1:
         waveform = waveform.unsqueeze(0)  # Add channel dimension: [samples] -> [1, samples]
     elif waveform.ndim > 2:
         # If somehow we get >2D, flatten to 2D
         waveform = waveform.view(waveform.size(0), -1)
     
-    return {
+    # Enhanced audio format for better ComfyUI integration
+    audio_data = {
         "waveform": waveform,
-        "sample_rate": sample_rate
+        "sample_rate": sample_rate,
+        "_type": "AUDIO",  # Explicit type for ComfyUI recognition
+        "_format_version": "1.0",  # Version tracking for compatibility
+        "_channels": waveform.shape[0],
+        "_samples": waveform.shape[1],
+        "_duration": float(waveform.shape[1] / sample_rate),
+        "_bit_depth": 32,  # Float32 format
+        "_generated_by": "NoiseGen"
     }
+    
+    return audio_data
 
 def validate_audio_params(duration: float, sample_rate: int, amplitude: float, 
                          channels: int = 1) -> Tuple[float, int, float, int]:

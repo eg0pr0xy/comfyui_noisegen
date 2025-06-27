@@ -1,0 +1,45 @@
+{
+  "last_node_id": 2,
+  "last_link_id": 1,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "NoiseGenerator",
+      "pos": [100, 100],
+      "size": {"0": 315, "1": 426},
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "outputs": [
+        {"name": "audio", "type": "AUDIO", "links": [1], "shape": 3}
+      ],
+      "title": "Simple White Noise Test",
+      "properties": {"Node name for S&R": "NoiseGenerator"},
+      "widgets_values": ["white", 3.0, 44100, 0.5, 42, 1, "independent", 1.0, 1.0, 100.0, 8000.0, 4]
+    },
+    {
+      "id": 2,
+      "type": "AudioPreview",
+      "pos": [500, 100],
+      "size": {"0": 315, "1": 106},
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {"name": "audio", "type": "AUDIO", "link": 1}
+      ],
+      "title": "🎧 Listen Now!",
+      "properties": {"Node name for S&R": "AudioPreview"},
+      "widgets_values": ["Simple_Test_"]
+    }
+  ],
+  "links": [
+    [1, 1, 0, 2, 0, "AUDIO"]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {},
+  "version": 0.4,
+  "title": "SIMPLE TEST - White Noise + Preview",
+  "description": "Basic test workflow to verify AudioPreview functionality:\n- Generate 3 seconds of white noise\n- Preview immediately in ComfyUI\n- Mono output for simplicity\n\nPerfect for testing the new preview feature!"
+} 

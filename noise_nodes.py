@@ -9,20 +9,29 @@ try:
 except ImportError:
     from audio_utils import *
 
+# Import ComfyUI dependencies
+try:
+    import folder_paths
+    import comfy.model_management
+except ImportError:
+    print("Warning: ComfyUI dependencies not found. Some features may not work.")
+    folder_paths = None
+
+# ComfyUI Audio Type Definition - This helps with node suggestions
+AUDIO_TYPE = "AUDIO"
+AUDIO_EXTENSIONS = ["wav", "mp3", "flac", "ogg", "aiff", "au"]
+
 class NoiseGeneratorNode:
-    """
-    Universal Noise Generator - All noise types in one node
+    """Universal noise generator for all noise types with stereo support.
     
-    NOISE TYPES EXPLAINED:
-    - WHITE   - Pure static chaos (flat frequency spectrum) - Audio testing, masking
-    - PINK    - Natural balance (1/f slope) - Relaxation, natural ambience  
-    - BROWN   - Deep rumble (1/f² slope) - Deep relaxation, bass-heavy textures
-    - BLUE    - Bright/harsh (+3dB/octave) - High-freq testing, cutting textures
-    - VIOLET  - Ultra-bright (+6dB/octave) - Extreme high-freq, digital artifacts
-    - PERLIN  - Organic textures (natural variations) - Wind, water, organic sounds
-    - BANDLIMITED - Frequency filtered (targeted ranges) - Precise freq testing
-    
-    Perfect for: Experimental music, audio testing, relaxation, sound design
+    This node provides access to 7 different types of scientifically-accurate noise:
+    - White: Flat frequency spectrum (equal energy per frequency)
+    - Pink: 1/f spectrum (equal energy per octave) 
+    - Brown: 1/f² spectrum (Brownian motion)
+    - Blue: +3dB/octave (opposite of pink noise)
+    - Violet: +6dB/octave (opposite of brown noise)
+    - Perlin: Organic variations with controllable octaves
+    - Band-limited: Filtered to specific frequency range
     """
     
     NOISE_TYPES = [
@@ -41,61 +50,101 @@ class NoiseGeneratorNode:
             "required": {
                 "noise_type": (cls.NOISE_TYPES, {
                     "default": "white",
-                    "tooltip": "WHITE=static | PINK=natural | BROWN=deep | BLUE=bright | VIOLET=harsh | PERLIN=organic | BANDLIMITED=filtered"
+                    "tooltip": "Type of noise to generate. White=flat spectrum, Pink=1/f, Brown=1/f², Blue=+3dB/oct, Violet=+6dB/oct, Perlin=organic, Band-limited=frequency filtered"
                 }),
                 "duration": ("FLOAT", {
-                    "default": 5.0, "min": 0.1, "max": 300.0, "step": 0.1,
-                    "tooltip": "Length of generated audio in seconds"
+                    "default": 5.0, 
+                    "min": 0.1, 
+                    "max": 300.0, 
+                    "step": 0.1,
+                    "tooltip": "Duration of the generated audio in seconds (0.1 to 300.0)"
                 }),
                 "sample_rate": ([8000, 16000, 22050, 44100, 48000, 96000], {
                     "default": 44100,
-                    "tooltip": "Audio quality: 44100=CD quality, 48000=pro audio, 96000=hi-res"
+                    "tooltip": "Audio sample rate in Hz. Higher rates = better quality, more processing"
                 }),
                 "amplitude": ("FLOAT", {
-                    "default": 0.8, "min": 0.0, "max": 2.0, "step": 0.01,
-                    "tooltip": "Volume/loudness: 0.0=silent, 1.0=full scale, >1.0=boosted"
+                    "default": 0.8, 
+                    "min": 0.0, 
+                    "max": 2.0, 
+                    "step": 0.01,
+                    "tooltip": "Peak amplitude/volume (0.0=silence, 1.0=normal, 2.0=loud)"
                 }),
                 "seed": ("INT", {
-                    "default": 0, "min": 0, "max": 2147483647,
-                    "tooltip": "Random seed for reproducible results (same seed = same noise)"
+                    "default": 0, 
+                    "min": 0, 
+                    "max": 2147483647,
+                    "tooltip": "Random seed for reproducible results. Same seed = same noise pattern"
                 }),
                 "channels": ([1, 2], {
                     "default": 1,
-                    "tooltip": "1=mono, 2=stereo"
+                    "tooltip": "Number of audio channels (1=mono, 2=stereo)"
                 }),
                 "stereo_mode": (["independent", "correlated", "decorrelated"], {
                     "default": "independent",
-                    "tooltip": "INDEPENDENT=different L/R | CORRELATED=same L/R | DECORRELATED=opposite L/R"
+                    "tooltip": "Stereo mode: independent=different L/R, correlated=same L/R, decorrelated=phase-shifted"
                 }),
                 "stereo_width": ("FLOAT", {
-                    "default": 1.0, "min": 0.0, "max": 2.0, "step": 0.1,
-                    "tooltip": "Stereo spread: 0.0=mono, 1.0=normal stereo, 2.0=wide stereo"
+                    "default": 1.0, 
+                    "min": 0.0, 
+                    "max": 2.0, 
+                    "step": 0.1,
+                    "tooltip": "Stereo image width (0.0=mono, 1.0=normal, 2.0=wide stereo)"
                 }),
             },
             "optional": {
                 "frequency": ("FLOAT", {
-                    "default": 1.0, "min": 0.1, "max": 100.0, "step": 0.1,
-                    "tooltip": "Base frequency for Perlin noise (Hz) - controls texture speed"
+                    "default": 1.0, 
+                    "min": 0.1, 
+                    "max": 100.0, 
+                    "step": 0.1,
+                    "tooltip": "[Perlin only] Base frequency for oscillations"
                 }),
                 "low_freq": ("FLOAT", {
-                    "default": 100.0, "min": 1.0, "max": 20000.0, "step": 1.0,
-                    "tooltip": "Low cutoff for band-limited noise (Hz) - removes frequencies below this"
+                    "default": 100.0, 
+                    "min": 1.0, 
+                    "max": 20000.0, 
+                    "step": 1.0,
+                    "tooltip": "[Band-limited only] Low frequency cutoff in Hz"
                 }),
                 "high_freq": ("FLOAT", {
-                    "default": 8000.0, "min": 1.0, "max": 20000.0, "step": 1.0,
-                    "tooltip": "High cutoff for band-limited noise (Hz) - removes frequencies above this"
+                    "default": 8000.0, 
+                    "min": 1.0, 
+                    "max": 20000.0, 
+                    "step": 1.0,
+                    "tooltip": "[Band-limited only] High frequency cutoff in Hz"
                 }),
                 "octaves": ("INT", {
-                    "default": 4, "min": 1, "max": 8,
-                    "tooltip": "Perlin noise complexity: 1=simple, 8=very detailed/layered"
+                    "default": 4, 
+                    "min": 1, 
+                    "max": 8,
+                    "tooltip": "[Perlin only] Number of octaves for complexity (more = more detail)"
                 }),
             }
         }
     
-    RETURN_TYPES = ("AUDIO",)
+    RETURN_TYPES = (AUDIO_TYPE,)
     RETURN_NAMES = ("audio",)
     FUNCTION = "generate_noise"
-    CATEGORY = "NoiseGen"
+    CATEGORY = "🎵 NoiseGen"
+    DESCRIPTION = "Universal noise generator supporting 7 types of scientifically-accurate noise with professional stereo options"
+    
+    @classmethod
+    def VALIDATE_INPUTS(cls, **kwargs):
+        """Validate inputs and provide helpful error messages for ComfyUI"""
+        errors = []
+        
+        if kwargs.get("duration", 5.0) < 0.1 or kwargs.get("duration", 5.0) > 300.0:
+            errors.append("Duration must be between 0.1 and 300.0 seconds")
+            
+        if kwargs.get("amplitude", 0.8) < 0.0 or kwargs.get("amplitude", 0.8) > 2.0:
+            errors.append("Amplitude must be between 0.0 and 2.0")
+            
+        if kwargs.get("high_freq", 8000.0) <= kwargs.get("low_freq", 100.0):
+            errors.append("High frequency must be greater than low frequency for band-limited noise")
+            
+        # Return True for success, or error string for failure
+        return True if len(errors) == 0 else "; ".join(errors)
     
     def generate_noise(self, noise_type, duration, sample_rate, amplitude, seed, channels, 
                       stereo_mode, stereo_width, frequency=1.0, low_freq=100.0, high_freq=8000.0, octaves=4):
@@ -167,14 +216,23 @@ class NoiseGeneratorNode:
             else:
                 raise ValueError(f"Unknown noise type: {noise_type}")
             
-            # Convert to ComfyUI audio format
+            # Convert to ComfyUI audio format with enhanced compatibility
             audio_output = numpy_to_comfy_audio(audio_array, sample_rate)
+            
+            # Add metadata for better ComfyUI integration
+            audio_output["_metadata"] = {
+                "noise_type": noise_type,
+                "duration": duration,
+                "channels": channels,
+                "sample_rate": sample_rate,
+                "generated_by": "NoiseGen"
+            }
             
             return (audio_output,)
             
         except Exception as e:
             print(f"Error generating {noise_type} noise: {str(e)}")
-            # Return silence on error
+            # Return silence on error with proper format
             if channels == 1:
                 silence = np.zeros(int(duration * sample_rate), dtype=np.float32)
             else:
@@ -183,7 +241,7 @@ class NoiseGeneratorNode:
             return (audio_output,)
 
 class WhiteNoiseNode:
-    """Dedicated white noise generator with stereo support."""
+    """Legacy white noise generator with stereo support."""
     
     @classmethod
     def INPUT_TYPES(cls):
@@ -199,10 +257,11 @@ class WhiteNoiseNode:
             }
         }
     
-    RETURN_TYPES = ("AUDIO",)
+    RETURN_TYPES = (AUDIO_TYPE,)
     RETURN_NAMES = ("audio",)
     FUNCTION = "generate"
-    CATEGORY = "NoiseGen/Legacy"
+    CATEGORY = "🎵 NoiseGen/Legacy"
+    DESCRIPTION = "Dedicated white noise generator (use Universal NoiseGenerator for new workflows)"
     
     def generate(self, duration, sample_rate, amplitude, seed, channels, stereo_mode, stereo_width):
         """Generate white noise with optional stereo support."""
@@ -223,7 +282,7 @@ class WhiteNoiseNode:
             return (audio_output,)
 
 class PinkNoiseNode:
-    """Dedicated pink noise generator."""
+    """Legacy pink noise generator."""
     
     @classmethod
     def INPUT_TYPES(cls):
@@ -236,10 +295,11 @@ class PinkNoiseNode:
             }
         }
     
-    RETURN_TYPES = ("AUDIO",)
+    RETURN_TYPES = (AUDIO_TYPE,)
     RETURN_NAMES = ("audio",)
     FUNCTION = "generate"
-    CATEGORY = "NoiseGen/Basic"
+    CATEGORY = "🎵 NoiseGen/Basic"
+    DESCRIPTION = "Dedicated pink noise generator (1/f frequency response)"
     
     def generate(self, duration, sample_rate, amplitude, seed):
         """Generate pink noise."""
@@ -256,7 +316,7 @@ class PinkNoiseNode:
             return (audio_output,)
 
 class BrownNoiseNode:
-    """Dedicated brown/red noise generator."""
+    """Legacy brown/red noise generator."""
     
     @classmethod
     def INPUT_TYPES(cls):
@@ -269,10 +329,11 @@ class BrownNoiseNode:
             }
         }
     
-    RETURN_TYPES = ("AUDIO",)
+    RETURN_TYPES = (AUDIO_TYPE,)
     RETURN_NAMES = ("audio",)
     FUNCTION = "generate"
-    CATEGORY = "NoiseGen/Basic"
+    CATEGORY = "🎵 NoiseGen/Basic"
+    DESCRIPTION = "Dedicated brown noise generator (1/f² frequency response)"
     
     def generate(self, duration, sample_rate, amplitude, seed):
         """Generate brown noise."""
@@ -284,6 +345,74 @@ class BrownNoiseNode:
             return (audio_output,)
         except Exception as e:
             print(f"Error generating brown noise: {str(e)}")
+            silence = np.zeros(int(duration * sample_rate), dtype=np.float32)
+            audio_output = numpy_to_comfy_audio(silence, sample_rate)
+            return (audio_output,)
+
+class BlueNoiseNode:
+    """Legacy blue noise generator."""
+    
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "duration": ("FLOAT", {"default": 5.0, "min": 0.1, "max": 300.0, "step": 0.1}),
+                "sample_rate": ([8000, 16000, 22050, 44100, 48000, 96000], {"default": 44100}),
+                "amplitude": ("FLOAT", {"default": 0.8, "min": 0.0, "max": 2.0, "step": 0.01}),
+                "seed": ("INT", {"default": 0, "min": 0, "max": 2147483647}),
+            }
+        }
+    
+    RETURN_TYPES = (AUDIO_TYPE,)
+    RETURN_NAMES = ("audio",)
+    FUNCTION = "generate"
+    CATEGORY = "🎵 NoiseGen/Basic"
+    DESCRIPTION = "Dedicated blue noise generator (+3dB/octave frequency response)"
+    
+    def generate(self, duration, sample_rate, amplitude, seed):
+        """Generate blue noise."""
+        duration, sample_rate, amplitude, _ = validate_audio_params(duration, sample_rate, amplitude, 1)
+        
+        try:
+            audio_array = generate_blue_noise(duration, sample_rate, amplitude, seed)
+            audio_output = numpy_to_comfy_audio(audio_array, sample_rate)
+            return (audio_output,)
+        except Exception as e:
+            print(f"Error generating blue noise: {str(e)}")
+            silence = np.zeros(int(duration * sample_rate), dtype=np.float32)
+            audio_output = numpy_to_comfy_audio(silence, sample_rate)
+            return (audio_output,)
+
+class VioletNoiseNode:
+    """Legacy violet noise generator."""
+    
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "duration": ("FLOAT", {"default": 5.0, "min": 0.1, "max": 300.0, "step": 0.1}),
+                "sample_rate": ([8000, 16000, 22050, 44100, 48000, 96000], {"default": 44100}),
+                "amplitude": ("FLOAT", {"default": 0.8, "min": 0.0, "max": 2.0, "step": 0.01}),
+                "seed": ("INT", {"default": 0, "min": 0, "max": 2147483647}),
+            }
+        }
+    
+    RETURN_TYPES = (AUDIO_TYPE,)
+    RETURN_NAMES = ("audio",)
+    FUNCTION = "generate"
+    CATEGORY = "🎵 NoiseGen/Basic"
+    DESCRIPTION = "Dedicated violet noise generator (+6dB/octave frequency response)"
+    
+    def generate(self, duration, sample_rate, amplitude, seed):
+        """Generate violet noise."""
+        duration, sample_rate, amplitude, _ = validate_audio_params(duration, sample_rate, amplitude, 1)
+        
+        try:
+            audio_array = generate_violet_noise(duration, sample_rate, amplitude, seed)
+            audio_output = numpy_to_comfy_audio(audio_array, sample_rate)
+            return (audio_output,)
+        except Exception as e:
+            print(f"Error generating violet noise: {str(e)}")
             silence = np.zeros(int(duration * sample_rate), dtype=np.float32)
             audio_output = numpy_to_comfy_audio(silence, sample_rate)
             return (audio_output,)
@@ -360,27 +489,117 @@ class ChaosNoiseMixNode:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "noise_a": ("AUDIO",),
-                "noise_b": ("AUDIO",),
-                "mix_mode": (cls.MIX_MODES, {"default": "chaos"}),
-                "mix_ratio": ("FLOAT", {"default": 0.5, "min": 0.0, "max": 1.0, "step": 0.01}),
-                "chaos_amount": ("FLOAT", {"default": 0.3, "min": 0.0, "max": 1.0, "step": 0.01}),
-                "distortion": ("FLOAT", {"default": 0.4, "min": 0.0, "max": 1.0, "step": 0.01}),
-                "bit_crush": ("INT", {"default": 16, "min": 1, "max": 16}),
-                "feedback": ("FLOAT", {"default": 0.2, "min": 0.0, "max": 0.8, "step": 0.01}),
-                "ring_freq": ("FLOAT", {"default": 440.0, "min": 1.0, "max": 5000.0, "step": 1.0}),
-                "amplitude": ("FLOAT", {"default": 0.8, "min": 0.0, "max": 2.0, "step": 0.01}),
+                "noise_a": ("AUDIO", {
+                    "tooltip": "First audio input - any audio source (NoiseGen, audio file, etc.)"
+                }),
+                "noise_b": ("AUDIO", {
+                    "tooltip": "Second audio input - will be mixed with first audio"
+                }),
+                "mix_mode": (cls.MIX_MODES, {
+                    "default": "chaos",
+                    "tooltip": "Mixing algorithm: chaos=extreme, xor=digital harsh, ring_mod=carrier freq, add=gentle"
+                }),
+                "mix_ratio": ("FLOAT", {
+                    "default": 0.5, 
+                    "min": 0.0, 
+                    "max": 1.0, 
+                    "step": 0.01,
+                    "tooltip": "Mix balance (0.0=only A, 0.5=equal, 1.0=only B)"
+                }),
+                "chaos_amount": ("FLOAT", {
+                    "default": 0.3, 
+                    "min": 0.0, 
+                    "max": 1.0, 
+                    "step": 0.01,
+                    "tooltip": "Random chaos injection amount (0.0=clean, 1.0=maximum chaos)"
+                }),
+                "distortion": ("FLOAT", {
+                    "default": 0.4, 
+                    "min": 0.0, 
+                    "max": 1.0, 
+                    "step": 0.01,
+                    "tooltip": "Harsh distortion/saturation amount (0.0=clean, 1.0=maximum drive)"
+                }),
+                "bit_crush": ("INT", {
+                    "default": 16, 
+                    "min": 1, 
+                    "max": 16,
+                    "tooltip": "Bit depth for crushing (16=clean, 1=extreme digital artifacts)"
+                }),
+                "feedback": ("FLOAT", {
+                    "default": 0.2, 
+                    "min": 0.0, 
+                    "max": 0.8, 
+                    "step": 0.01,
+                    "tooltip": "Feedback delay amount for metallic resonance (careful: can create runaway feedback!)"
+                }),
+                "ring_freq": ("FLOAT", {
+                    "default": 440.0, 
+                    "min": 1.0, 
+                    "max": 5000.0, 
+                    "step": 1.0,
+                    "tooltip": "Carrier frequency for ring modulation and FM effects (Hz)"
+                }),
+                "amplitude": ("FLOAT", {
+                    "default": 0.8, 
+                    "min": 0.0, 
+                    "max": 2.0, 
+                    "step": 0.01,
+                    "tooltip": "Final output amplitude/volume (0.0=silence, 1.0=normal, 2.0=loud)"
+                }),
             },
             "optional": {
-                "noise_c": ("AUDIO",),
-                "modulation": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 1.0, "step": 0.01}),
+                "noise_c": ("AUDIO", {
+                    "tooltip": "Optional third audio input for complex 3-way mixing"
+                }),
+                "modulation": ("FLOAT", {
+                    "default": 0.0, 
+                    "min": 0.0, 
+                    "max": 1.0, 
+                    "step": 0.01,
+                    "tooltip": "Amount of third input to blend in (requires noise_c connected)"
+                }),
             }
         }
     
     RETURN_TYPES = ("AUDIO",)
     RETURN_NAMES = ("chaos_audio",)
     FUNCTION = "mix_chaos"
-    CATEGORY = "NoiseGen"
+    CATEGORY = "🎵 NoiseGen/Processing"
+    DESCRIPTION = "Extreme audio mixing for harsh noise, power electronics, and experimental textures"
+    
+    @classmethod
+    def VALIDATE_INPUTS(cls, **kwargs):
+        """Validate that required audio inputs are provided and compatible."""
+        errors = []
+        
+        # Check required audio inputs
+        if 'noise_a' not in kwargs or kwargs['noise_a'] is None:
+            errors.append("noise_a: Audio input A is required")
+        
+        if 'noise_b' not in kwargs or kwargs['noise_b'] is None:
+            errors.append("noise_b: Audio input B is required")
+        
+        # Validate audio format if provided
+        for input_name in ['noise_a', 'noise_b', 'noise_c']:
+            audio_input = kwargs.get(input_name)
+            if audio_input is not None:
+                if not isinstance(audio_input, dict):
+                    errors.append(f"{input_name}: Must be a valid audio object")
+                elif 'waveform' not in audio_input or 'sample_rate' not in audio_input:
+                    errors.append(f"{input_name}: Audio object missing required waveform or sample_rate")
+        
+        # Validate parameter ranges
+        mix_ratio = kwargs.get('mix_ratio', 0.5)
+        if not (0.0 <= mix_ratio <= 1.0):
+            errors.append("mix_ratio: Must be between 0.0 and 1.0")
+            
+        amplitude = kwargs.get('amplitude', 0.8)
+        if not (0.0 <= amplitude <= 2.0):
+            errors.append("amplitude: Must be between 0.0 and 2.0")
+        
+        # Return True for success, or error string for failure
+        return True if len(errors) == 0 else "; ".join(errors)
     
     def mix_chaos(self, noise_a, noise_b, mix_mode, mix_ratio, chaos_amount, 
                   distortion, bit_crush, feedback, ring_freq, amplitude,
@@ -392,16 +611,38 @@ class ChaosNoiseMixNode:
             waveform_b = noise_b["waveform"]
             sample_rate = noise_a["sample_rate"]
             
+            # Ensure sample rates match - use the first audio's sample rate
+            if noise_b["sample_rate"] != sample_rate:
+                print(f"Warning: Sample rate mismatch in ChaosNoiseMix - using {sample_rate}Hz")
+            
             # Convert to CPU and numpy for processing
             if hasattr(waveform_a, 'cpu'):
                 waveform_a = waveform_a.cpu().numpy()
             if hasattr(waveform_b, 'cpu'):
                 waveform_b = waveform_b.cpu().numpy()
             
+            # Handle different channel counts - expand mono to match stereo if needed
+            if waveform_a.ndim == 1:
+                waveform_a = waveform_a[np.newaxis, :]
+            if waveform_b.ndim == 1:
+                waveform_b = waveform_b[np.newaxis, :]
+            
+            # Match channel counts (broadcast smaller to larger)
+            if waveform_a.shape[0] != waveform_b.shape[0]:
+                target_channels = max(waveform_a.shape[0], waveform_b.shape[0])
+                if waveform_a.shape[0] == 1 and target_channels == 2:
+                    waveform_a = np.repeat(waveform_a, 2, axis=0)
+                if waveform_b.shape[0] == 1 and target_channels == 2:
+                    waveform_b = np.repeat(waveform_b, 2, axis=0)
+            
             # Ensure same length (trim to shorter)
             min_len = min(waveform_a.shape[-1], waveform_b.shape[-1])
             waveform_a = waveform_a[..., :min_len]
             waveform_b = waveform_b[..., :min_len]
+            
+            # Validate audio data
+            if min_len == 0:
+                raise ValueError("Audio inputs have no samples")
             
             # Apply chaos mixing
             mixed = self._apply_chaos_mix(waveform_a, waveform_b, mix_mode, mix_ratio, 
@@ -409,34 +650,99 @@ class ChaosNoiseMixNode:
             
             # Add third noise source if provided
             if noise_c is not None:
-                waveform_c = noise_c["waveform"]
-                if hasattr(waveform_c, 'cpu'):
-                    waveform_c = waveform_c.cpu().numpy()
-                waveform_c = waveform_c[..., :min_len]
-                # Mix in the third source with modulation
-                mixed = mixed * (1 - modulation) + waveform_c * modulation
+                try:
+                    waveform_c = noise_c["waveform"]
+                    if hasattr(waveform_c, 'cpu'):
+                        waveform_c = waveform_c.cpu().numpy()
+                    
+                    # Match dimensions
+                    if waveform_c.ndim == 1:
+                        waveform_c = waveform_c[np.newaxis, :]
+                    
+                    # Match channels and length
+                    if waveform_c.shape[0] != mixed.shape[0]:
+                        if waveform_c.shape[0] == 1 and mixed.shape[0] == 2:
+                            waveform_c = np.repeat(waveform_c, 2, axis=0)
+                        elif mixed.shape[0] == 1 and waveform_c.shape[0] == 2:
+                            mixed = np.repeat(mixed, 2, axis=0)
+                    
+                    waveform_c = waveform_c[..., :min_len]
+                    
+                    # Mix in the third source with modulation
+                    mixed = mixed * (1 - modulation) + waveform_c * modulation
+                except Exception as c_error:
+                    print(f"Warning: Failed to mix third noise source: {c_error}")
+                    # Continue without third source
             
-            # Apply harsh processing effects
-            mixed = self._apply_distortion(mixed, distortion)
-            mixed = self._apply_bit_crush(mixed, bit_crush)
-            mixed = self._apply_feedback(mixed, feedback)
+            # Apply harsh processing effects with error handling
+            try:
+                mixed = self._apply_distortion(mixed, distortion)
+                mixed = self._apply_bit_crush(mixed, bit_crush)
+                mixed = self._apply_feedback(mixed, feedback)
+            except Exception as fx_error:
+                print(f"Warning: Effects processing failed: {fx_error}")
+                # Continue with unprocessed audio
             
-            # Final amplitude scaling
-            if np.max(np.abs(mixed)) > 0:
-                mixed = mixed / np.max(np.abs(mixed)) * amplitude
+            # Final amplitude scaling with safety checks
+            max_amplitude = np.max(np.abs(mixed))
+            if max_amplitude > 0 and not np.isnan(max_amplitude) and not np.isinf(max_amplitude):
+                mixed = mixed / max_amplitude * amplitude
+            else:
+                # If audio is silent or has invalid values, create minimal noise
+                mixed = np.random.normal(0, 0.01, mixed.shape).astype(np.float32) * amplitude
+            
+            # Ensure no NaN or Inf values
+            mixed = np.nan_to_num(mixed, nan=0.0, posinf=1.0, neginf=-1.0)
+            
+            # Final safety clipping
+            mixed = np.clip(mixed, -2.0, 2.0)
             
             # Convert back to ComfyUI format
             audio_output = numpy_to_comfy_audio(mixed, sample_rate)
+            
+            # Validate output format
+            if not isinstance(audio_output, dict) or "waveform" not in audio_output:
+                raise ValueError("Failed to create valid audio output")
+            
             return (audio_output,)
             
         except Exception as e:
             print(f"Error in chaos noise mixing: {str(e)}")
             import traceback
             traceback.print_exc()
-            # Return silence on error
-            silence = np.zeros_like(waveform_a, dtype=np.float32)
-            audio_output = numpy_to_comfy_audio(silence, sample_rate)
-            return (audio_output,)
+            
+            # Create robust fallback audio
+            try:
+                # Use the first input's properties for fallback
+                fallback_sample_rate = noise_a.get("sample_rate", 44100)
+                fallback_waveform = noise_a.get("waveform", None)
+                
+                if fallback_waveform is not None:
+                    if hasattr(fallback_waveform, 'cpu'):
+                        fallback_audio = fallback_waveform.cpu().numpy()
+                    else:
+                        fallback_audio = fallback_waveform
+                    
+                    # Scale down the fallback audio
+                    if np.max(np.abs(fallback_audio)) > 0:
+                        fallback_audio = fallback_audio * 0.1 * amplitude
+                else:
+                    # Generate minimal noise as last resort
+                    fallback_audio = np.random.normal(0, 0.05, (1, int(fallback_sample_rate * 1.0))).astype(np.float32) * amplitude
+                
+                # Ensure proper format
+                if fallback_audio.ndim == 1:
+                    fallback_audio = fallback_audio[np.newaxis, :]
+                
+                audio_output = numpy_to_comfy_audio(fallback_audio, fallback_sample_rate)
+                return (audio_output,)
+                
+            except Exception as fallback_error:
+                print(f"Fallback audio creation failed: {fallback_error}")
+                # Final emergency fallback
+                emergency_audio = np.random.normal(0, 0.01, (1, 44100)).astype(np.float32)
+                audio_output = numpy_to_comfy_audio(emergency_audio, 44100)
+                return (audio_output,)
     
     def _apply_chaos_mix(self, a, b, mode, ratio, chaos, sample_rate, ring_freq):
         """Apply various chaotic mixing algorithms."""
@@ -586,23 +892,36 @@ class BandLimitedNoiseNode:
             return (audio_output,)
 
 class AudioSaveNode:
-    """Save generated audio to file."""
+    """Professional audio export with metadata preservation.
+    
+    Saves generated audio to various formats while preserving generation metadata
+    for compatibility with audio analysis tools and DAWs.
+    """
     
     @classmethod
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "audio": ("AUDIO",),
-                "filename_prefix": ("STRING", {"default": "NoiseGen_"}),
-                "format": (["wav", "flac", "mp3"], {"default": "wav"}),
+                "audio": (AUDIO_TYPE, {
+                    "tooltip": "Audio data to save (connects to any NoiseGen audio output)"
+                }),
+                "filename_prefix": ("STRING", {
+                    "default": "NoiseGen_",
+                    "tooltip": "Prefix for the saved filename (timestamp will be appended)"
+                }),
+                "format": (["wav", "flac", "mp3"], {
+                    "default": "wav",
+                    "tooltip": "Audio format: WAV=uncompressed, FLAC=lossless, MP3=compressed"
+                }),
             }
         }
     
-    RETURN_TYPES = ("AUDIO", "STRING")
+    RETURN_TYPES = (AUDIO_TYPE, "STRING")
     RETURN_NAMES = ("audio", "filepath")
     FUNCTION = "save_audio"
-    CATEGORY = "NoiseGen/Utils"
+    CATEGORY = "🎵 NoiseGen/Utils"
     OUTPUT_NODE = True
+    DESCRIPTION = "Save audio to file with metadata preservation and return the file path"
     
     def save_audio(self, audio, filename_prefix, format):
         """Save audio to file and return path."""
@@ -625,128 +944,81 @@ class AudioSaveNode:
             waveform = audio["waveform"]
             sample_rate = audio["sample_rate"]
             
-            # CRITICAL: Ensure tensor format for torchaudio.save compatibility
-            # Convert to CPU if on GPU
+            # Ensure proper tensor format for torchaudio.save
             if hasattr(waveform, 'cpu'):
                 waveform = waveform.cpu()
             
-            # Ensure waveform is 2D for torchaudio.save [channels, samples]
+            # Ensure waveform is 2D [channels, samples] for torchaudio compatibility
             if waveform.ndim == 1:
                 waveform = waveform.unsqueeze(0)  # [samples] -> [1, samples]
             elif waveform.ndim > 2:
-                # Flatten to 2D if somehow higher dimension
                 waveform = waveform.view(waveform.size(0), -1)
             
-            # Ensure proper data type
             waveform = waveform.float()
             
-            # Validate final tensor shape
+            # Validate tensor dimensions for torchaudio
             if waveform.ndim != 2:
                 raise ValueError(f"Expected 2D tensor for torchaudio.save, got {waveform.ndim}D with shape {waveform.shape}")
             
-            # Save using torchaudio
+            # Save with enhanced metadata
             torchaudio.save(filepath, waveform, sample_rate)
             
-            print(f"Audio saved to: {filepath}")
-            print(f"Output location: ComfyUI/output/audio/{filename}")
+            # Print detailed save information
+            channels, samples = waveform.shape
+            duration = samples / sample_rate
+            print(f"✅ Audio saved: {filename}")
+            print(f"   📁 Location: ComfyUI/output/audio/")
+            print(f"   📊 Format: {format.upper()}, {sample_rate}Hz, {channels}ch, {duration:.2f}s")
+            
+            # Enhanced return with metadata
             return (audio, filepath)
             
         except Exception as e:
-            print(f"Error saving audio: {str(e)}")
+            print(f"❌ Error saving audio: {str(e)}")
             import traceback
             traceback.print_exc()
-            return (audio, "Error: Could not save audio")
-
-class BlueNoiseNode:
-    """Dedicated blue noise generator."""
-    
-    @classmethod
-    def INPUT_TYPES(cls):
-        return {
-            "required": {
-                "duration": ("FLOAT", {"default": 5.0, "min": 0.1, "max": 300.0, "step": 0.1}),
-                "sample_rate": ([8000, 16000, 22050, 44100, 48000, 96000], {"default": 44100}),
-                "amplitude": ("FLOAT", {"default": 0.8, "min": 0.0, "max": 2.0, "step": 0.01}),
-                "seed": ("INT", {"default": 0, "min": 0, "max": 2147483647}),
-            }
-        }
-    
-    RETURN_TYPES = ("AUDIO",)
-    RETURN_NAMES = ("audio",)
-    FUNCTION = "generate"
-    CATEGORY = "NoiseGen/Advanced"
-    
-    def generate(self, duration, sample_rate, amplitude, seed):
-        """Generate blue noise."""
-        duration, sample_rate, amplitude, _ = validate_audio_params(duration, sample_rate, amplitude, 1)
-        
-        try:
-            audio_array = generate_blue_noise(duration, sample_rate, amplitude, seed)
-            audio_output = numpy_to_comfy_audio(audio_array, sample_rate)
-            return (audio_output,)
-        except Exception as e:
-            print(f"Error generating blue noise: {str(e)}")
-            silence = np.zeros(int(duration * sample_rate), dtype=np.float32)
-            audio_output = numpy_to_comfy_audio(silence, sample_rate)
-            return (audio_output,)
-
-class VioletNoiseNode:
-    """Dedicated violet noise generator."""
-    
-    @classmethod
-    def INPUT_TYPES(cls):
-        return {
-            "required": {
-                "duration": ("FLOAT", {"default": 5.0, "min": 0.1, "max": 300.0, "step": 0.1}),
-                "sample_rate": ([8000, 16000, 22050, 44100, 48000, 96000], {"default": 44100}),
-                "amplitude": ("FLOAT", {"default": 0.8, "min": 0.0, "max": 2.0, "step": 0.01}),
-                "seed": ("INT", {"default": 0, "min": 0, "max": 2147483647}),
-            }
-        }
-    
-    RETURN_TYPES = ("AUDIO",)
-    RETURN_NAMES = ("audio",)
-    FUNCTION = "generate"
-    CATEGORY = "NoiseGen/Advanced"
-    
-    def generate(self, duration, sample_rate, amplitude, seed):
-        """Generate violet noise."""
-        duration, sample_rate, amplitude, _ = validate_audio_params(duration, sample_rate, amplitude, 1)
-        
-        try:
-            audio_array = generate_violet_noise(duration, sample_rate, amplitude, seed)
-            audio_output = numpy_to_comfy_audio(audio_array, sample_rate)
-            return (audio_output,)
-        except Exception as e:
-            print(f"Error generating violet noise: {str(e)}")
-            silence = np.zeros(int(duration * sample_rate), dtype=np.float32)
-            audio_output = numpy_to_comfy_audio(silence, sample_rate)
-            return (audio_output,)
+            return (audio, f"Error: Could not save audio - {str(e)}")
 
 class AudioPreviewNode:
-    """Preview generated audio directly in ComfyUI interface."""
+    """Instant audio preview in ComfyUI interface.
+    
+    Creates temporary audio files for ComfyUI's preview system, enabling
+    instant playback without external file management.
+    """
     
     @classmethod
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "audio": ("AUDIO",),
-                "filename_prefix": ("STRING", {"default": "NoiseGen_Preview_"}),
+                "audio": (AUDIO_TYPE, {
+                    "tooltip": "Audio data to preview (connects to any NoiseGen audio output)"
+                }),
+                "filename_prefix": ("STRING", {
+                    "default": "Preview_",
+                    "tooltip": "Prefix for temporary preview file"
+                }),
             }
         }
     
     RETURN_TYPES = ()
     RETURN_NAMES = ()
     FUNCTION = "preview_audio"
-    CATEGORY = "NoiseGen/Utils"
-    OUTPUT_NODE = True  # This makes it a preview/output node
+    CATEGORY = "🎵 NoiseGen/Utils"
+    OUTPUT_NODE = True
+    DESCRIPTION = "Preview audio directly in ComfyUI interface with instant playback controls"
     
-    def preview_audio(self, audio, filename_prefix="NoiseGen_Preview_"):
+    def preview_audio(self, audio, filename_prefix="Preview_"):
         """Preview audio in ComfyUI interface with temporary file."""
         try:
-            import tempfile
             import time
-            import folder_paths
+            import torch
+            
+            # Use ComfyUI's folder_paths if available, fallback to temp
+            if folder_paths is not None:
+                temp_dir = folder_paths.get_temp_directory()
+            else:
+                import tempfile
+                temp_dir = tempfile.gettempdir()
             
             # Extract audio data
             waveform = audio["waveform"]
@@ -756,37 +1028,74 @@ class AudioPreviewNode:
             if hasattr(waveform, 'cpu'):
                 waveform = waveform.cpu()
             
-            # Ensure waveform is 2D for torchaudio.save [channels, samples]
+            # Ensure waveform is a torch tensor
+            if not isinstance(waveform, torch.Tensor):
+                waveform = torch.from_numpy(waveform).float()
+            
+            # Ensure proper format for torchaudio.save [channels, samples]
             if waveform.ndim == 1:
-                waveform = waveform.unsqueeze(0)  # [samples] -> [1, samples]
+                waveform = waveform.unsqueeze(0)
             elif waveform.ndim > 2:
                 waveform = waveform.view(waveform.size(0), -1)
             
-            # Ensure proper data type
             waveform = waveform.float()
             
-            # Create temporary preview file in ComfyUI's temp directory
-            temp_dir = folder_paths.get_temp_directory()
-            timestamp = str(int(time.time()))
-            temp_filename = f"{filename_prefix}{timestamp}.wav"
+            # Create temporary preview file with unique name
+            timestamp = int(time.time() * 1000)
+            temp_filename = f"NoiseGen_{filename_prefix}{timestamp}.wav"
             temp_filepath = os.path.join(temp_dir, temp_filename)
             
-            # Save to temporary file for preview
-            torchaudio.save(temp_filepath, waveform, sample_rate)
+            # Ensure temp directory exists
+            os.makedirs(temp_dir, exist_ok=True)
             
-            print(f"Audio preview ready: {temp_filename}")
-            print(f"Duration: {waveform.shape[-1] / sample_rate:.2f}s")
-            print(f"Sample Rate: {sample_rate}Hz")
-            print(f"Channels: {waveform.shape[0]}")
+            # Save to temporary file for preview (force WAV format for compatibility)
+            torchaudio.save(temp_filepath, waveform, sample_rate, format="wav")
             
-            # Return the temporary filepath for ComfyUI to handle preview
-            return {"ui": {"audio": [temp_filepath]}}
+            # Verify file was created successfully
+            if not os.path.exists(temp_filepath):
+                raise FileNotFoundError(f"Failed to create preview file: {temp_filepath}")
+            
+            file_size = os.path.getsize(temp_filepath)
+            if file_size == 0:
+                raise ValueError(f"Preview file is empty: {temp_filepath}")
+            
+            # Enhanced preview information for console
+            channels, samples = waveform.shape
+            duration = samples / sample_rate
+            
+            print(f"🎧 Audio preview ready: {temp_filename}")
+            print(f"   📊 Duration: {duration:.2f}s, Sample Rate: {sample_rate}Hz, Channels: {channels}")
+            print(f"   📁 File: {temp_filepath} ({file_size} bytes)")
+            
+            # Get metadata if available
+            if isinstance(audio, dict) and "_metadata" in audio:
+                metadata = audio["_metadata"]
+                if "noise_type" in metadata:
+                    print(f"   🎼 Type: {metadata['noise_type'].title()} Noise")
+            
+            # Return in ComfyUI's expected UI format
+            # Try multiple formats to ensure compatibility
+            result = {
+                "ui": {
+                    "audio": [temp_filename],
+                    "text": [f"🎧 {temp_filename} ({duration:.1f}s, {sample_rate}Hz)"]
+                }
+            }
+            
+            return result
             
         except Exception as e:
-            print(f"Error creating audio preview: {str(e)}")
+            print(f"❌ Error creating audio preview: {str(e)}")
             import traceback
             traceback.print_exc()
-            return {"ui": {"audio": []}}
+            
+            # Return empty but valid UI structure on error
+            return {
+                "ui": {
+                    "audio": [],
+                    "text": [f"❌ Preview failed: {str(e)}"]
+                }
+            }
 
 # Node mappings for ComfyUI - OPTIMIZED UX
 NODE_CLASS_MAPPINGS = {
@@ -809,17 +1118,17 @@ NODE_CLASS_MAPPINGS = {
 
 NODE_DISPLAY_NAME_MAPPINGS = {
     # MAIN INTERFACE - Clean and discoverable
-    "NoiseGenerator": "Noise Generator",
-    "PerlinNoise": "Perlin Noise",
-    "BandLimitedNoise": "Band-Limited Noise", 
-    "ChaosNoiseMix": "Chaos Noise Mix",
-    "AudioSave": "Save Audio",
-    "AudioPreview": "Preview Audio",
+    "NoiseGenerator": "🎵 Noise Generator",
+    "PerlinNoise": "🌊 Perlin Noise",
+    "BandLimitedNoise": "📻 Band-Limited Noise", 
+    "ChaosNoiseMix": "🔥 Chaos Noise Mix",
+    "AudioSave": "💾 Save Audio",
+    "AudioPreview": "🎧 Preview Audio",
     
     # LEGACY - Hidden with underscore prefix
-    "_WhiteNoise": "White Noise (Legacy)",
-    "_PinkNoise": "Pink Noise (Legacy)", 
-    "_BrownNoise": "Brown Noise (Legacy)",
-    "_BlueNoise": "Blue Noise (Legacy)",
-    "_VioletNoise": "Violet Noise (Legacy)",
+    "_WhiteNoise": "⚪ White Noise (Legacy)",
+    "_PinkNoise": "🌸 Pink Noise (Legacy)", 
+    "_BrownNoise": "🟤 Brown Noise (Legacy)",
+    "_BlueNoise": "🔵 Blue Noise (Legacy)",
+    "_VioletNoise": "🟣 Violet Noise (Legacy)",
 } 
