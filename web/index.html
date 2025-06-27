@@ -3,66 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ComfyUI-NoiseGen</title>
+    <title>🎵 ComfyUI NoiseGen</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+            color: #e0e0e0;
+            margin: 0;
             padding: 20px;
-            background-color: #f5f5f5;
+            min-height: 100vh;
         }
         .container {
-            background: white;
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(30, 30, 30, 0.9);
             padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         h1 {
-            color: #333;
+            color: #ff6b6b;
             text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #4ecdc4;
+            font-size: 1.1em;
+            margin-bottom: 30px;
+        }
+        .guide-link {
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+            margin: 20px 0;
+            font-size: 1.2em;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+        .guide-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 25px 0;
         }
         .feature {
-            margin: 15px 0;
-            padding: 10px;
-            background: #f8f9fa;
-            border-left: 4px solid #007bff;
+            background: #333;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #4ecdc4;
         }
         .code {
-            background: #f1f1f1;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-family: monospace;
+            background: #1e1e1e;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            color: #4ecdc4;
+            margin: 15px 0;
+        }
+        .quick-start {
+            background: #2a4a2a;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 25px 0;
+        }
+        h2 {
+            color: #4ecdc4;
+            border-bottom: 2px solid #4ecdc4;
+            padding-bottom: 5px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎵 ComfyUI-NoiseGen</h1>
-        <p>Professional noise generation nodes for ComfyUI workflows.</p>
+        <h1>🎵 NoiseGen</h1>
+        <div class="subtitle">Professional Noise Generation for ComfyUI</div>
         
-        <h2>Features</h2>
-        <div class="feature">
-            <strong>7 Noise Types:</strong> White, Pink, Brown, Blue, Violet, Perlin, Band-Limited
+        <a href="noise_guide.html" class="guide-link">
+            📖 COMPLETE NOISE TYPES GUIDE
+            <br><small style="font-weight: normal;">Learn all noise types, use cases, and advanced mixing techniques</small>
+        </a>
+
+        <h2>🚀 Quick Start</h2>
+        <div class="quick-start">
+            <p><strong>New to noise generation?</strong> Start with the <strong>🎵 Noise Generator (Universal)</strong> node!</p>
+            <p>It includes helpful tooltips explaining each noise type and parameter. Hover over any setting to see what it does.</p>
         </div>
-        <div class="feature">
-            <strong>Stereo Support:</strong> Multi-channel audio with width control
-        </div>
-        <div class="feature">
-            <strong>Professional Quality:</strong> 32-bit float, up to 96kHz sample rate
-        </div>
-        <div class="feature">
-            <strong>Scientific Accuracy:</strong> Mathematically correct frequency characteristics
+
+        <h2>✨ Features</h2>
+        <div class="features">
+            <div class="feature">
+                <strong>🎵 7 Noise Types</strong><br>
+                White • Pink • Brown • Blue • Violet • Perlin • Band-Limited
+            </div>
+            <div class="feature">
+                <strong>🔥 Chaos Mixing</strong><br>
+                11 extreme mixing modes for harsh noise and experimental music
+            </div>
+            <div class="feature">
+                <strong>🔊 Professional Audio</strong><br>
+                32-bit float, up to 96kHz, stereo support with width control
+            </div>
+            <div class="feature">
+                <strong>🎛️ Built-in Help</strong><br>
+                Tooltips and descriptions for every parameter and noise type
+            </div>
+            <div class="feature">
+                <strong>🎯 Scientific Accuracy</strong><br>
+                Mathematically correct frequency characteristics
+            </div>
+            <div class="feature">
+                <strong>🔄 Reproducible</strong><br>
+                Seed-based generation for consistent results
+            </div>
         </div>
         
-        <h2>Installation</h2>
+        <h2>📦 Installation</h2>
         <p>Clone into your ComfyUI custom_nodes directory:</p>
-        <p><span class="code">git clone https://github.com/eg0pr0xy/noisegen.git</span></p>
+        <div class="code">git clone https://github.com/eg0pr0xy/noisegen.git</div>
         
-        <h2>Usage</h2>
-        <p>Find the NoiseGen nodes in your ComfyUI node browser under the <strong>audio</strong> category.</p>
+        <h2>🎵 Find Your Nodes</h2>
+        <p>Look for <strong>🎵 NoiseGen</strong> categories in your ComfyUI "Add Node" menu.</p>
+        <p>Start with the <strong>Universal Noise Generator</strong> - it has built-in explanations for everything!</p>
         
-        <p><a href="https://github.com/eg0pr0xy/noisegen">📚 View Documentation</a></p>
+        <div style="text-align: center; margin-top: 30px; color: #888;">
+            <p><a href="https://github.com/eg0pr0xy/noisegen" style="color: #4ecdc4;">📚 GitHub Repository</a></p>
+            <p><em>Generate Chaos. Destroy Silence. Create Music.</em></p>
+        </div>
     </div>
 </body>
 </html> 

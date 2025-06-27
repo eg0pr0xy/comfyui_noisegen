@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎵 NoiseGen - Complete Guide</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container { max-width: 1000px; margin: 0 auto; }
+        h1 { color: #ff6b6b; text-align: center; font-size: 2.5em; }
+        h2 { color: #4ecdc4; border-bottom: 2px solid #4ecdc4; }
+        .noise-type {
+            background: #2a2a2a;
+            border-left: 4px solid #ff6b6b;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .spectrum {
+            font-family: monospace;
+            background: #1e1e1e;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .use-cases {
+            background: #1e3a1e;
+            padding: 15px;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 NoiseGen - Complete Guide</h1>
+        
+        <h2>🌀 Basic Noise Types</h2>
+
+        <div class="noise-type">
+            <h3>🌀 White Noise</h3>
+            <p><strong>Pure static chaos</strong> - Equal energy across all frequencies</p>
+            <div class="spectrum">Spectrum: ████████████████ (flat)</div>
+            <div class="use-cases">
+                <strong>Perfect for:</strong> Audio testing, sound masking, concentration aid, harsh noise walls
+            </div>
+        </div>
+
+        <div class="noise-type">
+            <h3>🌸 Pink Noise</h3>
+            <p><strong>Natural balance</strong> - Equal energy per octave (1/f slope)</p>
+            <div class="spectrum">Spectrum: ████████████▓▓▓▓ (1/f slope)</div>
+            <div class="use-cases">
+                <strong>Perfect for:</strong> Sleep aid, natural ambience, relaxation, ambient music
+            </div>
+        </div>
+
+        <div class="noise-type">
+            <h3>🍫 Brown Noise</h3>
+            <p><strong>Deep rumble</strong> - Heavy bass emphasis (1/f² slope)</p>
+            <div class="spectrum">Spectrum: ██████▓▓▓▓░░░░░░ (1/f² slope)</div>
+            <div class="use-cases">
+                <strong>Perfect for:</strong> Deep relaxation, drone music, industrial sounds, sub-bass textures
+            </div>
+        </div>
+
+        <div class="noise-type">
+            <h3>💙 Blue Noise</h3>
+            <p><strong>Bright & harsh</strong> - High-frequency emphasis (+3dB/octave)</p>
+            <div class="spectrum">Spectrum: ░░░░▓▓▓▓████████ (+3dB/octave)</div>
+            <div class="use-cases">
+                <strong>Perfect for:</strong> High-freq testing, cutting textures, aggressive electronics
+            </div>
+        </div>
+
+        <div class="noise-type">
+            <h3>💜 Violet Noise</h3>
+            <p><strong>Ultra-bright</strong> - Extreme high-frequency emphasis (+6dB/octave)</p>
+            <div class="spectrum">Spectrum: ░░░░░░▓▓████████ (+6dB/octave)</div>
+            <div class="use-cases">
+                <strong>Perfect for:</strong> Extreme testing, harsh noise, power electronics, digital artifacts
+            </div>
+        </div>
+
+        <h2>🌿 Advanced Types</h2>
+
+        <div class="noise-type">
+            <h3>🌿 Perlin Noise</h3>
+            <p><strong>Organic textures</strong> - Natural variations with coherent structure</p>
+            <div class="use-cases">
+                <strong>Perfect for:</strong> Natural soundscapes, wind/water simulation, organic textures
+                <br><strong>Controls:</strong> Frequency (speed), Octaves (detail level)
+            </div>
+        </div>
+
+        <div class="noise-type">
+            <h3>🎯 Band-Limited Noise</h3>
+            <p><strong>Frequency filtered</strong> - Noise targeting specific frequency ranges</p>
+            <div class="use-cases">
+                <strong>Perfect for:</strong> Precise testing, targeted masking, frequency analysis
+                <br><strong>Controls:</strong> Low/High frequency cutoffs
+            </div>
+        </div>
+
+        <h2>🔥 Chaos Noise Mix</h2>
+        <div class="noise-type">
+            <h3>Mix Modes</h3>
+            <ul>
+                <li><strong>ADD/SUBTRACT:</strong> Basic mixing and phase cancellation</li>
+                <li><strong>MULTIPLY:</strong> Ring modulation (metallic tones)</li>
+                <li><strong>XOR:</strong> Digital harsh mixing (glitchy)</li>
+                <li><strong>RING_MOD/AM_MOD/FM_MOD:</strong> Classic modulation effects</li>
+                <li><strong>CHAOS:</strong> Extreme non-linear processing (total devastation)</li>
+            </ul>
+            <div class="use-cases">
+                <strong>Processing:</strong> Distortion, bit crushing, feedback, ring frequency
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

@@ -10,7 +10,20 @@ except ImportError:
     from audio_utils import *
 
 class NoiseGeneratorNode:
-    """Universal noise generator node with multiple noise types."""
+    """
+    🎵 Universal Noise Generator - All noise types in one node
+    
+    NOISE TYPES EXPLAINED:
+    • WHITE   → Pure static chaos (flat frequency spectrum) - Audio testing, masking
+    • PINK    → Natural balance (1/f slope) - Relaxation, natural ambience  
+    • BROWN   → Deep rumble (1/f² slope) - Deep relaxation, bass-heavy textures
+    • BLUE    → Bright/harsh (+3dB/octave) - High-freq testing, cutting textures
+    • VIOLET  → Ultra-bright (+6dB/octave) - Extreme high-freq, digital artifacts
+    • PERLIN  → Organic textures (natural variations) - Wind, water, organic sounds
+    • BANDLIMITED → Frequency filtered (targeted ranges) - Precise freq testing
+    
+    Perfect for: Experimental music, audio testing, relaxation, sound design
+    """
     
     NOISE_TYPES = [
         "white",        # Pure static - flat frequency spectrum
@@ -26,20 +39,56 @@ class NoiseGeneratorNode:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "noise_type": (cls.NOISE_TYPES, {"default": "white"}),
-                "duration": ("FLOAT", {"default": 5.0, "min": 0.1, "max": 300.0, "step": 0.1}),
-                "sample_rate": ([8000, 16000, 22050, 44100, 48000, 96000], {"default": 44100}),
-                "amplitude": ("FLOAT", {"default": 0.8, "min": 0.0, "max": 2.0, "step": 0.01}),
-                "seed": ("INT", {"default": 0, "min": 0, "max": 2147483647}),
-                "channels": ([1, 2], {"default": 1}),
-                "stereo_mode": (["independent", "correlated", "decorrelated"], {"default": "independent"}),
-                "stereo_width": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 2.0, "step": 0.1}),
+                "noise_type": (cls.NOISE_TYPES, {
+                    "default": "white",
+                    "tooltip": "WHITE=static • PINK=natural • BROWN=deep • BLUE=bright • VIOLET=harsh • PERLIN=organic • BANDLIMITED=filtered"
+                }),
+                "duration": ("FLOAT", {
+                    "default": 5.0, "min": 0.1, "max": 300.0, "step": 0.1,
+                    "tooltip": "Length of generated audio in seconds"
+                }),
+                "sample_rate": ([8000, 16000, 22050, 44100, 48000, 96000], {
+                    "default": 44100,
+                    "tooltip": "Audio quality: 44100=CD quality, 48000=pro audio, 96000=hi-res"
+                }),
+                "amplitude": ("FLOAT", {
+                    "default": 0.8, "min": 0.0, "max": 2.0, "step": 0.01,
+                    "tooltip": "Volume/loudness: 0.0=silent, 1.0=full scale, >1.0=boosted"
+                }),
+                "seed": ("INT", {
+                    "default": 0, "min": 0, "max": 2147483647,
+                    "tooltip": "Random seed for reproducible results (same seed = same noise)"
+                }),
+                "channels": ([1, 2], {
+                    "default": 1,
+                    "tooltip": "1=mono, 2=stereo"
+                }),
+                "stereo_mode": (["independent", "correlated", "decorrelated"], {
+                    "default": "independent",
+                    "tooltip": "INDEPENDENT=different L/R • CORRELATED=same L/R • DECORRELATED=opposite L/R"
+                }),
+                "stereo_width": ("FLOAT", {
+                    "default": 1.0, "min": 0.0, "max": 2.0, "step": 0.1,
+                    "tooltip": "Stereo spread: 0.0=mono, 1.0=normal stereo, 2.0=wide stereo"
+                }),
             },
             "optional": {
-                "frequency": ("FLOAT", {"default": 1.0, "min": 0.1, "max": 100.0, "step": 0.1}),
-                "low_freq": ("FLOAT", {"default": 100.0, "min": 20.0, "max": 20000.0, "step": 1.0}),
-                "high_freq": ("FLOAT", {"default": 8000.0, "min": 20.0, "max": 20000.0, "step": 1.0}),
-                "octaves": ("INT", {"default": 4, "min": 1, "max": 8}),
+                "frequency": ("FLOAT", {
+                    "default": 1.0, "min": 0.1, "max": 100.0, "step": 0.1,
+                    "tooltip": "Base frequency for Perlin noise (Hz) - controls texture speed"
+                }),
+                "low_freq": ("FLOAT", {
+                    "default": 100.0, "min": 20.0, "max": 20000.0, "step": 1.0,
+                    "tooltip": "Low cutoff for band-limited noise (Hz) - removes frequencies below this"
+                }),
+                "high_freq": ("FLOAT", {
+                    "default": 8000.0, "min": 20.0, "max": 20000.0, "step": 1.0,
+                    "tooltip": "High cutoff for band-limited noise (Hz) - removes frequencies above this"
+                }),
+                "octaves": ("INT", {
+                    "default": 4, "min": 1, "max": 8,
+                    "tooltip": "Perlin noise complexity: 1=simple, 8=very detailed/layered"
+                }),
             }
         }
     
@@ -241,10 +290,22 @@ class PerlinNoiseNode:
             return (audio_output,)
 
 class ChaosNoiseMixNode:
-    """Extreme noise mixing node for Japanese noise music / Merzbow-style chaos.
+    """
+    🔥 Chaos Noise Mix - Extreme processing for harsh noise / Merzbow-style chaos
     
-    Features multiple noise blend modes, harsh processing, and chaotic modulation
-    for creating complex, abrasive noise textures beloved by noise musicians.
+    MIX MODES EXPLAINED:
+    • ADD       → Standard mixing (gentle)
+    • MULTIPLY  → Ring modulation style (metallic)  
+    • XOR       → Digital harsh mixing (glitchy)
+    • MODULO    → Chaotic wrapping (unpredictable)
+    • SUBTRACT  → Phase cancellation (hollow)
+    • MAX/MIN   → Peak/trough selection (dynamic)
+    • RING_MOD  → Classic ring modulation (carrier frequency)
+    • AM_MOD    → Amplitude modulation (tremolo-like)
+    • FM_MOD    → Frequency modulation style (complex harmonics)
+    • CHAOS     → Extreme non-linear mixing (total devastation)
+    
+    Perfect for: Japanese noise, power electronics, experimental music, harsh textures
     """
     
     MIX_MODES = [
