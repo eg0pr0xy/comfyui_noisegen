@@ -319,6 +319,25 @@ class AudioSaveNode:
             waveform = audio["waveform"]
             sample_rate = audio["sample_rate"]
             
+            # CRITICAL: Ensure tensor format for torchaudio.save compatibility
+            # Convert to CPU if on GPU
+            if hasattr(waveform, 'cpu'):
+                waveform = waveform.cpu()
+            
+            # Ensure waveform is 2D for torchaudio.save [channels, samples]
+            if waveform.ndim == 1:
+                waveform = waveform.unsqueeze(0)  # [samples] -> [1, samples]
+            elif waveform.ndim > 2:
+                # Flatten to 2D if somehow higher dimension
+                waveform = waveform.view(waveform.size(0), -1)
+            
+            # Ensure proper data type
+            waveform = waveform.float()
+            
+            # Validate final tensor shape
+            if waveform.ndim != 2:
+                raise ValueError(f"Expected 2D tensor for torchaudio.save, got {waveform.ndim}D with shape {waveform.shape}")
+            
             # Save using torchaudio
             torchaudio.save(filepath, waveform, sample_rate)
             
@@ -328,6 +347,8 @@ class AudioSaveNode:
             
         except Exception as e:
             print(f"❌ Error saving audio: {str(e)}")
+            import traceback
+            traceback.print_exc()
             return (audio, "Error: Could not save audio")
 
 # Node mappings for ComfyUI

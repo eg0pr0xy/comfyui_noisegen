@@ -330,6 +330,9 @@ def numpy_to_comfy_audio(audio_array: np.ndarray, sample_rate: int) -> dict:
     # Ensure audio is 2D (channels, samples)
     if audio_array.ndim == 1:
         audio_array = audio_array[np.newaxis, :]  # Add channel dimension
+    elif audio_array.ndim > 2:
+        # If somehow we get a 3D+ array, flatten to 2D
+        audio_array = audio_array.reshape(audio_array.shape[0], -1)
     
     # Convert to torch tensor and ensure proper format
     waveform = torch.from_numpy(audio_array).float()
@@ -338,6 +341,13 @@ def numpy_to_comfy_audio(audio_array: np.ndarray, sample_rate: int) -> dict:
     max_val = torch.max(torch.abs(waveform))
     if max_val > 1.0:
         waveform = waveform / max_val
+    
+    # CRITICAL: Ensure tensor is ALWAYS 2D for torchaudio.save compatibility
+    if waveform.ndim == 1:
+        waveform = waveform.unsqueeze(0)  # Add channel dimension: [samples] -> [1, samples]
+    elif waveform.ndim > 2:
+        # If somehow we get >2D, flatten to 2D
+        waveform = waveform.view(waveform.size(0), -1)
     
     return {
         "waveform": waveform,
