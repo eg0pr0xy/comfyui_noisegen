@@ -2,7 +2,12 @@ import os
 import numpy as np
 import torch
 import torchaudio
-from .audio_utils import *
+
+# Import audio utils with fallback for direct execution
+try:
+    from .audio_utils import *
+except ImportError:
+    from audio_utils import *
 
 class NoiseGeneratorNode:
     """Universal noise generator node with multiple noise types."""
@@ -296,15 +301,19 @@ class AudioSaveNode:
     def save_audio(self, audio, filename_prefix, format):
         """Save audio to file and return path."""
         try:
-            # Create output directory if it doesn't exist
-            output_dir = os.path.join(os.path.dirname(__file__), "output")
-            os.makedirs(output_dir, exist_ok=True)
+            # Get ComfyUI's output directory from folder_paths
+            import folder_paths
             
-            # Generate unique filename
+            # Create audio subdirectory in ComfyUI's output folder
+            output_dir = folder_paths.get_output_directory()
+            audio_dir = os.path.join(output_dir, "audio")
+            os.makedirs(audio_dir, exist_ok=True)
+            
+            # Generate unique filename with timestamp
             import time
             timestamp = str(int(time.time()))
             filename = f"{filename_prefix}{timestamp}.{format}"
-            filepath = os.path.join(output_dir, filename)
+            filepath = os.path.join(audio_dir, filename)
             
             # Extract audio data
             waveform = audio["waveform"]
@@ -313,11 +322,12 @@ class AudioSaveNode:
             # Save using torchaudio
             torchaudio.save(filepath, waveform, sample_rate)
             
-            print(f"Audio saved to: {filepath}")
+            print(f"✅ Audio saved to: {filepath}")
+            print(f"📁 Output location: ComfyUI/output/audio/{filename}")
             return (audio, filepath)
             
         except Exception as e:
-            print(f"Error saving audio: {str(e)}")
+            print(f"❌ Error saving audio: {str(e)}")
             return (audio, "Error: Could not save audio")
 
 # Node mappings for ComfyUI
