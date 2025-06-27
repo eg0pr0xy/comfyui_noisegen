@@ -78,11 +78,11 @@ class NoiseGeneratorNode:
                     "tooltip": "Base frequency for Perlin noise (Hz) - controls texture speed"
                 }),
                 "low_freq": ("FLOAT", {
-                    "default": 100.0, "min": 20.0, "max": 20000.0, "step": 1.0,
+                    "default": 100.0, "min": 1.0, "max": 20000.0, "step": 1.0,
                     "tooltip": "Low cutoff for band-limited noise (Hz) - removes frequencies below this"
                 }),
                 "high_freq": ("FLOAT", {
-                    "default": 8000.0, "min": 20.0, "max": 20000.0, "step": 1.0,
+                    "default": 8000.0, "min": 1.0, "max": 20000.0, "step": 1.0,
                     "tooltip": "High cutoff for band-limited noise (Hz) - removes frequencies above this"
                 }),
                 "octaves": ("INT", {
@@ -95,11 +95,45 @@ class NoiseGeneratorNode:
     RETURN_TYPES = ("AUDIO",)
     RETURN_NAMES = ("audio",)
     FUNCTION = "generate_noise"
-    CATEGORY = "🎵 NoiseGen"
+    CATEGORY = "NoiseGen"
     
     def generate_noise(self, noise_type, duration, sample_rate, amplitude, seed, channels, 
                       stereo_mode, stereo_width, frequency=1.0, low_freq=100.0, high_freq=8000.0, octaves=4):
         """Generate different types of noise based on the selected type."""
+        
+        # Fix parameter issues from malformed workflows
+        try:
+            # Convert string numbers to proper types if needed
+            if isinstance(channels, str) and channels.replace('.', '').isdigit():
+                channels = int(float(channels))
+            elif isinstance(channels, str):
+                # Handle string values that should be numeric
+                channel_map = {"independent": 1, "correlated": 2, "decorrelated": 2}
+                channels = channel_map.get(channels, 1)
+                
+            if isinstance(stereo_mode, str) and stereo_mode.replace('.', '').isdigit():
+                # Handle numeric stereo_mode values
+                mode_map = {"1": "independent", "2": "correlated", "1.5": "decorrelated", "1.8": "decorrelated"}
+                stereo_mode = mode_map.get(stereo_mode, "independent")
+                
+            # Ensure valid stereo_mode
+            if stereo_mode not in ["independent", "correlated", "decorrelated"]:
+                stereo_mode = "independent"
+                
+            # Ensure valid channels
+            if channels not in [1, 2]:
+                channels = 1 if channels < 1.5 else 2
+                
+            # Fix frequency range issues
+            low_freq = max(1.0, float(low_freq))
+            high_freq = max(low_freq + 1.0, float(high_freq))
+            
+        except Exception as e:
+            print(f"Parameter fix warning: {e}, using defaults")
+            channels = 1
+            stereo_mode = "independent"
+            low_freq = 100.0
+            high_freq = 8000.0
         
         # Validate parameters
         duration, sample_rate, amplitude, channels = validate_audio_params(duration, sample_rate, amplitude, channels)
@@ -168,7 +202,7 @@ class WhiteNoiseNode:
     RETURN_TYPES = ("AUDIO",)
     RETURN_NAMES = ("audio",)
     FUNCTION = "generate"
-    CATEGORY = "🎵 NoiseGen/Legacy"
+    CATEGORY = "NoiseGen/Legacy"
     
     def generate(self, duration, sample_rate, amplitude, seed, channels, stereo_mode, stereo_width):
         """Generate white noise with optional stereo support."""
@@ -205,11 +239,11 @@ class PinkNoiseNode:
     RETURN_TYPES = ("AUDIO",)
     RETURN_NAMES = ("audio",)
     FUNCTION = "generate"
-    CATEGORY = "🎵 NoiseGen/Basic"
+    CATEGORY = "NoiseGen/Basic"
     
     def generate(self, duration, sample_rate, amplitude, seed):
         """Generate pink noise."""
-        duration, sample_rate, amplitude = validate_audio_params(duration, sample_rate, amplitude)
+        duration, sample_rate, amplitude, _ = validate_audio_params(duration, sample_rate, amplitude, 1)
         
         try:
             audio_array = generate_pink_noise(duration, sample_rate, amplitude, seed)
@@ -238,11 +272,11 @@ class BrownNoiseNode:
     RETURN_TYPES = ("AUDIO",)
     RETURN_NAMES = ("audio",)
     FUNCTION = "generate"
-    CATEGORY = "🎵 NoiseGen/Basic"
+    CATEGORY = "NoiseGen/Basic"
     
     def generate(self, duration, sample_rate, amplitude, seed):
         """Generate brown noise."""
-        duration, sample_rate, amplitude = validate_audio_params(duration, sample_rate, amplitude)
+        duration, sample_rate, amplitude, _ = validate_audio_params(duration, sample_rate, amplitude, 1)
         
         try:
             audio_array = generate_brown_noise(duration, sample_rate, amplitude, seed)
@@ -273,11 +307,11 @@ class PerlinNoiseNode:
     RETURN_TYPES = ("AUDIO",)
     RETURN_NAMES = ("audio",)
     FUNCTION = "generate"
-    CATEGORY = "🎵 NoiseGen/Advanced"
+    CATEGORY = "NoiseGen/Advanced"
     
     def generate(self, duration, frequency, octaves, sample_rate, amplitude, seed):
         """Generate Perlin-like noise."""
-        duration, sample_rate, amplitude = validate_audio_params(duration, sample_rate, amplitude)
+        duration, sample_rate, amplitude, _ = validate_audio_params(duration, sample_rate, amplitude, 1)
         
         try:
             audio_array = generate_perlin_noise(duration, frequency, sample_rate, amplitude, octaves, seed)
@@ -346,7 +380,7 @@ class ChaosNoiseMixNode:
     RETURN_TYPES = ("AUDIO",)
     RETURN_NAMES = ("chaos_audio",)
     FUNCTION = "mix_chaos"
-    CATEGORY = "🎵 NoiseGen/Advanced"
+    CATEGORY = "NoiseGen/Advanced"
     
     def mix_chaos(self, noise_a, noise_b, mix_mode, mix_ratio, chaos_amount, 
                   distortion, bit_crush, feedback, ring_freq, amplitude,
@@ -520,8 +554,8 @@ class BandLimitedNoiseNode:
         return {
             "required": {
                 "duration": ("FLOAT", {"default": 5.0, "min": 0.1, "max": 300.0, "step": 0.1}),
-                "low_frequency": ("FLOAT", {"default": 100.0, "min": 20.0, "max": 20000.0, "step": 1.0}),
-                "high_frequency": ("FLOAT", {"default": 8000.0, "min": 20.0, "max": 20000.0, "step": 1.0}),
+                "low_frequency": ("FLOAT", {"default": 100.0, "min": 1.0, "max": 20000.0, "step": 1.0}),
+                "high_frequency": ("FLOAT", {"default": 8000.0, "min": 1.0, "max": 20000.0, "step": 1.0}),
                 "sample_rate": ([8000, 16000, 22050, 44100, 48000, 96000], {"default": 44100}),
                 "amplitude": ("FLOAT", {"default": 0.8, "min": 0.0, "max": 2.0, "step": 0.01}),
                 "seed": ("INT", {"default": 0, "min": 0, "max": 2147483647}),
@@ -531,11 +565,11 @@ class BandLimitedNoiseNode:
     RETURN_TYPES = ("AUDIO",)
     RETURN_NAMES = ("audio",)
     FUNCTION = "generate"
-    CATEGORY = "🎵 NoiseGen/Advanced"
+    CATEGORY = "NoiseGen/Advanced"
     
     def generate(self, duration, low_frequency, high_frequency, sample_rate, amplitude, seed):
         """Generate band-limited noise."""
-        duration, sample_rate, amplitude = validate_audio_params(duration, sample_rate, amplitude)
+        duration, sample_rate, amplitude, _ = validate_audio_params(duration, sample_rate, amplitude, 1)
         
         # Ensure frequency order is correct
         if low_frequency >= high_frequency:
@@ -567,7 +601,7 @@ class AudioSaveNode:
     RETURN_TYPES = ("AUDIO", "STRING")
     RETURN_NAMES = ("audio", "filepath")
     FUNCTION = "save_audio"
-    CATEGORY = "🎵 NoiseGen/Utils"
+    CATEGORY = "NoiseGen/Utils"
     OUTPUT_NODE = True
     
     def save_audio(self, audio, filename_prefix, format):
@@ -640,11 +674,11 @@ class BlueNoiseNode:
     RETURN_TYPES = ("AUDIO",)
     RETURN_NAMES = ("audio",)
     FUNCTION = "generate"
-    CATEGORY = "🎵 NoiseGen/Advanced"
+    CATEGORY = "NoiseGen/Advanced"
     
     def generate(self, duration, sample_rate, amplitude, seed):
         """Generate blue noise."""
-        duration, sample_rate, amplitude = validate_audio_params(duration, sample_rate, amplitude)
+        duration, sample_rate, amplitude, _ = validate_audio_params(duration, sample_rate, amplitude, 1)
         
         try:
             audio_array = generate_blue_noise(duration, sample_rate, amplitude, seed)
@@ -673,11 +707,11 @@ class VioletNoiseNode:
     RETURN_TYPES = ("AUDIO",)
     RETURN_NAMES = ("audio",)
     FUNCTION = "generate"
-    CATEGORY = "🎵 NoiseGen/Advanced"
+    CATEGORY = "NoiseGen/Advanced"
     
     def generate(self, duration, sample_rate, amplitude, seed):
         """Generate violet noise."""
-        duration, sample_rate, amplitude = validate_audio_params(duration, sample_rate, amplitude)
+        duration, sample_rate, amplitude, _ = validate_audio_params(duration, sample_rate, amplitude, 1)
         
         try:
             audio_array = generate_violet_noise(duration, sample_rate, amplitude, seed)
@@ -709,16 +743,16 @@ NODE_CLASS_MAPPINGS = {
 
 NODE_DISPLAY_NAME_MAPPINGS = {
     # MAIN INTERFACE - Clean and discoverable
-    "NoiseGenerator": "🎵 Noise Generator (White•Pink•Brown•Blue•Violet)",
-    "PerlinNoise": "🌿 Perlin Noise (Organic Textures)",
-    "BandLimitedNoise": "🎯 Band-Limited Noise (Frequency Filter)", 
-    "ChaosNoiseMix": "🔥 Chaos Noise Mix (Merzbow Style)",
-    "AudioSave": "💾 Save Audio",
+    "NoiseGenerator": "Noise Generator",
+    "PerlinNoise": "Perlin Noise",
+    "BandLimitedNoise": "Band-Limited Noise", 
+    "ChaosNoiseMix": "Chaos Noise Mix",
+    "AudioSave": "Save Audio",
     
     # LEGACY - Hidden with underscore prefix
-    "_WhiteNoise": "🎵 White Noise (Legacy)",
-    "_PinkNoise": "🎵 Pink Noise (Legacy)", 
-    "_BrownNoise": "🎵 Brown Noise (Legacy)",
-    "_BlueNoise": "🎵 Blue Noise (Legacy)",
-    "_VioletNoise": "🎵 Violet Noise (Legacy)",
+    "_WhiteNoise": "White Noise (Legacy)",
+    "_PinkNoise": "Pink Noise (Legacy)", 
+    "_BrownNoise": "Brown Noise (Legacy)",
+    "_BlueNoise": "Blue Noise (Legacy)",
+    "_VioletNoise": "Violet Noise (Legacy)",
 } 
