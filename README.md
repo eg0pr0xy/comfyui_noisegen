@@ -1,167 +1,192 @@
- ███▄    █  ▒█████   ██▓  ██████ ▓█████   ▄████ ▓█████  ███▄    █ 
- ██ ▀█   █ ▒██▒  ██▒▓██▒▒██    ▒ ▓█   ▀  ██▒ ▀█▒▓█   ▀  ██ ▀█   █ 
-▓██  ▀█ ██▒▒██░  ██▒▒██▒░ ▓██▄   ▒███   ▒██░▄▄▄░▒███   ▓██  ▀█ ██▒
-▓██▒  ▐▌██▒▒██   ██░░██░  ▒   ██▒▒▓█  ▄ ░▓█  ██▓▒▓█  ▄ ▓██▒  ▐▌██▒
-▒██░   ▓██░░ ████▓▒░░██░▒██████▒▒░▒████▒░▒▓███▀▒░▒████▒▒██░   ▓██░
-░ ▒░   ▒ ▒ ░ ▒░▒░▒░ ░▓  ▒ ▒▓▒ ▒ ░░░ ▒░ ░ ░▒   ▒ ░░ ▒░ ░░ ▒░   ▒ ▒ 
-░ ░░   ░ ▒░  ░ ▒ ▒░  ▒ ░░ ░▒  ░ ░ ░ ░  ░  ░   ░  ░ ░  ░░ ░░   ░ ▒░
-   ░   ░ ░ ░ ░ ░ ▒   ▒ ░░  ░  ░     ░   ░ ░   ░    ░      ░   ░ ░ 
-         ░     ░ ░   ░        ░     ░  ░      ░    ░  ░         ░ 
-                                                                   
-        ┌─┐┌─┐┌┬┐┌─┐┬ ┬┬ ┬┬   ┌┐┌┌─┐┬┌─┐┌─┐  ┌─┐┌─┐┌─┐┬┌─
-        │  │ ││││├┤ └┬┘│ ││   ││││ │││└─┐├┤   ├─┘├─┤│  ├┴┐
-        └─┘└─┘┴ ┴└   ┴ └─┘┴   ┘└┘└─┘┴└─┘└─┘  ┴  ┴ ┴└─┘┴ ┴
+# 🎵 ComfyUI NoiseGen
 
-  ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
-  ██                   NOISE GENERATION                 ██
-  ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+> **"Noise is the most impolite music."** - Merzbow
 
-┌─ NOISE ARSENAL ──────────────────────────────────────────────────────┐
-│ ┌─ BASIC WEAPONRY                                                   │
-│ │  ∎ WHITE   - pure static chaos                                    │
-│ │  ∎ PINK    - 1/f natural fury                                     │
-│ │  ∎ BROWN   - deep rumbling destruction                            │
-│ │                                                                   │
-│ ┌─ ADVANCED WARFARE                                                  │
-│ │  ∎ BLUE    - high-freq razor cuts                                 │
-│ │  ∎ VIOLET  - ultrasonic warfare                                   │
-│ │  ∎ PERLIN  - organic texture synthesis                            │
-│ │  ∎ BAND    - frequency-targeted strikes                           │
-│ │  ∎ CHAOS   - merzbow-style absolute devastation                   │
-│ └─                                                                   │
-└──────────────────────────────────────────────────────────────────────┘
+A comprehensive ComfyUI node pack for generating various types of audio noise with professional-grade quality and extensive customization options. Perfect for harsh noise, experimental music, scientific testing, and audio production.
 
-┌─ INFILTRATION GUIDE ─────────────────────────────────────────────────┐
-│                                                                      │
-│ [METHOD 01] :: DIRECT INJECTION                                      │
-│ ┌──────────────────────────────────────────────────────────────────┐ │
-│ │ cd /path/to/comfyui/custom_nodes                                 │ │
-│ │ git clone https://github.com/eg0pr0xy/noisegen.git              │ │
-│ │ cd noisegen                                                      │ │
-│ │ pip install -r requirements.txt                                 │ │
-│ │ # [!] RESTART COMFYUI FOR FULL ACTIVATION                       │ │
-│ └──────────────────────────────────────────────────────────────────┘ │
-│                                                                      │
-│ [METHOD 02] :: COMFYUI MANAGER                                       │
-│ ┌──────────────────────────────────────────────────────────────────┐ │
-│ │ 1. Open ComfyUI Manager                                          │ │
-│ │ 2. Search: "ComfyUI-NoiseGen"                                    │ │
-│ │ 3. Install & restart                                             │ │
-│ └──────────────────────────────────────────────────────────────────┘ │
-└──────────────────────────────────────────────────────────────────────┘
+---
 
-┌─ OPERATIONAL PARAMETERS ─────────────────────────────────────────────┐
-│                                                                      │
-│ ┌─ CORE SPECS                                                        │
-│ │  ∎ DURATION     :: 0.1s → 300s                                    │
-│ │  ∎ SAMPLE_RATE  :: 8kHz → 96kHz                                   │
-│ │  ∎ AMPLITUDE    :: 0.0 → 2.0                                      │
-│ │  ∎ CHANNELS     :: mono → 8ch surround                            │
-│ │  ∎ STEREO_MODE  :: independent|correlated|decorrelated            │
-│ │  ∎ SEED         :: reproducible chaos                             │
-│ │                                                                   │
-│ ┌─ CHAOS CONTROL (ChaosNoiseMix)                                     │
-│ │  ∎ MIX_MODES    :: add|multiply|xor|modulo|subtract|max|min       │
-│ │                 :: ring_mod|am_mod|fm_mod|chaos                   │
-│ │  ∎ DISTORTION   :: multi-stage clipping + asymmetric processing   │
-│ │  ∎ BIT_CRUSH    :: 1-16 bits digital destruction                  │
-│ │  ∎ FEEDBACK     :: metallic resonance delay                       │
-│ │  ∎ RING_FREQ    :: 1Hz → 5kHz modulation                         │
-│ └─                                                                   │
-└──────────────────────────────────────────────────────────────────────┘
+## 🚀 Features
 
-┌─ NOISE MUSIK APPLICATIONS ──────────────────────────────────────────┐
-│                                                                      │
-│ ◉ HARSH NOISE WALLS        :: white|brown + chaos mixing            │
-│ ◉ JAPANESE NOISE           :: merzbow-style chaos chains             │
-│ ◉ POWER ELECTRONICS        :: extreme bit crushing + distortion     │
-│ ◉ INDUSTRIAL AMBIENCE      :: multi-layer perlin + band filtering   │
-│ ◉ DRONE/DARK AMBIENT       :: brown noise + slow modulation         │
-│ ◉ EXPERIMENTAL MUSIC       :: all parameters pushed to extremes     │
-│ ◉ AUDIO TESTING/MASKING    :: scientific precision meets chaos      │
-│ ◉ PSYCHOACOUSTIC RESEARCH  :: controlled frequency manipulation     │
-│                                                                      │
-└──────────────────────────────────────────────────────────────────────┘
+### 🔊 **Noise Arsenal**
 
-┌─ NODE NETWORK TOPOLOGY──────────────────────────────────────────────┐
-│                                                                      │
-│ /NoiseGen/                                                           │
-│ ├── 🎵 Universal Generator    [all-in-one noise synthesis]           │
-│ ├── /Basic/                                                          │
-│ │   ├── 🎵 White Noise       [static chaos generator]               │
-│ │   ├── 🎵 Pink Noise        [natural frequency balance]            │
-│ │   └── 🎵 Brown Noise       [deep rumbling power]                  │
-│ ├── /Advanced/                                                       │
-│ │   ├── 🎵 Blue Noise        [high-frequency aggression]            │
-│ │   ├── 🎵 Violet Noise      [ultrasonic assault]                   │
-│ │   ├── 🎵 Perlin Noise      [organic texture synthesis]            │
-│ │   ├── 🎵 Band-Limited      [frequency-targeted warfare]           │
-│ │   └── 🎵 ChaosNoiseMix     [merzbow-style devastation]            │
-│ └── /Utils/                                                          │
-│     └── 🎵 Audio Save        [export audio files]                  │
-│                                                                      │
-└──────────────────────────────────────────────────────────────────────┘
+#### **Basic Types**
+- **🌀 White Noise** - Pure static chaos, flat frequency spectrum
+- **🌸 Pink Noise** - 1/f natural fury, balanced frequency response  
+- **🍫 Brown Noise** - Deep rumbling destruction, 1/f² frequency slope
 
-┌─ TECHNICAL SPECIFICATIONS ───────────────────────────────────────────┐
-│                                                                      │
-│ ∎ AUDIO FORMAT    :: ComfyUI native (32-bit float)                  │
-│ ∎ ALGORITHMS      :: professional-grade DSP                         │
-│ ∎ OPTIMIZATION    :: numpy vectorization + memory efficiency        │
-│ ∎ ANTI-ALIASING   :: proper frequency domain shaping                │
-│ ∎ ERROR HANDLING  :: bulletproof parameter validation               │
-│ ∎ ARCHITECTURE    :: clean separation of concerns                   │
-│                                                                      │
-└──────────────────────────────────────────────────────────────────────┘
+#### **Advanced Types**
+- **💙 Blue Noise** - High-frequency razor cuts, +3dB/octave slope
+- **💜 Violet Noise** - Ultrasonic warfare, +6dB/octave slope
+- **🌿 Perlin Noise** - Organic texture synthesis with natural variations
+- **🎯 Band-Limited Noise** - Frequency-targeted strikes with precise filtering
+- **⚡ ChaosNoiseMix** - Merzbow-style absolute devastation with 11 mixing modes
 
-┌─ EXAMPLE WORKFLOWS ──────────────────────────────────────────────────┐
-│                                                                      │
-│ /examples/basic_white_noise.json          :: entry-level static     │
-│ /examples/stereo_ambient_soundscape.json  :: spatial texture work   │
-│ /examples/japanese_noise_merzbow.json     :: extreme chaos synthesis │
-│ /examples/audio_test_suite.json           :: technical validation    │
-│                                                                      │
-└──────────────────────────────────────────────────────────────────────┘
+---
 
-┌─ FREQUENCY DOMAIN ANALYSIS ──────────────────────────────────────────┐
-│                                                                      │
-│ WHITE  :: ████████████████  flat spectrum, equal energy all freqs   │
-│ PINK   :: ████████████▓▓▓▓  1/f slope, natural balance              │
-│ BROWN  :: ██████▓▓▓▓░░░░░░  1/f² slope, bass-heavy rumble           │
-│ BLUE   :: ░░░░▓▓▓▓████████  +3dB/octave, bright cutting edge        │
-│ VIOLET :: ░░░░░░▓▓████████  +6dB/octave, ultrasonic warfare         │
-│                                                                      │
-└──────────────────────────────────────────────────────────────────────┘
+## 📦 Installation
 
-┌─ CODEBASE STRUCTURE ─────────────────────────────────────────────────┐
-│                                                                      │
-│ noisegen/                                                            │
-│ ├── __init__.py              ∎ package init + comfyui hooks          │
-│ ├── noise_nodes.py           ∎ core node implementations             │
-│ ├── audio_utils.py           ∎ dsp algorithms + utilities            │
-│ ├── requirements.txt         ∎ dependency manifest                   │
-│ ├── pyproject.toml           ∎ modern python packaging               │
-│ ├── examples/                ∎ workflow demonstrations               │
-│ ├── web/index.html           ∎ documentation interface               │
-│ ├── test_nodes.py            ∎ validation suite                      │
-│ ├── CHANGELOG.md             ∎ version history                       │
-│ ├── LICENSE                  ∎ MIT freedom                           │
-│ └── README.md                ∎ this manual                         │
-│                                                                      │
-└──────────────────────────────────────────────────────────────────────┘
+### **Method 1: ComfyUI Manager** ⭐ *Recommended*
+1. Open ComfyUI Manager
+2. Search for `"ComfyUI-NoiseGen"`
+3. Click Install & restart ComfyUI
 
-┌─ CONTACT ─────────────────────────────────────────────────────────────┐
-│                                                                      │
-│ REPOSITORY :: https://github.com/eg0pr0xy/noisegen.git              │
-│ LICENSE    :: MIT (freedom to modify and redistribute)              │
-│ SUPPORT    :: issues + pull requests welcomed                       │
-│                                                                      │
-│ ∎ CONTRIBUTE :: help expand the noise arsenal                       │
-│ ∎ REPORT BUGS :: ensure stability in chaos                          │
-│ ∎ SHARE WORKFLOWS :: spread the knowledge                           │
-│                                                                      │
-└──────────────────────────────────────────────────────────────────────┘
+### **Method 2: Manual Installation**
+```bash
+cd /path/to/comfyui/custom_nodes
+git clone https://github.com/eg0pr0xy/noisegen.git
+cd noisegen
+pip install -r requirements.txt
+# Restart ComfyUI
+```
 
-  ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
-  ██ "NOISE IS THE MOST IMPOLITE MUSIC" - MERZBOW           ██
-  ██ GENERATE CHAOS. DESTROY SILENCE. CREATE MUSIC.         ██
-  ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+---
+
+## 🎛️ Technical Specifications
+
+| **Parameter** | **Range** | **Description** |
+|---------------|-----------|-----------------|
+| **Duration** | 0.1s → 300s | Audio length control |
+| **Sample Rate** | 8kHz → 96kHz | Quality settings (8k, 16k, 22k, 44.1k, 48k, 96k) |
+| **Amplitude** | 0.0 → 2.0 | Volume/loudness control |
+| **Channels** | 1 → 8 | Mono to surround sound |
+| **Stereo Mode** | 3 modes | Independent, correlated, decorrelated |
+| **Seed** | 0 → 2147483647 | Reproducible random generation |
+
+### **ChaosNoiseMix Parameters**
+- **Mix Modes**: `add` • `multiply` • `xor` • `modulo` • `subtract` • `max` • `min` • `ring_mod` • `am_mod` • `fm_mod` • `chaos`
+- **Distortion**: Multi-stage clipping + asymmetric processing
+- **Bit Crush**: 1-16 bits digital destruction
+- **Feedback**: Metallic resonance delay
+- **Ring Frequency**: 1Hz → 5kHz modulation
+
+---
+
+## 🎵 Node Categories
+
+### **🎵 NoiseGen** (Universal)
+Single node that can generate all noise types with dynamic parameters
+
+### **🎵 NoiseGen/Basic**
+- White Noise Generator
+- Pink Noise Generator  
+- Brown Noise Generator
+
+### **🎵 NoiseGen/Advanced**
+- Blue Noise Generator
+- Violet Noise Generator
+- Perlin Noise Generator (frequency + octave control)
+- Band-Limited Noise Generator (frequency filtering)
+- **ChaosNoiseMix** (extreme mixing & processing)
+
+### **🎵 NoiseGen/Utils**
+- Audio Save Node (WAV/FLAC/MP3 export)
+
+---
+
+## 🎯 Applications
+
+### **🎼 Music Production**
+- **Harsh Noise Walls** → white/brown + chaos mixing
+- **Japanese Noise** → merzbow-style chaos chains
+- **Power Electronics** → extreme bit crushing + distortion
+- **Industrial Ambience** → multi-layer perlin + band filtering
+- **Drone/Dark Ambient** → brown noise + slow modulation
+- **Experimental Music** → all parameters pushed to extremes
+
+### **🔬 Scientific/Technical**
+- **Audio Testing/Masking** → scientific precision meets chaos
+- **Psychoacoustic Research** → controlled frequency manipulation
+- **Equipment Calibration** → reference signals
+- **Signal Processing Research** → various noise characteristics
+
+---
+
+## 📊 Frequency Analysis
+
+| **Type** | **Spectrum** | **Characteristics** |
+|----------|--------------|---------------------|
+| **White** | `████████████████` | Equal energy across all frequencies |
+| **Pink** | `████████████▓▓▓▓` | Equal energy per octave (1/f) |
+| **Brown** | `██████▓▓▓▓░░░░░░` | Deep bass emphasis (1/f²) |
+| **Blue** | `░░░░▓▓▓▓████████` | High frequency emphasis (+3dB/octave) |
+| **Violet** | `░░░░░░▓▓████████` | Ultra-high frequency (+6dB/octave) |
+
+---
+
+## 🏗️ Project Structure
+
+```
+noisegen/
+├── __init__.py              # Package init + ComfyUI hooks
+├── noise_nodes.py           # Core node implementations
+├── audio_utils.py           # DSP algorithms + utilities
+├── requirements.txt         # Dependencies
+├── pyproject.toml           # Modern Python packaging
+├── examples/                # Workflow demonstrations
+│   ├── basic_white_noise.json
+│   ├── stereo_ambient_soundscape.json
+│   ├── japanese_noise_merzbow.json
+│   └── audio_test_suite.json
+├── web/index.html           # Documentation interface
+├── test_nodes.py            # Validation suite
+├── CHANGELOG.md             # Version history
+├── LICENSE                  # MIT License
+└── README.md                # This manual
+```
+
+---
+
+## 🛠️ Audio Engine
+
+- **Format**: ComfyUI native AUDIO (32-bit float)
+- **Algorithms**: Professional-grade DSP
+- **Optimization**: NumPy vectorization + memory efficiency
+- **Anti-aliasing**: Proper frequency domain shaping
+- **Error Handling**: Bulletproof parameter validation
+- **Architecture**: Clean separation of concerns
+
+---
+
+## 📝 Examples
+
+### **Basic White Noise**
+1. Add `🎵 White Noise` node
+2. Set duration: `10.0` seconds
+3. Set amplitude: `0.8`
+4. Connect to audio output
+
+### **Merzbow-Style Chaos**
+1. Add multiple noise generators (white, brown, perlin)
+2. Route through `🎵 ChaosNoiseMix` nodes
+3. Use extreme settings: `chaos` mode, max distortion, low bit depth
+4. Chain multiple ChaosNoiseMix nodes for devastation
+
+### **Scientific Testing**
+1. Use `🎵 Noise Generator` with specific type
+2. Set precise parameters (sample rate, duration, amplitude)
+3. Use `seed` for reproducible results
+4. Export with `🎵 Audio Save`
+
+---
+
+## 📞 Contact & Support
+
+**Repository**: https://github.com/eg0pr0xy/noisegen.git  
+**License**: MIT (freedom to modify and redistribute)  
+**Support**: Issues + pull requests welcomed  
+
+### **Contributing**
+- 🔧 **Contribute**: Help expand the noise arsenal
+- 🐛 **Report Bugs**: Ensure stability in chaos  
+- 📚 **Share Workflows**: Spread the knowledge
+
+---
+
+<div align="center">
+
+**Generate Chaos. Destroy Silence. Create Music.**
+
+*Made with ❤️ for the experimental music community*
+
+</div> 
