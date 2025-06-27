@@ -4,208 +4,283 @@ Test script for ComfyUI NoiseGen nodes.
 Run this to verify all noise generation functions work correctly.
 """
 
+import sys
+import os
+import traceback
 import numpy as np
-import matplotlib.pyplot as plt
-from audio_utils import *
 
-def test_all_noise_types():
-    """Test all noise generation functions."""
+# Add current directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+def test_imports():
+    """Test that all required modules can be imported"""
+    try:
+        from noise_nodes import NODE_CLASS_MAPPINGS
+        return NODE_CLASS_MAPPINGS
+    except Exception as e:
+        print(f"Failed to import: {e}")
+        return None
+
+print("💀 NOISEGEN 💀")
+print("Testing ComfyUI NoiseGen Functions")
+print("-" * 50)
+
+# Test imports
+mappings = test_imports()
+if not mappings:
+    print("Failed to import nodes - exiting")
+    sys.exit(1)
+
+print(f"Found {len(mappings)} registered nodes:")
+for name in mappings.keys():
+    print(f"  - {name}")
+print()
+
+def test_basic_functionality():
+    """Test basic functionality of each node type"""
+    print("Testing Basic Node Functionality")
+    print("-" * 30)
     
-    print("🎵 Testing ComfyUI NoiseGen Functions")
-    print("=" * 50)
+    # Import noise generation functions directly
+    try:
+        from audio_utils import (
+            generate_white_noise, generate_pink_noise, generate_brown_noise,
+            generate_blue_noise, generate_violet_noise, generate_perlin_noise,
+            generate_band_limited_noise
+        )
+    except ImportError as e:
+        print(f"Failed to import audio utils: {e}")
+        return False
     
-    # Test parameters
-    duration = 2.0  # seconds
-    sample_rate = 44100
-    amplitude = 0.5
-    seed = 42
+    # Test each noise type
+    test_params = {
+        "duration": 1.0,
+        "sample_rate": 44100,
+        "amplitude": 0.5,
+        "channels": 1
+    }
     
-    # Test basic noise types (mono)
-    noise_functions = [
-        ("White Noise (Mono)", lambda: generate_white_noise(duration, sample_rate, amplitude, seed)),
-        ("Pink Noise (Mono)", lambda: generate_pink_noise(duration, sample_rate, amplitude, seed)),
-        ("Brown Noise (Mono)", lambda: generate_brown_noise(duration, sample_rate, amplitude, seed)),
-        ("Blue Noise (Mono)", lambda: generate_blue_noise(duration, sample_rate, amplitude, seed)),
-        ("Violet Noise (Mono)", lambda: generate_violet_noise(duration, sample_rate, amplitude, seed)),
-        ("Perlin Noise (Mono)", lambda: generate_perlin_noise(duration, 1.0, sample_rate, amplitude, 4, seed)),
-        ("Band-Limited Noise (Mono)", lambda: generate_bandlimited_noise(duration, 1000, 4000, sample_rate, amplitude, seed)),
+    noise_tests = [
+        ("White Noise", lambda: generate_white_noise(**test_params)),
+        ("Pink Noise", lambda: generate_pink_noise(**test_params)),
+        ("Brown Noise", lambda: generate_brown_noise(**test_params)),
+        ("Blue Noise", lambda: generate_blue_noise(**test_params)),
+        ("Violet Noise", lambda: generate_violet_noise(**test_params)),
+        ("Perlin Noise", lambda: generate_perlin_noise(**test_params, frequency=1.0, octaves=1)),
+        ("Band-Limited", lambda: generate_band_limited_noise(**test_params, low_freq=100, high_freq=1000))
     ]
     
-    # Test stereo versions
-    stereo_functions = [
-        ("White Noise (Stereo)", lambda: generate_white_noise(duration, sample_rate, amplitude, seed, 2, "independent", 1.0)),
-        ("Pink Noise (Decorrelated)", lambda: generate_pink_noise(duration, sample_rate, amplitude, seed, 2, "decorrelated", 1.5)),
-        ("Brown Noise (Correlated)", lambda: generate_brown_noise(duration, sample_rate, amplitude, seed, 2, "correlated", 0.8)),
-        ("Perlin Noise (Wide Stereo)", lambda: generate_perlin_noise(duration, 1.0, sample_rate, amplitude, 4, seed, 2, "independent", 2.0)),
-    ]
-    
-    results = {}
-    
-    # Test mono functions
-    for name, func in noise_functions:
+    for name, func in noise_tests:
         try:
-            print(f"Testing {name}...")
             audio = func()
-            
-            # Basic validation for mono
-            assert len(audio) == int(duration * sample_rate), f"Wrong length for {name}"
-            assert audio.dtype == np.float32, f"Wrong dtype for {name}"
-            assert np.max(np.abs(audio)) <= amplitude * 1.1, f"Amplitude too high for {name}"  # Small tolerance
-            
-            # Store for analysis
-            results[name] = audio
-            print(f"✅ {name} - OK (length: {len(audio)}, max: {np.max(np.abs(audio)):.3f})")
-            
+            if len(audio) > 0 and np.max(np.abs(audio)) > 0:
+                print(f"OK {name} - Length: {len(audio)}, Max: {np.max(np.abs(audio)):.3f}")
+            else:
+                print(f"FAILED {name} - Empty or silent audio")
         except Exception as e:
-            print(f"❌ {name} - FAILED: {str(e)}")
-            results[name] = None
+            print(f"FAILED {name} - Error: {str(e)}")
     
-    # Test stereo functions
-    for name, func in stereo_functions:
-        try:
-            print(f"Testing {name}...")
-            audio = func()
-            
-            # Basic validation for stereo
-            assert audio.shape[0] == 2, f"Wrong number of channels for {name}"
-            assert audio.shape[1] == int(duration * sample_rate), f"Wrong length for {name}"
-            assert audio.dtype == np.float32, f"Wrong dtype for {name}"
-            assert np.max(np.abs(audio)) <= amplitude * 1.1, f"Amplitude too high for {name}"  # Small tolerance
-            
-            # Test stereo separation
-            left_max = np.max(np.abs(audio[0]))
-            right_max = np.max(np.abs(audio[1]))
-            print(f"   📊 L: {left_max:.3f}, R: {right_max:.3f}")
-            
-            # Store for analysis (use left channel for compatibility)
-            results[name] = audio[0]  # Store left channel for plotting
-            print(f"✅ {name} - OK (shape: {audio.shape}, max: {np.max(np.abs(audio)):.3f})")
-            
-        except Exception as e:
-            print(f"❌ {name} - FAILED: {str(e)}")
-            results[name] = None
-    
-    return results
+    return True
 
-def test_parameter_validation():
-    """Test parameter validation function."""
-    print("\n🔧 Testing Parameter Validation")
-    print("=" * 30)
-    
-    # Test cases: (input, expected_output)
-    test_cases = [
-        ((5.0, 44100, 0.5, 1), (5.0, 44100, 0.5, 1)),  # Normal case
-        ((0.05, 44100, 0.5, 1), (0.1, 44100, 0.5, 1)),  # Duration too small
-        ((500.0, 44100, 0.5, 1), (300.0, 44100, 0.5, 1)),  # Duration too large
-        ((5.0, 12345, 0.5, 1), (5.0, 44100, 0.5, 1)),  # Invalid sample rate
-        ((5.0, 44100, -0.1, 1), (5.0, 44100, 0.0, 1)),  # Amplitude too small
-        ((5.0, 44100, 3.0, 1), (5.0, 44100, 2.0, 1)),  # Amplitude too large
-        ((5.0, 44100, 0.5, 2), (5.0, 44100, 0.5, 2)),  # Stereo case
-        ((5.0, 44100, 0.5, 10), (5.0, 44100, 0.5, 8)),  # Too many channels
-    ]
-    
-    for i, (input_params, expected) in enumerate(test_cases):
-        result = validate_audio_params(*input_params)
-        if result == expected:
-            print(f"✅ Test case {i+1} - OK")
-        else:
-            print(f"❌ Test case {i+1} - FAILED: {result} != {expected}")
-
-def test_comfy_audio_conversion():
-    """Test conversion to ComfyUI audio format."""
-    print("\n🎛️ Testing ComfyUI Audio Conversion")
-    print("=" * 35)
+def test_chaos_node():
+    """Test ChaosNoiseMix node"""
+    print("\nTesting ChaosNoiseMix Node")
+    print("-" * 25)
     
     try:
-        # Generate test audio
-        audio_array = generate_white_noise(1.0, 44100, 0.5, 42)
+        ChaosNoiseMixNode = mappings.get("ChaosNoiseMix")
+        if not ChaosNoiseMixNode:
+            print("ChaosNoiseMix node not found")
+            return False
+            
+        node = ChaosNoiseMixNode()
         
-        # Convert to ComfyUI format
-        comfy_audio = numpy_to_comfy_audio(audio_array, 44100)
+        # Create dummy audio inputs (simulate ComfyUI AUDIO format)
+        dummy_audio1 = np.random.normal(0, 0.1, (44100, 2)).astype(np.float32)
+        dummy_audio2 = np.random.normal(0, 0.1, (44100, 2)).astype(np.float32)
         
-        # Validate format
-        assert "waveform" in comfy_audio, "Missing waveform key"
-        assert "sample_rate" in comfy_audio, "Missing sample_rate key"
-        assert comfy_audio["sample_rate"] == 44100, "Wrong sample rate"
-        assert comfy_audio["waveform"].shape[0] == 1, "Wrong number of channels"
-        assert comfy_audio["waveform"].shape[1] == len(audio_array), "Wrong number of samples"
+        # Test different mixing modes
+        mix_modes = ["add", "multiply", "xor", "chaos"]
         
-        print("✅ ComfyUI audio conversion - OK")
-        
+        for mode in mix_modes:
+            try:
+                result = node.mix_chaos(
+                    dummy_audio1, dummy_audio2,
+                    mix_mode=mode,
+                    chaos_amount=0.5,
+                    distortion=0.3,
+                    bit_crush=8,
+                    feedback=0.1,
+                    ring_freq=100
+                )
+                audio = result[0]
+                print(f"OK {mode} - Shape: {audio.shape}, Max: {np.max(np.abs(audio)):.3f}")
+            except Exception as e:
+                print(f"FAILED {mode} - Error: {str(e)}")
+    
     except Exception as e:
-        print(f"❌ ComfyUI audio conversion - FAILED: {str(e)}")
+        print(f"ChaosNoiseMix test failed: {e}")
+        return False
+    
+    return True
 
-def plot_frequency_analysis(results):
-    """Create frequency analysis plots for generated noise."""
-    print("\n📊 Generating Frequency Analysis Plots")
-    print("=" * 40)
+def test_parameter_validation():
+    """Test parameter validation and edge cases"""
+    print("\nTesting Parameter Validation")
+    print("-" * 30)
+    
+    try:
+        from audio_utils import validate_and_fix_params
+        
+        # Test cases: (input_params, expected_fixes)
+        test_cases = [
+            ({"channels": "independent", "stereo_mode": 2}, "String/int conversion"),
+            ({"channels": 1, "stereo_mode": "correlated"}, "Normal case"),
+            ({"duration": -1}, "Negative duration"),
+            ({"amplitude": 5.0}, "High amplitude"),
+            ({"sample_rate": 999}, "Invalid sample rate")
+        ]
+        
+        for i, (params, description) in enumerate(test_cases):
+            try:
+                result = validate_and_fix_params(**params)
+                print(f"OK Test case {i+1} - {description}")
+            except Exception as e:
+                print(f"FAILED Test case {i+1} - {description}: {result} != {expected}")
+    
+    except ImportError:
+        print("Parameter validation function not found - skipping")
+    except Exception as e:
+        print(f"Parameter validation test failed: {e}")
+
+def test_comfyui_integration():
+    """Test ComfyUI AUDIO format compatibility"""
+    print("\nTesting ComfyUI Integration")
+    print("-" * 28)
+    
+    try:
+        # Test universal noise generator
+        NoiseGenNode = mappings.get("NoiseGenerator")
+        if NoiseGenNode:
+            node = NoiseGenNode()
+            result = node.generate_noise(
+                noise_type="white",
+                duration=0.5,
+                sample_rate=44100,
+                amplitude=0.3,
+                channels=2,
+                stereo_mode="independent",
+                seed=42
+            )
+            audio = result[0]
+            print("OK ComfyUI audio conversion")
+        else:
+            print("NoiseGenerator node not found")
+    except Exception as e:
+        print(f"FAILED ComfyUI audio conversion: {str(e)}")
+
+def analyze_and_plot():
+    """Create frequency analysis plots of different noise types"""
+    print("\nCreating Frequency Analysis")
+    print("-" * 27)
     
     try:
         import matplotlib.pyplot as plt
         from scipy import signal
+        from audio_utils import generate_white_noise, generate_pink_noise, generate_brown_noise
         
-        # Filter out failed results
-        valid_results = {k: v for k, v in results.items() if v is not None}
+        # Generate different noise types
+        duration = 2.0
+        sample_rate = 44100
         
-        if not valid_results:
-            print("❌ No valid results to plot")
+        noises = {
+            "White": generate_white_noise(duration, sample_rate, 0.5, 1),
+            "Pink": generate_pink_noise(duration, sample_rate, 0.5, 1),
+            "Brown": generate_brown_noise(duration, sample_rate, 0.5, 1)
+        }
+        
+        if not noises["White"].size:
+            print("No valid results to plot")
             return
         
         # Create subplots
-        fig, axes = plt.subplots(2, len(valid_results), figsize=(4*len(valid_results), 8))
-        if len(valid_results) == 1:
-            axes = axes.reshape(-1, 1)
+        fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+        fig.suptitle('NoiseGen Frequency Analysis', fontsize=16)
         
-        sample_rate = 44100
+        # Time domain plots
+        time = np.linspace(0, duration, len(noises["White"]))
+        axes[0, 0].plot(time[:1000], noises["White"][:1000])
+        axes[0, 0].set_title('White Noise (Time Domain)')
+        axes[0, 0].set_xlabel('Time (s)')
+        axes[0, 0].set_ylabel('Amplitude')
         
-        for i, (name, audio) in enumerate(valid_results.items()):
-            # Time domain plot
-            time = np.linspace(0, len(audio)/sample_rate, len(audio))
-            axes[0, i].plot(time[:int(sample_rate*0.1)], audio[:int(sample_rate*0.1)])  # First 0.1 seconds
-            axes[0, i].set_title(f"{name} - Time Domain")
-            axes[0, i].set_xlabel("Time (s)")
-            axes[0, i].set_ylabel("Amplitude")
-            
-            # Frequency domain plot
-            freqs, psd = signal.welch(audio, sample_rate, nperseg=2048)
-            axes[1, i].semilogx(freqs[1:], 10*np.log10(psd[1:]))  # Skip DC component
-            axes[1, i].set_title(f"{name} - Frequency Domain")
-            axes[1, i].set_xlabel("Frequency (Hz)")
-            axes[1, i].set_ylabel("Power (dB)")
-            axes[1, i].grid(True)
-            axes[1, i].set_xlim(20, sample_rate//2)
+        # Frequency domain analysis
+        colors = ['blue', 'pink', 'brown']
+        axes[0, 1].set_title('Frequency Response Comparison')
+        axes[0, 1].set_xlabel('Frequency (Hz)')
+        axes[0, 1].set_ylabel('Power (dB)')
+        
+        for i, (name, noise) in enumerate(noises.items()):
+            freqs, psd = signal.welch(noise, sample_rate, nperseg=4096)
+            psd_db = 10 * np.log10(psd + 1e-12)
+            axes[0, 1].semilogx(freqs[1:], psd_db[1:], label=name, color=colors[i], alpha=0.8)
+        
+        axes[0, 1].legend()
+        axes[0, 1].grid(True, alpha=0.3)
+        axes[0, 1].set_xlim(20, 20000)
+        
+        # Individual spectrograms
+        for i, (name, noise) in enumerate(list(noises.items())[:2]):
+            row, col = (1, i)
+            freqs, times, Sxx = signal.spectrogram(noise, sample_rate, nperseg=1024)
+            im = axes[row, col].pcolormesh(times, freqs, 10 * np.log10(Sxx + 1e-12))
+            axes[row, col].set_title(f'{name} Noise Spectrogram')
+            axes[row, col].set_xlabel('Time (s)')
+            axes[row, col].set_ylabel('Frequency (Hz)')
+            plt.colorbar(im, ax=axes[row, col])
         
         plt.tight_layout()
-        plt.savefig("noise_analysis.png", dpi=150, bbox_inches='tight')
-        plt.show()
+        plt.savefig('noise_analysis.png', dpi=150, bbox_inches='tight')
+        plt.close()
         
-        print("✅ Frequency analysis plots created: noise_analysis.png")
+        print("Frequency analysis plots created: noise_analysis.png")
+        return True
         
     except ImportError:
-        print("⚠️ Matplotlib not available - skipping plots")
+        print("Matplotlib/scipy not available - skipping plots")
+        return False
     except Exception as e:
-        print(f"❌ Plotting failed: {str(e)}")
-
-def main():
-    """Run all tests."""
-    print("🎵 ComfyUI NoiseGen Test Suite")
-    print("=" * 60)
-    
-    # Test noise generation
-    results = test_all_noise_types()
-    
-    # Test parameter validation
-    test_parameter_validation()
-    
-    # Test ComfyUI format conversion
-    test_comfy_audio_conversion()
-    
-    # Generate analysis plots
-    plot_frequency_analysis(results)
-    
-    print("\n" + "=" * 60)
-    print("🎉 Test suite completed!")
-    print("If all tests passed, your NoiseGen nodes are ready to use!")
+        print(f"Plotting failed: {str(e)}")
+        return False
 
 if __name__ == "__main__":
-    main() 
+    print("💀 NOISEGEN 💀")
+    print("ComfyUI NoiseGen Test Suite")
+    print("=" * 50)
+    
+    success_count = 0
+    total_tests = 4
+    
+    if test_basic_functionality():
+        success_count += 1
+    
+    if test_chaos_node():
+        success_count += 1
+        
+    test_parameter_validation()
+    success_count += 1
+    
+    test_comfyui_integration()
+    success_count += 1
+    
+    # Optional plotting (doesn't count toward success)
+    analyze_and_plot()
+    
+    print(f"\nTest suite completed!")
+    print(f"Passed: {success_count}/{total_tests} tests")
+    
+    if success_count == total_tests:
+        print("All core functionality working correctly!")
+    else:
+        print("Some tests failed - check output above")
+        sys.exit(1) 

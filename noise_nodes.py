@@ -11,7 +11,7 @@ except ImportError:
 
 class NoiseGeneratorNode:
     """
-    🎵 Universal Noise Generator - All noise types in one node
+    Universal Noise Generator - All noise types in one node
     
     NOISE TYPES EXPLAINED:
     • WHITE   → Pure static chaos (flat frequency spectrum) - Audio testing, masking
@@ -325,7 +325,7 @@ class PerlinNoiseNode:
 
 class ChaosNoiseMixNode:
     """
-    🔥 Chaos Noise Mix - Extreme processing for harsh noise / Merzbow-style chaos
+    Chaos Noise Mix - Extreme processing for harsh noise / Merzbow-style chaos
     
     MIX MODES EXPLAINED:
     • ADD       → Standard mixing (gentle)
@@ -647,12 +647,12 @@ class AudioSaveNode:
             # Save using torchaudio
             torchaudio.save(filepath, waveform, sample_rate)
             
-            print(f"✅ Audio saved to: {filepath}")
-            print(f"📁 Output location: ComfyUI/output/audio/{filename}")
+                          print(f"Audio saved to: {filepath}")
+              print(f"Output location: ComfyUI/output/audio/{filename}")
             return (audio, filepath)
             
         except Exception as e:
-            print(f"❌ Error saving audio: {str(e)}")
+            print(f"Error saving audio: {str(e)}")
             import traceback
             traceback.print_exc()
             return (audio, "Error: Could not save audio")

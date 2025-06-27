@@ -2,124 +2,366 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <title>💀 NOISEGEN 💀 - Complete Guide</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎵 NoiseGen - Complete Guide</title>
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
-            background: #1a1a1a;
+            background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
             color: #e0e0e0;
             margin: 0;
             padding: 20px;
             line-height: 1.6;
         }
-        .container { max-width: 1000px; margin: 0 auto; }
-        h1 { color: #ff6b6b; text-align: center; font-size: 2.5em; }
-        h2 { color: #4ecdc4; border-bottom: 2px solid #4ecdc4; }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(30, 30, 30, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        h1 {
+            color: #ff6b6b;
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px rgba(255, 107, 107, 0.3);
+        }
+        h2 {
+            color: #4ecdc4;
+            border-bottom: 2px solid #4ecdc4;
+            padding-bottom: 5px;
+            margin-top: 30px;
+        }
+        h3 {
+            color: #ffa726;
+            margin-top: 25px;
+        }
         .noise-type {
-            background: #2a2a2a;
-            border-left: 4px solid #ff6b6b;
-            padding: 20px;
+            background: #333;
             margin: 20px 0;
-            border-radius: 8px;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #4ecdc4;
         }
-        .spectrum {
-            font-family: monospace;
+        .frequency-chart {
+            font-family: 'Courier New', monospace;
             background: #1e1e1e;
-            padding: 10px;
-            border-radius: 4px;
-        }
-        .use-cases {
-            background: #1e3a1e;
             padding: 15px;
-            border-radius: 6px;
+            border-radius: 5px;
+            color: #4ecdc4;
+            margin: 10px 0;
+        }
+        .parameter-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        .parameter-table th,
+        .parameter-table td {
+            border: 1px solid #555;
+            padding: 8px;
+            text-align: left;
+        }
+        .parameter-table th {
+            background: #444;
+            color: #4ecdc4;
+        }
+        .back-link {
+            background: #ff6b6b;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        .back-link:hover {
+            background: #ff5252;
+        }
+        .example-code {
+            background: #1e1e1e;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            color: #4ecdc4;
+            overflow-x: auto;
+        }
+        .use-case {
+            background: #2a2a4a;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #ffa726;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎵 NoiseGen - Complete Guide</h1>
+        <a href="index.html" class="back-link">← Back to NoiseGen</a>
         
-        <h2>🌀 Basic Noise Types</h2>
+        <h1>💀 NOISEGEN 💀 - Complete Guide</h1>
+        
+        <p style="text-align: center; font-style: italic; color: #888; margin-bottom: 30px;">
+            "Noise is the most impolite music." - Merzbow
+        </p>
 
+        <h2>Understanding Noise Types</h2>
+        
         <div class="noise-type">
-            <h3>🌀 White Noise</h3>
-            <p><strong>Pure static chaos</strong> - Equal energy across all frequencies</p>
-            <div class="spectrum">Spectrum: ████████████████ (flat)</div>
-            <div class="use-cases">
-                <strong>Perfect for:</strong> Audio testing, sound masking, concentration aid, harsh noise walls
+            <h3>White Noise</h3>
+            <p><strong>Frequency Response:</strong> Flat across all frequencies</p>
+            <div class="frequency-chart">
+Frequency Response: ████████████████████████
+20Hz    100Hz   1kHz    10kHz   20kHz
+Equal energy per frequency bin
+            </div>
+            <p><strong>Sound Character:</strong> Harsh, cutting, static-like hiss</p>
+            <div class="use-case">
+                <strong>Use Cases:</strong> 
+                <ul>
+                    <li>Harsh noise walls</li>
+                    <li>Audio equipment testing</li>
+                    <li>Masking unwanted sounds</li>
+                    <li>Sleep therapy (some prefer it)</li>
+                </ul>
             </div>
         </div>
 
         <div class="noise-type">
-            <h3>🌸 Pink Noise</h3>
-            <p><strong>Natural balance</strong> - Equal energy per octave (1/f slope)</p>
-            <div class="spectrum">Spectrum: ████████████▓▓▓▓ (1/f slope)</div>
-            <div class="use-cases">
-                <strong>Perfect for:</strong> Sleep aid, natural ambience, relaxation, ambient music
+            <h3>Pink Noise (1/f)</h3>
+            <p><strong>Frequency Response:</strong> -3dB per octave (equal energy per octave)</p>
+            <div class="frequency-chart">
+Frequency Response: ████████████████▓▓▓▓░░░░
+20Hz    100Hz   1kHz    10kHz   20kHz
+Natural balance - equal energy per octave
+            </div>
+            <p><strong>Sound Character:</strong> Natural, balanced, like rainfall or ocean waves</p>
+            <div class="use-case">
+                <strong>Use Cases:</strong>
+                <ul>
+                    <li>Sleep and relaxation</li>
+                    <li>Audio system calibration</li>
+                    <li>Natural ambient soundscapes</li>
+                    <li>Concentration enhancement</li>
+                </ul>
             </div>
         </div>
 
         <div class="noise-type">
-            <h3>🍫 Brown Noise</h3>
-            <p><strong>Deep rumble</strong> - Heavy bass emphasis (1/f² slope)</p>
-            <div class="spectrum">Spectrum: ██████▓▓▓▓░░░░░░ (1/f² slope)</div>
-            <div class="use-cases">
-                <strong>Perfect for:</strong> Deep relaxation, drone music, industrial sounds, sub-bass textures
+            <h3>Brown Noise (1/f²)</h3>
+            <p><strong>Frequency Response:</strong> -6dB per octave (Brownian motion)</p>
+            <div class="frequency-chart">
+Frequency Response: ████████████▓▓▓▓░░░░░░░░
+20Hz    100Hz   1kHz    10kHz   20kHz
+Deep bass emphasis - like ocean waves
+            </div>
+            <p><strong>Sound Character:</strong> Deep, rumbling, like distant thunder or large waterfall</p>
+            <div class="use-case">
+                <strong>Use Cases:</strong>
+                <ul>
+                    <li>Deep sleep and meditation</li>
+                    <li>Bass-heavy music production</li>
+                    <li>Subwoofer testing</li>
+                    <li>Tinnitus masking</li>
+                </ul>
+            </div>
+        </div>
+
+        <h2>Advanced Types</h2>
+
+        <div class="noise-type">
+            <h3>Perlin Noise</h3>
+            <p><strong>Frequency Response:</strong> Organic, natural variations with controllable octaves</p>
+            <div class="frequency-chart">
+Frequency Response: Organic/smooth variations
+Parameters: frequency (base rate), octaves (complexity)
+Creates natural-sounding textures
+            </div>
+            <p><strong>Sound Character:</strong> Smooth, organic, wind-like with natural variations</p>
+            <div class="use-case">
+                <strong>Use Cases:</strong>
+                <ul>
+                    <li>Natural environment simulation</li>
+                    <li>Texture synthesis for music</li>
+                    <li>Ambient soundscape foundations</li>
+                    <li>Realistic wind/water sounds</li>
+                </ul>
             </div>
         </div>
 
         <div class="noise-type">
-            <h3>💙 Blue Noise</h3>
-            <p><strong>Bright & harsh</strong> - High-frequency emphasis (+3dB/octave)</p>
-            <div class="spectrum">Spectrum: ░░░░▓▓▓▓████████ (+3dB/octave)</div>
-            <div class="use-cases">
-                <strong>Perfect for:</strong> High-freq testing, cutting textures, aggressive electronics
+            <h3>Band-Limited Noise</h3>
+            <p><strong>Frequency Response:</strong> Precisely filtered to specific frequency ranges</p>
+            <div class="frequency-chart">
+Frequency Response: ░░░░████████████░░░░░░░░
+20Hz    [low_freq]  [high_freq]   20kHz
+Only frequencies between low_freq and high_freq
+            </div>
+            <p><strong>Sound Character:</strong> Focused frequency content, surgical precision</p>
+            <div class="use-case">
+                <strong>Use Cases:</strong>
+                <ul>
+                    <li>Audio equipment testing</li>
+                    <li>Hearing tests and audiometry</li>
+                    <li>Frequency-specific effects</li>
+                    <li>Sound masking in specific ranges</li>
+                </ul>
             </div>
         </div>
 
-        <div class="noise-type">
-            <h3>💜 Violet Noise</h3>
-            <p><strong>Ultra-bright</strong> - Extreme high-frequency emphasis (+6dB/octave)</p>
-            <div class="spectrum">Spectrum: ░░░░░░▓▓████████ (+6dB/octave)</div>
-            <div class="use-cases">
-                <strong>Perfect for:</strong> Extreme testing, harsh noise, power electronics, digital artifacts
-            </div>
+        <h2>Chaos Noise Mix</h2>
+        
+        <p>The most extreme processing node for harsh noise and Merzbow-style chaos generation.</p>
+
+        <h3>Mixing Modes</h3>
+        <table class="parameter-table">
+            <tr>
+                <th>Mode</th>
+                <th>Description</th>
+                <th>Character</th>
+            </tr>
+            <tr>
+                <td><strong>add</strong></td>
+                <td>Simple addition of signals</td>
+                <td>Basic mixing, can cause clipping</td>
+            </tr>
+            <tr>
+                <td><strong>multiply</strong></td>
+                <td>Signal multiplication (ring modulation)</td>
+                <td>Harsh, metallic harmonics</td>
+            </tr>
+            <tr>
+                <td><strong>xor</strong></td>
+                <td>Bitwise XOR operation</td>
+                <td>Digital chaos, unpredictable</td>
+            </tr>
+            <tr>
+                <td><strong>modulo</strong></td>
+                <td>Modular arithmetic</td>
+                <td>Rhythmic patterns, digital glitches</td>
+            </tr>
+            <tr>
+                <td><strong>subtract</strong></td>
+                <td>Signal subtraction</td>
+                <td>Hollow, phase-inverted effects</td>
+            </tr>
+            <tr>
+                <td><strong>max/min</strong></td>
+                <td>Maximum/minimum selection</td>
+                <td>Sharp transients, clipping effects</td>
+            </tr>
+            <tr>
+                <td><strong>ring_mod</strong></td>
+                <td>Classic ring modulation</td>
+                <td>Metallic, bell-like harmonics</td>
+            </tr>
+            <tr>
+                <td><strong>am_mod</strong></td>
+                <td>Amplitude modulation</td>
+                <td>Tremolo effects, amplitude variations</td>
+            </tr>
+            <tr>
+                <td><strong>fm_mod</strong></td>
+                <td>Frequency modulation</td>
+                <td>Complex harmonic content</td>
+            </tr>
+            <tr>
+                <td><strong>chaos</strong></td>
+                <td>Non-linear chaotic mixing</td>
+                <td>Pure unpredictable chaos</td>
+            </tr>
+        </table>
+
+        <h3>Processing Parameters</h3>
+        <table class="parameter-table">
+            <tr>
+                <th>Parameter</th>
+                <th>Range</th>
+                <th>Effect</th>
+            </tr>
+            <tr>
+                <td><strong>chaos_amount</strong></td>
+                <td>0.0 - 1.0</td>
+                <td>Amount of non-linear processing applied</td>
+            </tr>
+            <tr>
+                <td><strong>distortion</strong></td>
+                <td>0.0 - 1.0</td>
+                <td>Multi-stage saturation and clipping</td>
+            </tr>
+            <tr>
+                <td><strong>bit_crush</strong></td>
+                <td>1 - 16 bits</td>
+                <td>Digital resolution reduction</td>
+            </tr>
+            <tr>
+                <td><strong>feedback</strong></td>
+                <td>0.0 - 0.8</td>
+                <td>Delay feedback amount (careful with high values!)</td>
+            </tr>
+            <tr>
+                <td><strong>ring_freq</strong></td>
+                <td>1 - 5000 Hz</td>
+                <td>Carrier frequency for ring modulation</td>
+            </tr>
+        </table>
+
+        <h2>Japanese Noise / Merzbow Style Techniques</h2>
+        
+        <div class="use-case">
+            <h3>Multi-Layer Chaos Chain</h3>
+            <p>Connect multiple ChaosNoiseMix nodes in series:</p>
+            <ol>
+                <li><strong>Layer 1:</strong> White + Brown noise → chaos mode, high distortion</li>
+                <li><strong>Layer 2:</strong> Result → xor mode, maximum bit crush</li>
+                <li><strong>Layer 3:</strong> Result → modulo mode, high feedback</li>
+                <li><strong>Final:</strong> Multiple parallel chains mixed together</li>
+            </ol>
         </div>
 
-        <h2>🌿 Advanced Types</h2>
-
-        <div class="noise-type">
-            <h3>🌿 Perlin Noise</h3>
-            <p><strong>Organic textures</strong> - Natural variations with coherent structure</p>
-            <div class="use-cases">
-                <strong>Perfect for:</strong> Natural soundscapes, wind/water simulation, organic textures
-                <br><strong>Controls:</strong> Frequency (speed), Octaves (detail level)
-            </div>
+        <div class="use-case">
+            <h3>Frequency Splitting Technique</h3>
+            <p>Split noise into frequency bands and process separately:</p>
+            <ol>
+                <li>Create band-limited noise for low, mid, high frequencies</li>
+                <li>Process each band with different chaos settings</li>
+                <li>Recombine with harsh mixing modes</li>
+                <li>Apply final distortion and bit crushing</li>
+            </ol>
         </div>
 
-        <div class="noise-type">
-            <h3>🎯 Band-Limited Noise</h3>
-            <p><strong>Frequency filtered</strong> - Noise targeting specific frequency ranges</p>
-            <div class="use-cases">
-                <strong>Perfect for:</strong> Precise testing, targeted masking, frequency analysis
-                <br><strong>Controls:</strong> Low/High frequency cutoffs
-            </div>
-        </div>
+        <h2>Parameter Guidelines</h2>
 
-        <h2>🔥 Chaos Noise Mix</h2>
-        <div class="noise-type">
-            <h3>Mix Modes</h3>
-            <ul>
-                <li><strong>ADD/SUBTRACT:</strong> Basic mixing and phase cancellation</li>
-                <li><strong>MULTIPLY:</strong> Ring modulation (metallic tones)</li>
-                <li><strong>XOR:</strong> Digital harsh mixing (glitchy)</li>
-                <li><strong>RING_MOD/AM_MOD/FM_MOD:</strong> Classic modulation effects</li>
-                <li><strong>CHAOS:</strong> Extreme non-linear processing (total devastation)</li>
-            </ul>
-            <div class="use-cases">
-                <strong>Processing:</strong> Distortion, bit crushing, feedback, ring frequency
-            </div>
+        <h3>For Music Production</h3>
+        <ul>
+            <li><strong>Amplitude:</strong> 0.1-0.7 for mixing, 0.8+ for dominant noise</li>
+            <li><strong>Duration:</strong> 30-300 seconds for full tracks</li>
+            <li><strong>Sample Rate:</strong> 44.1kHz for music, 48kHz for video</li>
+        </ul>
+
+        <h3>For Scientific Testing</h3>
+        <ul>
+            <li><strong>Amplitude:</strong> Calibrated to specific dB levels</li>
+            <li><strong>Duration:</strong> 10-60 seconds for measurements</li>
+            <li><strong>Sample Rate:</strong> 48kHz or 96kHz for precision</li>
+            <li><strong>Seed:</strong> Fixed value for reproducible results</li>
+        </ul>
+
+        <h3>For Sleep/Relaxation</h3>
+        <ul>
+            <li><strong>Types:</strong> Pink or Brown noise preferred</li>
+            <li><strong>Amplitude:</strong> 0.1-0.3 for background levels</li>
+            <li><strong>Duration:</strong> 300+ seconds or loop</li>
+            <li><strong>Stereo:</strong> Correlated mode for gentle effect</li>
+        </ul>
+
+        <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 2px solid #333;">
+            <a href="index.html" class="back-link">← Back to NoiseGen</a>
+            <p style="color: #888; margin-top: 20px;">
+                <em>Generate chaos. Destroy silence. Create music.</em>
+            </p>
         </div>
     </div>
 </body>
