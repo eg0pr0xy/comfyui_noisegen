@@ -1,0 +1,94 @@
+{
+  "1": {
+    "inputs": {
+      "noise_type": "pink",
+      "duration": 60.0,
+      "sample_rate": 44100,
+      "amplitude": 0.3,
+      "seed": 100,
+      "channels": 2,
+      "stereo_mode": "decorrelated",
+      "stereo_width": 1.5
+    },
+    "class_type": "NoiseGenerator",
+    "_meta": {
+      "title": "Pink Noise Base Layer"
+    }
+  },
+  "2": {
+    "inputs": {
+      "noise_type": "perlin",
+      "duration": 60.0,
+      "sample_rate": 44100,
+      "amplitude": 0.2,
+      "seed": 200,
+      "channels": 2,
+      "stereo_mode": "independent",
+      "stereo_width": 2.0,
+      "frequency": 0.5,
+      "octaves": 6
+    },
+    "class_type": "NoiseGenerator",
+    "_meta": {
+      "title": "Perlin Wind Texture"
+    }
+  },
+  "3": {
+    "inputs": {
+      "noise_type": "brown",
+      "duration": 60.0,
+      "sample_rate": 44100,
+      "amplitude": 0.1,
+      "seed": 300,
+      "channels": 2,
+      "stereo_mode": "correlated",
+      "stereo_width": 0.8
+    },
+    "class_type": "NoiseGenerator",
+    "_meta": {
+      "title": "Brown Noise Rumble"
+    }
+  },
+  "4": {
+    "inputs": {
+      "audio": [
+        "1",
+        0
+      ],
+      "filename_prefix": "ambient_pink_",
+      "format": "wav"
+    },
+    "class_type": "AudioSave",
+    "_meta": {
+      "title": "Save Pink Layer"
+    }
+  },
+  "5": {
+    "inputs": {
+      "audio": [
+        "2",
+        0
+      ],
+      "filename_prefix": "ambient_perlin_",
+      "format": "wav"
+    },
+    "class_type": "AudioSave",
+    "_meta": {
+      "title": "Save Perlin Layer"
+    }
+  },
+  "6": {
+    "inputs": {
+      "audio": [
+        "3",
+        0
+      ],
+      "filename_prefix": "ambient_brown_",
+      "format": "wav"
+    },
+    "class_type": "AudioSave",
+    "_meta": {
+      "title": "Save Brown Layer"
+    }
+  }
+} 

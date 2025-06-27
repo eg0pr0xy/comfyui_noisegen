@@ -1,0 +1,94 @@
+{
+  "1": {
+    "inputs": {
+      "noise_type": "white",
+      "duration": 30.0,
+      "sample_rate": 96000,
+      "amplitude": 0.5,
+      "seed": 1000,
+      "channels": 2,
+      "stereo_mode": "independent",
+      "stereo_width": 1.0
+    },
+    "class_type": "NoiseGenerator",
+    "_meta": {
+      "title": "White Noise Reference - Full Bandwidth"
+    }
+  },
+  "2": {
+    "inputs": {
+      "noise_type": "pink",
+      "duration": 30.0,
+      "sample_rate": 96000,
+      "amplitude": 0.5,
+      "seed": 1001,
+      "channels": 2,
+      "stereo_mode": "independent",
+      "stereo_width": 1.0
+    },
+    "class_type": "NoiseGenerator",
+    "_meta": {
+      "title": "Pink Noise Reference - Equal Energy per Octave"
+    }
+  },
+  "3": {
+    "inputs": {
+      "noise_type": "bandlimited",
+      "duration": 30.0,
+      "sample_rate": 96000,
+      "amplitude": 0.5,
+      "seed": 1002,
+      "channels": 2,
+      "stereo_mode": "independent",
+      "stereo_width": 1.0,
+      "low_freq": 1000.0,
+      "high_freq": 4000.0
+    },
+    "class_type": "NoiseGenerator",
+    "_meta": {
+      "title": "Band-Limited Noise - Critical Frequency Range"
+    }
+  },
+  "4": {
+    "inputs": {
+      "audio": [
+        "1",
+        0
+      ],
+      "filename_prefix": "test_white_96k_",
+      "format": "wav"
+    },
+    "class_type": "AudioSave",
+    "_meta": {
+      "title": "Save White Test Signal"
+    }
+  },
+  "5": {
+    "inputs": {
+      "audio": [
+        "2",
+        0
+      ],
+      "filename_prefix": "test_pink_96k_",
+      "format": "wav"
+    },
+    "class_type": "AudioSave",
+    "_meta": {
+      "title": "Save Pink Test Signal"
+    }
+  },
+  "6": {
+    "inputs": {
+      "audio": [
+        "3",
+        0
+      ],
+      "filename_prefix": "test_bandlimited_",
+      "format": "wav"
+    },
+    "class_type": "AudioSave",
+    "_meta": {
+      "title": "Save Band-Limited Test Signal"
+    }
+  }
+} 

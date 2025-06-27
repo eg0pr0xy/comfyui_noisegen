@@ -1,0 +1,10 @@
+# Core dependencies for ComfyUI NoiseGen
+numpy>=1.21.0
+torch>=1.11.0
+torchaudio>=0.11.0
+scipy>=1.7.0
+
+# Optional dependencies for enhanced functionality
+librosa>=0.9.0
+soundfile>=0.10.0
+matplotlib>=3.5.0 

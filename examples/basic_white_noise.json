@@ -1,0 +1,32 @@
+{
+  "1": {
+    "inputs": {
+      "noise_type": "white",
+      "duration": 10.0,
+      "sample_rate": 44100,
+      "amplitude": 0.5,
+      "seed": 42,
+      "channels": 1,
+      "stereo_mode": "independent",
+      "stereo_width": 1.0
+    },
+    "class_type": "NoiseGenerator",
+    "_meta": {
+      "title": "Basic White Noise Generator"
+    }
+  },
+  "2": {
+    "inputs": {
+      "audio": [
+        "1",
+        0
+      ],
+      "filename_prefix": "white_noise_",
+      "format": "wav"
+    },
+    "class_type": "AudioSave",
+    "_meta": {
+      "title": "Save White Noise"
+    }
+  }
+} 
