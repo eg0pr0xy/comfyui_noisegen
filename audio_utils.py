@@ -337,9 +337,10 @@ def numpy_to_comfy_audio(audio_array: np.ndarray, sample_rate: int) -> dict:
     # Convert to torch tensor and ensure proper format
     waveform = torch.from_numpy(audio_array).float()
     
-    # Ensure waveform is in the correct range [-1, 1]
+    # Only normalize if significantly over range to prevent quiet audio
+    # Allow some headroom - only normalize if over 1.2 to maintain volume
     max_val = torch.max(torch.abs(waveform))
-    if max_val > 1.0:
+    if max_val > 1.2:
         waveform = waveform / max_val
     
     # CRITICAL: Ensure tensor is ALWAYS 2D for torchaudio.save compatibility
