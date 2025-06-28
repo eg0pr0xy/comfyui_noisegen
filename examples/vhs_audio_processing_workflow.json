@@ -1,0 +1,156 @@
+{
+  "last_node_id": 6,
+  "last_link_id": 6,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "VHS_LoadAudio",
+      "pos": [50, 50],
+      "size": {"0": 350, "1": 180},
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "outputs": [
+        {"name": "audio", "type": "VHS_AUDIO", "links": [1], "shape": 3}
+      ],
+      "title": "📁 Load External Audio File",
+      "properties": {"Node name for S&R": "VHS_LoadAudio"},
+      "widgets_values": ["input/your_audio_file.wav", 0.0, 0]
+    },
+    {
+      "id": 2,
+      "type": "GranularProcessor",
+      "pos": [450, 50],
+      "size": {"0": 400, "1": 520},
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {"name": "audio", "type": "AUDIO", "link": 1}
+      ],
+      "outputs": [
+        {"name": "granular_audio", "type": "AUDIO", "links": [2], "shape": 3}
+      ],
+      "title": "🌟 Granular Processing",
+      "properties": {"Node name for S&R": "GranularProcessor"},
+      "widgets_values": [80.0, 30.0, 1.5, "hann", "random", "transpose", 0.5, 0.8, 0.0, 0.3, 0.7, 0.2, 0.5]
+    },
+    {
+      "id": 3,
+      "type": "MultiDistortion",
+      "pos": [900, 50],
+      "size": {"0": 400, "1": 380},
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {"name": "audio", "type": "AUDIO", "link": 2}
+      ],
+      "outputs": [
+        {"name": "distorted_audio", "type": "AUDIO", "links": [3], "shape": 3}
+      ],
+      "title": "🎸 Multi-Stage Distortion",
+      "properties": {"Node name for S&R": "MultiDistortion"},
+      "widgets_values": ["bitcrush", 2.0, 0.8, 0.9, 2, 0.3, 0.7, 0.5]
+    },
+    {
+      "id": 4,
+      "type": "HarshFilter",
+      "pos": [450, 650],
+      "size": {"0": 400, "1": 520},
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {"name": "audio", "type": "AUDIO", "link": 3}
+      ],
+      "outputs": [
+        {"name": "filtered_audio", "type": "AUDIO", "links": [4], "shape": 3}
+      ],
+      "title": "🎛️ Harsh Filtering",
+      "properties": {"Node name for S&R": "HarshFilter"},
+      "widgets_values": ["lowpass", 3000.0, 0.7, 0.8, "tube", 1.2, 0.0, 2.0, 0.4, 0.9, 0.8, 0.2]
+    },
+    {
+      "id": 5,
+      "type": "MicrosoundSculptor",
+      "pos": [900, 500],
+      "size": {"0": 400, "1": 520},
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {"name": "audio", "type": "AUDIO", "link": 4}
+      ],
+      "outputs": [
+        {"name": "microsound_audio", "type": "AUDIO", "links": [5], "shape": 3}
+      ],
+      "title": "⚡ Microsound Sculpting",
+      "properties": {"Node name for S&R": "MicrosoundSculptor"},
+      "widgets_values": ["frequency_shift", 0.4, "grain_morph", 0.6, 60.0, 15.0, 0.3, 0.8, 0.2, 0.8, 100.0]
+    },
+    {
+      "id": 6,
+      "type": "AudioSave",
+      "pos": [1350, 700],
+      "size": {"0": 350, "1": 160},
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {"name": "audio", "type": "AUDIO", "link": 5}
+      ],
+      "outputs": [
+        {"name": "audio", "type": "AUDIO", "links": [], "shape": 3},
+        {"name": "filepath", "type": "STRING", "links": [], "shape": 3}
+      ],
+      "title": "💾 Enhanced Audio Save with Preview",
+      "properties": {"Node name for S&R": "AudioSave"},
+      "widgets_values": ["Processed_External_", "wav", 320]
+    }
+  ],
+  "links": [
+    [1, 1, 0, 2, 0, "AUDIO"],
+    [2, 2, 0, 3, 0, "AUDIO"],
+    [3, 3, 0, 4, 0, "AUDIO"],
+    [4, 4, 0, 5, 0, "AUDIO"],
+    [5, 5, 0, 6, 0, "AUDIO"]
+  ],
+  "groups": [
+    {
+      "title": "📁 EXTERNAL AUDIO INPUT",
+      "bounding": [30, -10, 390, 250],
+      "color": "#3f789e",
+      "font_size": 24
+    },
+    {
+      "title": "🌟 GRANULAR PROCESSING CHAIN",
+      "bounding": [430, -10, 890, 640],
+      "color": "#b58b2c",
+      "font_size": 24
+    },
+    {
+      "title": "⚡ EXTREME PROCESSING",
+      "bounding": [430, 630, 890, 640],
+      "color": "#a1309b",
+      "font_size": 24
+    },
+    {
+      "title": "💾 ENHANCED OUTPUT",
+      "bounding": [1330, 680, 390, 220],
+      "color": "#8eb33b",
+      "font_size": 24
+    }
+  ],
+  "config": {},
+  "extra": {
+    "workflow_info": {
+      "name": "External Audio Processing with VHS_LoadAudio",
+      "description": "Demonstrates loading external audio files and processing them through the complete NoiseGen pipeline",
+      "version": "1.0",
+      "author": "ComfyUI-NoiseGen",
+      "tags": ["external-audio", "vhs-loadadio", "granular", "processing", "workflow"]
+    }
+  },
+  "version": 0.4
+} 
