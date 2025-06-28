@@ -957,6 +957,9 @@ class AudioMixerNode:
                 "audio_b": ("AUDIO", {"tooltip": "Second audio input"}),
                 "gain_b": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 2.0, "step": 0.01}),
                 "pan_b": ("FLOAT", {"default": 0.0, "min": -1.0, "max": 1.0, "step": 0.01}),
+                "audio_c": ("AUDIO", {"tooltip": "Third audio input"}),
+                "gain_c": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 2.0, "step": 0.01}),
+                "pan_c": ("FLOAT", {"default": 0.0, "min": -1.0, "max": 1.0, "step": 0.01}),
                 "master_gain": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 2.0, "step": 0.01}),
             }
         }
@@ -965,9 +968,10 @@ class AudioMixerNode:
     RETURN_NAMES = ("mixed_audio",)
     FUNCTION = "mix_audio"
     CATEGORY = "🎵 NoiseGen/Mixing"
-    DESCRIPTION = "Professional audio mixer with gain and pan controls"
+    DESCRIPTION = "Professional audio mixer with gain and pan controls for up to 3 inputs"
     
-    def mix_audio(self, audio_a, gain_a, pan_a, audio_b=None, gain_b=1.0, pan_b=0.0, master_gain=1.0):
+    def mix_audio(self, audio_a, gain_a, pan_a, audio_b=None, gain_b=1.0, pan_b=0.0, 
+                  audio_c=None, gain_c=1.0, pan_c=0.0, master_gain=1.0):
         try:
             # Get first audio
             waveform_a = audio_a["waveform"]
@@ -1002,6 +1006,25 @@ class AudioMixerNode:
                 
                 # Add with gain
                 mixed += audio_b_np * gain_b
+            
+            # Add third audio if provided
+            if audio_c is not None:
+                waveform_c = audio_c["waveform"]
+                if hasattr(waveform_c, 'cpu'):
+                    audio_c_np = waveform_c.cpu().numpy()
+                else:
+                    audio_c_np = waveform_c
+                
+                if audio_c_np.ndim == 1:
+                    audio_c_np = audio_c_np.reshape(1, -1)
+                
+                # Match lengths with existing mixed audio
+                min_length = min(mixed.shape[1], audio_c_np.shape[1])
+                mixed = mixed[:, :min_length]
+                audio_c_np = audio_c_np[:, :min_length]
+                
+                # Add with gain
+                mixed += audio_c_np * gain_c
             
             # Apply master gain
             mixed *= master_gain
@@ -1144,19 +1167,20 @@ class AudioSaveNode:
             else:
                 audio_np = waveform
             
-            # Ensure output directory exists
+            # Create dedicated audio output directory
             if folder_paths:
-                output_dir = folder_paths.get_output_directory()
+                base_output_dir = folder_paths.get_output_directory()
+                audio_dir = os.path.join(base_output_dir, "audio")
             else:
-                output_dir = "outputs"
+                audio_dir = os.path.join("outputs", "audio")
             
-            os.makedirs(output_dir, exist_ok=True)
+            os.makedirs(audio_dir, exist_ok=True)
             
             # Generate filename
             import datetime
             timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
             filename = f"{filename_prefix}{timestamp}.{format}"
-            filepath = os.path.join(output_dir, filename)
+            filepath = os.path.join(audio_dir, filename)
             
             # Convert to torch tensor for torchaudio
             if not hasattr(audio_np, 'float'):
