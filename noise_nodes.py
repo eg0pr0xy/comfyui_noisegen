@@ -1292,6 +1292,319 @@ class AudioSaveNode:
             fallback_path = filepath if filepath is not None else f"Error: Could not save audio - {str(e)}"
             return (audio, fallback_path)
 
+class FeedbackProcessorNode:
+    """
+    Feedback Processor - Essential for self-generating Merzbow-style textures
+    
+    Creates complex feedback loops with filtering, saturation, and modulation.
+    Perfect for: Self-generating textures, metallic resonances, runaway chaos
+    
+    FEEDBACK MODES:
+    - SIMPLE    - Basic delay feedback
+    - FILTERED  - HP/LP/BP filtering in feedback loop  
+    - SATURATED - Nonlinear saturation in loop
+    - MODULATED - LFO modulation of delay time
+    - COMPLEX   - All effects combined
+    - RUNAWAY   - Intentionally unstable feedback (use carefully!)
+    """
+    
+    FEEDBACK_MODES = [
+        "simple",      # Basic delay feedback
+        "filtered",    # Filtering in feedback loop
+        "saturated",   # Nonlinear saturation
+        "modulated",   # LFO modulation of delay time
+        "complex",     # All effects combined
+        "runaway"      # Intentionally unstable (dangerous!)
+    ]
+    
+    FILTER_TYPES = [
+        "lowpass",     # Low-pass filtering
+        "highpass",    # High-pass filtering
+        "bandpass",    # Band-pass filtering
+        "notch",       # Notch filtering
+        "allpass"      # All-pass (phase only)
+    ]
+    
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "audio": ("AUDIO", {
+                    "tooltip": "Input audio to process through feedback system"
+                }),
+                "feedback_mode": (cls.FEEDBACK_MODES, {
+                    "default": "filtered",
+                    "tooltip": "Feedback processing mode: simple=basic, complex=all effects, runaway=dangerous!"
+                }),
+                "feedback_amount": ("FLOAT", {
+                    "default": 0.4, 
+                    "min": 0.0, 
+                    "max": 0.95, 
+                    "step": 0.01,
+                    "tooltip": "Feedback intensity (0.0=none, 0.95=maximum safe, >0.8=chaotic)"
+                }),
+                "delay_time": ("FLOAT", {
+                    "default": 2.0, 
+                    "min": 0.1, 
+                    "max": 100.0, 
+                    "step": 0.1,
+                    "tooltip": "Delay time in milliseconds (0.1ms=metallic, 100ms=echo-like)"
+                }),
+                "filter_type": (cls.FILTER_TYPES, {
+                    "default": "lowpass",
+                    "tooltip": "Filter type in feedback loop (shapes the resonance character)"
+                }),
+                "filter_freq": ("FLOAT", {
+                    "default": 2000.0, 
+                    "min": 20.0, 
+                    "max": 20000.0, 
+                    "step": 10.0,
+                    "tooltip": "Filter frequency in Hz (controls resonance pitch)"
+                }),
+                "filter_resonance": ("FLOAT", {
+                    "default": 0.3, 
+                    "min": 0.0, 
+                    "max": 0.99, 
+                    "step": 0.01,
+                    "tooltip": "Filter resonance (0.0=gentle, 0.99=self-oscillating)"
+                }),
+                "saturation": ("FLOAT", {
+                    "default": 0.2, 
+                    "min": 0.0, 
+                    "max": 1.0, 
+                    "step": 0.01,
+                    "tooltip": "Nonlinear saturation amount in feedback loop"
+                }),
+                "modulation_rate": ("FLOAT", {
+                    "default": 0.5, 
+                    "min": 0.01, 
+                    "max": 20.0, 
+                    "step": 0.01,
+                    "tooltip": "LFO rate for delay time modulation (Hz)"
+                }),
+                "modulation_depth": ("FLOAT", {
+                    "default": 0.2, 
+                    "min": 0.0, 
+                    "max": 1.0, 
+                    "step": 0.01,
+                    "tooltip": "LFO depth for delay time modulation"
+                }),
+                "amplitude": ("FLOAT", {
+                    "default": 0.8, 
+                    "min": 0.0, 
+                    "max": 2.0, 
+                    "step": 0.01,
+                    "tooltip": "Output amplitude (0.0=silence, 1.0=normal, 2.0=loud)"
+                }),
+            },
+            "optional": {
+                "wet_dry_mix": ("FLOAT", {
+                    "default": 0.7, 
+                    "min": 0.0, 
+                    "max": 1.0, 
+                    "step": 0.01,
+                    "tooltip": "Wet/dry mix (0.0=original only, 1.0=feedback only)"
+                }),
+            }
+        }
+    
+    RETURN_TYPES = ("AUDIO",)
+    RETURN_NAMES = ("feedback_audio",)
+    FUNCTION = "process_feedback"
+    CATEGORY = "🎵 NoiseGen/Processing"
+    DESCRIPTION = "Advanced feedback processor for self-generating Merzbow-style textures and metallic resonances"
+    
+    def process_feedback(self, audio, feedback_mode, feedback_amount, delay_time, 
+                        filter_type, filter_freq, filter_resonance, saturation, 
+                        modulation_rate, modulation_depth, amplitude, wet_dry_mix=0.7):
+        """Process audio through advanced feedback system."""
+        try:
+            # Extract audio data
+            waveform = audio["waveform"]
+            sample_rate = audio["sample_rate"]
+            
+            # Convert to numpy
+            if hasattr(waveform, 'cpu'):
+                audio_np = waveform.cpu().numpy()
+            else:
+                audio_np = waveform
+            
+            # Ensure 2D array [channels, samples]
+            if audio_np.ndim == 1:
+                audio_np = audio_np.reshape(1, -1)
+            
+            # Process each channel
+            processed_channels = []
+            for channel in range(audio_np.shape[0]):
+                channel_audio = audio_np[channel]
+                processed = self._apply_feedback_processing(
+                    channel_audio, sample_rate, feedback_mode, feedback_amount, 
+                    delay_time, filter_type, filter_freq, filter_resonance, 
+                    saturation, modulation_rate, modulation_depth, wet_dry_mix
+                )
+                processed_channels.append(processed)
+            
+            # Stack channels back together
+            result = np.stack(processed_channels, axis=0) * amplitude
+            
+            # Convert back to tensor format
+            result_tensor = torch.from_numpy(result).float()
+            
+            # Create output audio
+            output_audio = {
+                "waveform": result_tensor,
+                "sample_rate": sample_rate
+            }
+            
+            return (output_audio,)
+            
+        except Exception as e:
+            print(f"❌ Error in feedback processing: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            return (audio,)  # Return original on error
+    
+    def _apply_feedback_processing(self, audio, sample_rate, mode, feedback_amount, 
+                                 delay_time_ms, filter_type, filter_freq, filter_resonance,
+                                 saturation, mod_rate, mod_depth, wet_dry_mix):
+        """Apply sophisticated feedback processing to audio."""
+        
+        # Convert delay time to samples
+        delay_samples = int((delay_time_ms / 1000.0) * sample_rate)
+        delay_samples = max(1, min(delay_samples, len(audio) // 2))  # Safety bounds
+        
+        # Initialize feedback buffer
+        feedback_buffer = np.zeros(len(audio) + delay_samples)
+        output = np.zeros_like(audio)
+        
+        # Filter state variables (simple IIR)
+        filter_state = {"x1": 0.0, "x2": 0.0, "y1": 0.0, "y2": 0.0}
+        
+        # LFO for modulation
+        lfo_phase = 0.0
+        lfo_increment = 2 * np.pi * mod_rate / sample_rate
+        
+        # Process sample by sample for feedback
+        for i in range(len(audio)):
+            # Read from delay line
+            delay_pos = i + delay_samples
+            
+            # Modulated delay time (if enabled)
+            if mode in ["modulated", "complex"]:
+                lfo_value = np.sin(lfo_phase)
+                mod_delay = int(delay_samples * (1 + mod_depth * lfo_value * 0.5))
+                mod_delay = max(1, min(mod_delay, len(feedback_buffer) - i - 1))
+                lfo_phase += lfo_increment
+                if lfo_phase > 2 * np.pi:
+                    lfo_phase -= 2 * np.pi
+            else:
+                mod_delay = delay_samples
+            
+            # Get delayed signal
+            if delay_pos < len(feedback_buffer):
+                delayed_signal = feedback_buffer[delay_pos - mod_delay]
+            else:
+                delayed_signal = 0.0
+            
+            # Apply filtering to delayed signal
+            if mode in ["filtered", "complex"]:
+                delayed_signal = self._apply_filter(delayed_signal, filter_type, 
+                                                  filter_freq, filter_resonance, 
+                                                  sample_rate, filter_state)
+            
+            # Apply saturation
+            if mode in ["saturated", "complex", "runaway"]:
+                saturation_drive = 1.0 + saturation * 10.0
+                delayed_signal = np.tanh(delayed_signal * saturation_drive) / saturation_drive
+            
+            # Apply feedback
+            feedback_signal = delayed_signal * feedback_amount
+            
+            # For runaway mode, intentionally increase feedback over time
+            if mode == "runaway":
+                time_factor = min(i / (sample_rate * 2.0), 1.0)  # Ramp over 2 seconds
+                feedback_signal *= (1.0 + time_factor * 0.3)  # Gradually increase
+            
+            # Mix input with feedback
+            mixed_signal = audio[i] + feedback_signal
+            
+            # Store in feedback buffer for next iteration
+            if i < len(feedback_buffer):
+                feedback_buffer[i] = mixed_signal
+            
+            # Apply safety limiting to prevent runaway
+            if abs(mixed_signal) > 3.0:
+                mixed_signal = np.sign(mixed_signal) * 3.0
+            
+            # Wet/dry mix
+            output[i] = audio[i] * (1 - wet_dry_mix) + mixed_signal * wet_dry_mix
+        
+        return output
+    
+    def _apply_filter(self, signal, filter_type, cutoff, resonance, sample_rate, state):
+        """Apply IIR filter to signal with state preservation."""
+        
+        # Calculate filter coefficients
+        nyquist = sample_rate / 2.0
+        normalized_cutoff = max(20.0, min(cutoff, nyquist - 100)) / nyquist
+        
+        # Simple biquad coefficients (approximate)
+        w = 2 * np.pi * normalized_cutoff
+        cos_w = np.cos(w)
+        sin_w = np.sin(w)
+        alpha = sin_w / (2.0 * max(0.1, (1.0 - resonance * 0.9)))
+        
+        if filter_type == "lowpass":
+            b0 = (1 - cos_w) / 2
+            b1 = 1 - cos_w
+            b2 = (1 - cos_w) / 2
+            a0 = 1 + alpha
+            a1 = -2 * cos_w
+            a2 = 1 - alpha
+        elif filter_type == "highpass":
+            b0 = (1 + cos_w) / 2
+            b1 = -(1 + cos_w)
+            b2 = (1 + cos_w) / 2
+            a0 = 1 + alpha
+            a1 = -2 * cos_w
+            a2 = 1 - alpha
+        elif filter_type == "bandpass":
+            b0 = alpha
+            b1 = 0
+            b2 = -alpha
+            a0 = 1 + alpha
+            a1 = -2 * cos_w
+            a2 = 1 - alpha
+        else:  # Default to lowpass for notch/allpass
+            b0 = (1 - cos_w) / 2
+            b1 = 1 - cos_w
+            b2 = (1 - cos_w) / 2
+            a0 = 1 + alpha
+            a1 = -2 * cos_w
+            a2 = 1 - alpha
+        
+        # Normalize coefficients
+        b0 /= a0
+        b1 /= a0
+        b2 /= a0
+        a1 /= a0
+        a2 /= a0
+        
+        # Apply biquad filter
+        output = (b0 * signal + 
+                 b1 * state["x1"] + 
+                 b2 * state["x2"] - 
+                 a1 * state["y1"] - 
+                 a2 * state["y2"])
+        
+        # Update state
+        state["x2"] = state["x1"]
+        state["x1"] = signal
+        state["y2"] = state["y1"]
+        state["y1"] = output
+        
+        return output
+
 # Node mappings for ComfyUI - OPTIMIZED UX
 NODE_CLASS_MAPPINGS = {
     # MAIN NODES - Clean and focused
@@ -1300,6 +1613,7 @@ NODE_CLASS_MAPPINGS = {
     "BandLimitedNoise": BandLimitedNoiseNode,   # Unique parameters (freq filtering)
     "ChaosNoiseMix": ChaosNoiseMixNode,         # Advanced mixing
     "AudioMixer": AudioMixerNode,               # Professional mixing
+    "FeedbackProcessor": FeedbackProcessorNode, # Feedback systems - NEW!
     "AudioSave": AudioSaveNode,                 # Utility
     
     # LEGACY NODES - Hidden from main menu, kept for compatibility
@@ -1314,11 +1628,12 @@ NODE_CLASS_MAPPINGS = {
 NODE_DISPLAY_NAME_MAPPINGS = {
     # MAIN INTERFACE - Clean and discoverable
     "NoiseGenerator": "🎵 Noise Generator",
-    "PerlinNoise": "🌊 Perlin Noise",
-    "BandLimitedNoise": "📻 Band-Limited Noise", 
-    "ChaosNoiseMix": "🔥 Chaos Noise Mix",
+    "PerlinNoise": "🌊 Perlin Noise", 
+    "BandLimitedNoise": "📡 Band Limited Noise",
+    "ChaosNoiseMix": "💥 Chaos Noise Mix",
     "AudioMixer": "🎛️ Audio Mixer",
-    "AudioSave": "💾 Save Audio",
+    "FeedbackProcessor": "🔄 Feedback Processor",
+    "AudioSave": "💾 Audio Save",
     
     # LEGACY - Hidden with underscore prefix
     "_WhiteNoise": "⚪ White Noise (Legacy)",

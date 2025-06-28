@@ -1,225 +1,174 @@
-# 💀 COMFYUI NOISE GENERATOR 💀
+# 🎵 ComfyUI-NoiseGen
 
-> **"Noise is the most impolite music."** - Merzbow
+A powerful noise generation and audio processing package for ComfyUI, designed for experimental music, harsh noise, sound design, and Merzbow-style audio manipulation.
 
-A comprehensive ComfyUI node pack for generating various types of audio noise with professional-grade quality and extensive customization options. Perfect for harsh noise, experimental music, scientific testing, and audio production.
+## ✨ **NEW: FeedbackProcessor Node** 
+🔄 **Advanced feedback systems for self-generating Merzbow-style textures**
+- Multiple feedback modes: Simple, Filtered, Saturated, Modulated, Complex, Runaway
+- Built-in filtering with resonance control (LP/HP/BP/Notch/Allpass)
+- LFO modulation of delay time for pitch shifting effects
+- Nonlinear saturation in feedback loop
+- Safety limiting to prevent system damage
+- Perfect for: Metallic resonances, self-generating chaos, power electronics
 
----
+## 🎛️ **Core Nodes**
 
-## Features
+### **Universal Noise Generator** 🎵
+Generate 7 types of scientifically-accurate noise with professional stereo options:
+- **White**: Flat frequency spectrum (pure static)
+- **Pink**: 1/f spectrum (natural balance)  
+- **Brown**: 1/f² spectrum (deep rumble)
+- **Blue**: +3dB/octave (bright/harsh)
+- **Violet**: +6dB/octave (ultra-bright)
+- **Perlin**: Organic variations with controllable complexity
+- **Band-limited**: Frequency-filtered noise for targeted ranges
 
-### Noise Arsenal
+### **Processing Nodes** 🔧
 
-#### **Basic Types**
-- **White Noise** - Pure static chaos, flat frequency spectrum
-- **Pink Noise** - 1/f natural fury, balanced frequency response  
-- **Brown Noise** - Deep rumbling destruction, 1/f² frequency slope
+#### **FeedbackProcessor** 🔄 ⭐ NEW!
+Advanced feedback systems essential for Merzbow-style self-generating textures:
+- **6 feedback modes**: simple → complex → runaway (dangerous!)
+- **Filtering in feedback loop**: Shape resonance character
+- **LFO modulation**: Pitch shifting and movement  
+- **Saturation**: Nonlinear harmonic generation
+- **Safety limiting**: Prevent runaway feedback damage
 
-#### **Advanced Types**
-- **Blue Noise** - High-frequency razor cuts, +3dB/octave slope
-- **Violet Noise** - Ultrasonic warfare, +6dB/octave slope
-- **Perlin Noise** - Organic texture synthesis with natural variations
-- **Band-Limited Noise** - Frequency-targeted strikes with precise filtering
-- **ChaosNoiseMix** - Merzbow-style absolute devastation with 11 mixing modes
+#### **ChaosNoiseMix** 💥  
+Extreme mixing for harsh noise and power electronics:
+- **11 mix modes**: add, multiply, xor, ring_mod, chaos, etc.
+- **Chaos injection**: Random variations for unpredictability
+- **Built-in distortion**: Harsh saturation and drive
+- **Bit crushing**: Digital artifacts and lo-fi effects
+- **Feedback delay**: Metallic resonances
 
----
+#### **AudioMixer** 🎛️
+Professional 4-channel mixer with individual controls:
+- **Per-channel gain**: 0-2x with precise control
+- **Pan controls**: Full stereo positioning
+- **Master gain**: Final level control
+- **Clean mixing**: Addition-based algorithm
 
-## Installation
+### **Specialized Generators** 🌊
 
-### **Method 1: ComfyUI Manager** *Recommended*
-1. Open ComfyUI Manager
-2. Search for `"ComfyUI-NoiseGen"`
-3. Click Install & restart ComfyUI
+#### **PerlinNoise** 
+Organic noise with natural variations:
+- **Frequency control**: Base oscillation rate
+- **Octaves**: Complexity layers (1-8)
+- **Natural textures**: Smooth, organic variations
 
-### **Method 2: Manual Installation**
+#### **BandLimitedNoise** 📡
+Frequency-filtered noise generation:
+- **Precise filtering**: Define exact frequency ranges
+- **Scientific accuracy**: Proper band-limiting
+- **Targeted textures**: Focus on specific frequency bands
+
+### **Utilities** 💾
+
+#### **AudioSave**
+Professional audio export with metadata:
+- **Multiple formats**: WAV, FLAC, MP3
+- **Metadata preservation**: Generation parameters
+- **Timestamped filenames**: Organized output
+
+## 🚀 **Roadmap: Future Expansion**
+
+### **Phase 1: Core Processing (v2.0)**
+- **HarshFilter**: Extreme filtering with self-oscillation
+- **MultiDistortion**: Comprehensive distortion palette
+- **SpectralProcessor**: FFT-based spectral manipulation
+
+### **Phase 2: Advanced Systems (v2.5)**  
+- **TrueChaos**: Mathematically accurate chaotic oscillators
+- **GranularProcessor**: Granular synthesis for micro-textures
+- **ConvolutionReverb**: Industrial impulse response processing
+
+### **Phase 3: Control & Analysis (v3.0)**
+- **ModulationMatrix**: Complex parameter automation
+- **SpectrumAnalyzer**: Real-time visual feedback
+- **AudioAnalyzer**: Advanced signal analysis
+
+## 🎵 **Example Workflows**
+
+### **Basic Noise Generation**
+```
+NoiseGenerator → AudioSave
+```
+
+### **Merzbow-Style Feedback Chaos**
+```
+NoiseGenerator → FeedbackProcessor → ChaosNoiseMix → AudioSave
+                      ↑                      ↑
+NoiseGenerator → FeedbackProcessor ────────┘
+```
+
+### **Professional Mixing**
+```
+NoiseGenerator ──┐
+PerlinNoise ─────┼── AudioMixer → AudioSave
+BandLimitedNoise ─┘
+```
+
+### **Advanced Processing Chain**  
+```
+NoiseGenerator → FeedbackProcessor → ChaosNoiseMix → AudioMixer → AudioSave
+```
+
+## 🔧 **Installation**
+
+### **Git Clone (Recommended)**
 ```bash
-cd /path/to/comfyui/custom_nodes
-git clone https://github.com/eg0pr0xy/noisegen.git
-cd noisegen
+cd ComfyUI/custom_nodes
+git clone https://github.com/eg0pr0xy/comfyui_noisegen.git
+cd comfyui_noisegen
 pip install -r requirements.txt
-# Restart ComfyUI
 ```
 
----
+### **Dependencies**
+- `numpy` - Mathematical operations
+- `torch` - Tensor operations (ComfyUI dependency)
+- `soundfile` - Audio file I/O
+- `scipy` - Scientific computing
 
-## Technical Specifications
+## 🎛️ **Usage Tips**
 
-| **Parameter** | **Range** | **Description** |
-|---------------|-----------|-----------------|
-| **Duration** | 0.1s - 300s | Audio length control |
-| **Sample Rate** | 8kHz - 96kHz | Quality settings (8k, 16k, 22k, 44.1k, 48k, 96k) |
-| **Amplitude** | 0.0 - 2.0 | Volume/loudness control |
-| **Channels** | 1 - 8 | Mono to surround sound |
-| **Stereo Mode** | 3 modes | Independent, correlated, decorrelated |
-| **Seed** | 0 - 2147483647 | Reproducible random generation |
+### **Feedback Safety** ⚠️
+- Start with low feedback amounts (< 0.5)
+- Use "runaway" mode carefully - it's designed to be unstable!
+- Monitor output levels to prevent speaker damage
+- Set reasonable delay times (0.1-10ms for metallic, 10-100ms for echo)
 
-### **ChaosNoiseMix Parameters**
+### **Noise Character Guide**
+- **White**: Starting point, flat spectrum
+- **Pink**: Natural, balanced (great for mixing)
+- **Brown**: Deep, rumbling textures
+- **Blue/Violet**: Bright, harsh, cutting through mix
+- **Perlin**: Organic, evolving textures
+- **Band-limited**: Targeted frequency focus
 
-| **Parameter** | **Range** | **Description** |
-|---------------|-----------|-----------------|
-| **Mix Mode** | 11 types | add, multiply, xor, modulo, subtract, max, min, ring_mod, am_mod, fm_mod, chaos |
-| **Chaos Amount** | 0.0 - 1.0 | Non-linear mixing intensity |
-| **Distortion** | 0.0 - 1.0 | Multi-stage saturation |
-| **Bit Crush** | 1 - 16 bits | Digital degradation |
-| **Feedback** | 0.0 - 0.8 | Delay feedback amount |
-| **Ring Freq** | 1 - 5000 Hz | Ring modulation carrier |
+### **Mixing Strategies**
+- Use **AudioMixer** for clean, professional mixing
+- Use **ChaosNoiseMix** for experimental, harsh textures
+- Combine both for layered complexity
+- Apply **FeedbackProcessor** to any source for self-generation
 
----
+## 🎼 **Artistic Applications**
 
-## Node Categories
+- **Harsh Noise / Power Electronics**: ChaosNoiseMix + FeedbackProcessor
+- **Ambient Soundscapes**: PerlinNoise + gentle AudioMixer
+- **Industrial Textures**: BandLimitedNoise + FeedbackProcessor  
+- **Experimental Music**: All nodes in complex chains
+- **Sound Design**: Targeted noise types for specific textures
+- **Merzbow-Style Chaos**: Multiple FeedbackProcessors in feedback loops
 
-### **NoiseGen** (Universal)
-- **Noise Generator** - All basic noise types in one node
+## 📝 **License**
 
-### **NoiseGen/Basic**
-- **White Noise (Legacy)** - Pure static generation
-- **Pink Noise (Legacy)** - 1/f frequency response  
-- **Brown Noise (Legacy)** - 1/f² low-frequency emphasis
+MIT License - Feel free to use, modify, and distribute.
 
-### **NoiseGen/Advanced**
-- **Perlin Noise** - Organic texture generation
-- **Band-Limited Noise** - Frequency filtering
-- **Chaos Noise Mix** - Extreme processing for harsh noise
-- **Blue Noise** - High-frequency emphasis
-- **Violet Noise** - Ultra-high frequency emphasis
+## 🔗 **Links**
 
-### **NoiseGen/Utils**
-- **Save Audio** - Export to WAV/FLAC/MP3
-
----
-
-## Applications
-
-### **Music Production**
-- Harsh noise / power electronics
-- Experimental ambient textures
-- Sound design elements
-- Masking and testing tones
-
-### **Scientific/Technical**
-- Audio equipment testing
-- Speaker calibration
-- Room acoustics analysis
-- Signal processing research
-
-### **Relaxation/Health**
-- White noise for concentration
-- Pink noise for sleep
-- Brown noise for deep relaxation
-- Natural sound masking
+- **GitHub**: [https://github.com/eg0pr0xy/comfyui_noisegen](https://github.com/eg0pr0xy/comfyui_noisegen)
+- **ComfyUI**: [https://github.com/comfyanonymous/ComfyUI](https://github.com/comfyanonymous/ComfyUI)
 
 ---
 
-## Quick Start Examples
-
-### **Basic White Noise**
-```json
-{
-  "1": {
-    "inputs": {
-      "noise_type": "white",
-      "duration": 10.0,
-      "sample_rate": 44100,
-      "amplitude": 0.5,
-      "seed": 42
-    },
-    "class_type": "NoiseGenerator"
-  }
-}
-```
-
-### **Harsh Japanese Noise (Merzbow Style)**
-```json
-{
-  "workflow": "See examples/japanese_noise_merzbow.json",
-  "description": "Multi-layer chaos mixing with extreme processing"
-}
-```
-
----
-
-## Workflow Examples
-
-### **Simple Workflow**
-1. Add `Noise Generator` node
-2. Set noise type, duration, and amplitude  
-3. Connect to `Save Audio` node for file export
-4. Run workflow and check ComfyUI/output/audio/ for your file!
-
-### **Complex Harsh Noise**
-1. Create multiple noise sources (white, brown, perlin)
-2. Route through `ChaosNoiseMix` nodes
-3. Apply different mixing modes (chaos, xor, modulo)
-4. Layer and export final composition
-
-### **Scientific Testing**
-1. Use `Noise Generator` with specific type
-2. Set precise sample rate and duration
-3. Configure amplitude for calibration
-4. Export with `Audio Save`
-
----
-
-## Advanced Features
-
-### **Stereo Processing**
-- Independent L/R generation
-- Correlated stereo imaging  
-- Decorrelated wide stereo
-- Adjustable stereo width
-
-### **Professional Quality**
-- 32-bit float internal processing
-- Sample rates up to 96kHz
-- Deterministic random generation
-- Scientific-grade algorithms
-
-### **Chaos Processing**
-- 11 different mixing algorithms
-- Multi-stage distortion
-- Bit crushing (1-16 bits)
-- Ring modulation effects
-- Feedback delay processing
-
----
-
-## Technical Notes
-
-### **Noise Types Explained**
-
-- **White**: Equal energy per frequency - harsh, cutting
-- **Pink**: Equal energy per octave - natural, balanced  
-- **Brown**: Low-frequency emphasis - deep, rumbling
-- **Blue**: High-frequency emphasis - bright, cutting
-- **Violet**: Ultra-high emphasis - extreme brightness
-- **Perlin**: Organic variations - natural textures
-- **Band-Limited**: Frequency filtered - precise ranges
-
-### **File Format Support**
-- **WAV**: Uncompressed, best quality
-- **FLAC**: Lossless compression
-- **MP3**: Lossy compression, smaller files
-
----
-
-## Contributing
-
-Pull requests welcome! Areas for contribution:
-- Additional noise algorithms
-- New mixing modes for ChaosNoiseMix
-- Performance optimizations
-- Documentation improvements
-
----
-
-## License
-
-MIT License - see LICENSE file for details.
-
----
-
-## Credits
-
-**Created by:** eg0pr0xy  
-**Inspired by:** Merzbow, harsh noise community, scientific audio research  
-**Built for:** ComfyUI ecosystem 
+*Generate chaos. Create beauty. Push boundaries.* 🎵💥 
