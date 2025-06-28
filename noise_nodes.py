@@ -2035,6 +2035,614 @@ class HarshFilterNode:
         
         return driven_signal
 
+class MultiDistortionNode:
+    """
+    Multi-Distortion - Comprehensive distortion palette for extreme audio processing
+    
+    Professional multi-stage distortion system with 12 distortion types and advanced controls.
+    Perfect for: Harsh noise textures, power electronics, extreme sound design, brutal saturation
+    
+    DISTORTION TYPES:
+    - TUBE         - Warm analog tube saturation
+    - TRANSISTOR   - Asymmetric transistor clipping  
+    - DIODE        - Classic diode clipping
+    - DIGITAL      - Hard digital clipping
+    - BITCRUSH     - Bit reduction and sample rate reduction
+    - WAVESHAPER   - Custom waveshaping curves
+    - FOLDBACK     - Wave folding distortion
+    - RING_MOD     - Ring modulation distortion
+    - CHAOS        - Chaotic nonlinear distortion
+    - FUZZ         - Classic fuzz box saturation
+    - OVERDRIVE    - Smooth overdrive saturation
+    - DESTRUCTION  - Extreme multi-stage destruction
+    """
+    
+    DISTORTION_TYPES = [
+        "tube",         # Warm analog saturation
+        "transistor",   # Asymmetric clipping
+        "diode",        # Classic diode clipping
+        "digital",      # Hard clipping
+        "bitcrush",     # Digital artifacts
+        "waveshaper",   # Custom curves
+        "foldback",     # Wave folding
+        "ring_mod",     # Ring modulation
+        "chaos",        # Chaotic distortion
+        "fuzz",         # Fuzz box
+        "overdrive",    # Smooth overdrive
+        "destruction"   # Multi-stage chaos
+    ]
+    
+    FILTER_TYPES = [
+        "none",         # No filtering
+        "lowpass",      # Pre-filtering
+        "highpass",     # Pre-filtering
+        "bandpass",     # Pre-filtering
+        "notch"         # Pre-filtering
+    ]
+    
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "audio": ("AUDIO", {
+                    "tooltip": "Input audio to process through multi-stage distortion"
+                }),
+                "distortion_type": (cls.DISTORTION_TYPES, {
+                    "default": "tube",
+                    "tooltip": "Primary distortion type: tube=warm, digital=harsh, chaos=unpredictable, destruction=extreme"
+                }),
+                "drive": ("FLOAT", {
+                    "default": 0.5, 
+                    "min": 0.0, 
+                    "max": 10.0, 
+                    "step": 0.01,
+                    "tooltip": "Distortion drive amount (0.0=clean, 1.0=moderate, 10.0=extreme destruction)"
+                }),
+                "output_gain": ("FLOAT", {
+                    "default": 0.7, 
+                    "min": 0.0, 
+                    "max": 2.0, 
+                    "step": 0.01,
+                    "tooltip": "Output gain compensation (0.0=silence, 1.0=unity, 2.0=boost)"
+                }),
+                "wet_dry_mix": ("FLOAT", {
+                    "default": 1.0, 
+                    "min": 0.0, 
+                    "max": 1.0, 
+                    "step": 0.01,
+                    "tooltip": "Wet/dry mix (0.0=clean only, 1.0=distorted only)"
+                }),
+                "stages": ("INT", {
+                    "default": 1, 
+                    "min": 1, 
+                    "max": 4, 
+                    "step": 1,
+                    "tooltip": "Number of distortion stages (1=single, 4=extreme multi-stage)"
+                }),
+                "stage_feedback": ("FLOAT", {
+                    "default": 0.0, 
+                    "min": 0.0, 
+                    "max": 0.8, 
+                    "step": 0.01,
+                    "tooltip": "Feedback between stages (0.0=none, 0.8=extreme interdependence)"
+                }),
+                "asymmetry": ("FLOAT", {
+                    "default": 0.0, 
+                    "min": -1.0, 
+                    "max": 1.0, 
+                    "step": 0.01,
+                    "tooltip": "Positive/negative asymmetry (-1.0=negative bias, 1.0=positive bias)"
+                }),
+                "harmonic_emphasis": ("FLOAT", {
+                    "default": 0.3, 
+                    "min": 0.0, 
+                    "max": 1.0, 
+                    "step": 0.01,
+                    "tooltip": "Harmonic generation emphasis (0.0=minimal, 1.0=maximum harmonics)"
+                }),
+            },
+            "optional": {
+                "pre_filter_type": (cls.FILTER_TYPES, {
+                    "default": "none",
+                    "tooltip": "Pre-distortion filtering to shape input spectrum"
+                }),
+                "pre_filter_freq": ("FLOAT", {
+                    "default": 1000.0, 
+                    "min": 20.0, 
+                    "max": 20000.0, 
+                    "step": 1.0,
+                    "tooltip": "Pre-filter cutoff frequency in Hz"
+                }),
+                "bitcrush_bits": ("INT", {
+                    "default": 8, 
+                    "min": 1, 
+                    "max": 16, 
+                    "step": 1,
+                    "tooltip": "Bit depth for bitcrush mode (1=extreme, 16=subtle)"
+                }),
+                "bitcrush_sample_rate": ("FLOAT", {
+                    "default": 11025.0, 
+                    "min": 100.0, 
+                    "max": 44100.0, 
+                    "step": 100.0,
+                    "tooltip": "Sample rate for bitcrush mode (100Hz=extreme, 44100Hz=clean)"
+                }),
+                "ring_mod_freq": ("FLOAT", {
+                    "default": 440.0, 
+                    "min": 10.0, 
+                    "max": 2000.0, 
+                    "step": 0.1,
+                    "tooltip": "Ring modulation frequency in Hz"
+                }),
+                "chaos_amount": ("FLOAT", {
+                    "default": 0.5, 
+                    "min": 0.0, 
+                    "max": 1.0, 
+                    "step": 0.01,
+                    "tooltip": "Chaos injection amount for unpredictable variations"
+                }),
+                "stereo_spread": ("FLOAT", {
+                    "default": 0.0, 
+                    "min": 0.0, 
+                    "max": 1.0, 
+                    "step": 0.01,
+                    "tooltip": "Stereo parameter spread (0.0=mono, 1.0=different L/R processing)"
+                }),
+            }
+        }
+    
+    RETURN_TYPES = ("AUDIO",)
+    RETURN_NAMES = ("distorted_audio",)
+    FUNCTION = "process_multi_distortion"
+    CATEGORY = "🎵 NoiseGen/Processing"
+    DESCRIPTION = "Comprehensive multi-stage distortion with 12 types and advanced controls for extreme audio processing"
+    
+    def process_multi_distortion(self, audio, distortion_type, drive, output_gain, wet_dry_mix, 
+                                stages, stage_feedback, asymmetry, harmonic_emphasis,
+                                pre_filter_type="none", pre_filter_freq=1000.0, bitcrush_bits=8,
+                                bitcrush_sample_rate=11025.0, ring_mod_freq=440.0, chaos_amount=0.5,
+                                stereo_spread=0.0):
+        """Process audio through comprehensive multi-distortion."""
+        try:
+            # Extract audio data
+            waveform = audio["waveform"]
+            sample_rate = audio["sample_rate"]
+            
+            # Convert to numpy
+            if hasattr(waveform, 'cpu'):
+                audio_np = waveform.cpu().numpy()
+            else:
+                audio_np = waveform
+            
+            # Ensure 2D array [channels, samples]
+            if audio_np.ndim == 1:
+                audio_np = audio_np.reshape(1, -1)
+            
+            # Store original for wet/dry mixing
+            original_audio = audio_np.copy()
+            
+            # Process each channel
+            processed_channels = []
+            for channel in range(audio_np.shape[0]):
+                channel_audio = audio_np[channel]
+                
+                # Calculate stereo parameter variations
+                if audio_np.shape[0] > 1 and stereo_spread > 0.0:
+                    # Different parameters for L/R channels
+                    channel_multiplier = 1.0 + (stereo_spread * 0.3 * (1 if channel == 0 else -1))
+                    actual_drive = drive * channel_multiplier
+                    actual_chaos = chaos_amount * (1.0 + stereo_spread * 0.2 * (1 if channel == 0 else -1))
+                    actual_ring_freq = ring_mod_freq * channel_multiplier
+                else:
+                    actual_drive = drive
+                    actual_chaos = chaos_amount
+                    actual_ring_freq = ring_mod_freq
+                
+                processed = self._apply_multi_distortion(
+                    channel_audio, sample_rate, distortion_type, actual_drive, 
+                    stages, stage_feedback, asymmetry, harmonic_emphasis,
+                    pre_filter_type, pre_filter_freq, bitcrush_bits, 
+                    bitcrush_sample_rate, actual_ring_freq, actual_chaos
+                )
+                processed_channels.append(processed)
+            
+            # Stack channels back together
+            processed_audio = np.stack(processed_channels, axis=0)
+            
+            # Apply wet/dry mixing
+            result = original_audio * (1 - wet_dry_mix) + processed_audio * wet_dry_mix
+            
+            # Apply output gain
+            result = result * output_gain
+            
+            # Convert back to tensor format
+            result_tensor = torch.from_numpy(result).float()
+            
+            # Create output audio
+            output_audio = {
+                "waveform": result_tensor,
+                "sample_rate": sample_rate
+            }
+            
+            return (output_audio,)
+            
+        except Exception as e:
+            print(f"❌ Error in multi-distortion: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            return (audio,)  # Return original on error
+    
+    def _apply_multi_distortion(self, audio, sample_rate, distortion_type, drive, 
+                               stages, stage_feedback, asymmetry, harmonic_emphasis,
+                               pre_filter_type, pre_filter_freq, bitcrush_bits,
+                               bitcrush_sample_rate, ring_mod_freq, chaos_amount):
+        """Apply sophisticated multi-stage distortion to audio."""
+        
+        # Apply pre-filtering if requested
+        if pre_filter_type != "none":
+            audio = self._apply_pre_filter(audio, sample_rate, pre_filter_type, pre_filter_freq)
+        
+        # Initialize stage buffers for feedback
+        stage_buffers = [np.zeros(len(audio)) for _ in range(stages)]
+        
+        # Ring modulation oscillator
+        ring_osc_phase = 0.0
+        ring_osc_increment = 2 * np.pi * ring_mod_freq / sample_rate
+        
+        # Chaos state for chaotic distortion
+        chaos_state = 0.5
+        
+        # Process through multiple stages
+        current_signal = audio.copy()
+        
+        for stage in range(stages):
+            # Calculate stage-specific drive
+            stage_drive = drive * (1.0 + stage * 0.2)  # Increasing drive per stage
+            
+            # Apply distortion to current signal
+            if distortion_type == "tube":
+                distorted = self._apply_tube_distortion(current_signal, stage_drive, asymmetry)
+            elif distortion_type == "transistor":
+                distorted = self._apply_transistor_distortion(current_signal, stage_drive, asymmetry)
+            elif distortion_type == "diode":
+                distorted = self._apply_diode_distortion(current_signal, stage_drive, asymmetry)
+            elif distortion_type == "digital":
+                distorted = self._apply_digital_distortion(current_signal, stage_drive, asymmetry)
+            elif distortion_type == "bitcrush":
+                distorted = self._apply_bitcrush_distortion(current_signal, stage_drive, 
+                                                          bitcrush_bits, bitcrush_sample_rate, sample_rate)
+            elif distortion_type == "waveshaper":
+                distorted = self._apply_waveshaper_distortion(current_signal, stage_drive, harmonic_emphasis)
+            elif distortion_type == "foldback":
+                distorted = self._apply_foldback_distortion(current_signal, stage_drive, asymmetry)
+            elif distortion_type == "ring_mod":
+                distorted, ring_osc_phase = self._apply_ring_mod_distortion(
+                    current_signal, stage_drive, ring_osc_phase, ring_osc_increment, asymmetry)
+            elif distortion_type == "chaos":
+                distorted, chaos_state = self._apply_chaos_distortion(
+                    current_signal, stage_drive, chaos_state, chaos_amount, asymmetry)
+            elif distortion_type == "fuzz":
+                distorted = self._apply_fuzz_distortion(current_signal, stage_drive, asymmetry)
+            elif distortion_type == "overdrive":
+                distorted = self._apply_overdrive_distortion(current_signal, stage_drive, asymmetry)
+            elif distortion_type == "destruction":
+                distorted = self._apply_destruction_distortion(current_signal, stage_drive, 
+                                                             harmonic_emphasis, chaos_amount)
+            else:
+                distorted = current_signal  # Default passthrough
+            
+            # Store stage output
+            stage_buffers[stage] = distorted.copy()
+            
+            # Apply stage feedback if not the last stage
+            if stage < stages - 1 and stage_feedback > 0.0:
+                # Mix feedback from previous stages
+                feedback_signal = np.zeros_like(current_signal)
+                for prev_stage in range(stage + 1):
+                    feedback_weight = stage_feedback * (0.8 ** (stage - prev_stage))
+                    feedback_signal += stage_buffers[prev_stage] * feedback_weight
+                
+                # Mix feedback with current signal for next stage
+                current_signal = distorted * 0.7 + feedback_signal * 0.3
+                
+                # Safety limiting
+                current_signal = np.clip(current_signal, -2.0, 2.0)
+            else:
+                current_signal = distorted
+        
+        # Apply harmonic emphasis post-processing
+        if harmonic_emphasis > 0.0:
+            current_signal = self._apply_harmonic_emphasis(current_signal, harmonic_emphasis)
+        
+        # Final safety limiting
+        current_signal = np.clip(current_signal, -3.0, 3.0)
+        
+        return current_signal
+    
+    def _apply_pre_filter(self, audio, sample_rate, filter_type, cutoff_freq):
+        """Apply pre-distortion filtering."""
+        nyquist = sample_rate / 2.0
+        normalized_cutoff = min(cutoff_freq, nyquist - 100) / nyquist
+        
+        # Simple first-order filters for pre-processing
+        alpha = 1.0 - np.exp(-2 * np.pi * normalized_cutoff)
+        
+        filtered = np.zeros_like(audio)
+        state = 0.0
+        
+        for i in range(len(audio)):
+            if filter_type == "lowpass":
+                state += alpha * (audio[i] - state)
+                filtered[i] = state
+            elif filter_type == "highpass":
+                state += alpha * (audio[i] - state)
+                filtered[i] = audio[i] - state
+            elif filter_type == "bandpass":
+                # Simple bandpass approximation
+                state += alpha * (audio[i] - state)
+                filtered[i] = audio[i] - state if i % 2 == 0 else state
+            elif filter_type == "notch":
+                # Simple notch approximation  
+                state += alpha * (audio[i] - state)
+                filtered[i] = audio[i] - state * 0.5
+            else:
+                filtered[i] = audio[i]
+        
+        return filtered
+    
+    def _apply_tube_distortion(self, signal, drive, asymmetry):
+        """Apply warm tube-style distortion."""
+        drive_signal = signal * (1.0 + drive * 3.0)
+        
+        # Asymmetric tube characteristics
+        positive_drive = 1.0 + asymmetry * 0.3
+        negative_drive = 1.0 - asymmetry * 0.2
+        
+        distorted = np.zeros_like(signal)
+        for i in range(len(signal)):
+            if drive_signal[i] >= 0:
+                distorted[i] = np.tanh(drive_signal[i] * positive_drive) * 0.7
+            else:
+                distorted[i] = np.tanh(drive_signal[i] * negative_drive) * 0.8
+        
+        return distorted
+    
+    def _apply_transistor_distortion(self, signal, drive, asymmetry):
+        """Apply transistor-style asymmetric clipping."""
+        drive_signal = signal * (1.0 + drive * 4.0)
+        
+        # Asymmetric clipping thresholds
+        pos_threshold = 1.0 + asymmetry * 0.5
+        neg_threshold = -1.0 - asymmetry * 0.3
+        
+        distorted = np.clip(drive_signal, neg_threshold, pos_threshold)
+        
+        # Soft saturation at extremes
+        distorted = np.tanh(distorted * 0.8)
+        
+        return distorted
+    
+    def _apply_diode_distortion(self, signal, drive, asymmetry):
+        """Apply classic diode clipping distortion."""
+        drive_signal = signal * (1.0 + drive * 2.0)
+        
+        # Diode characteristic curve
+        distorted = np.zeros_like(signal)
+        for i in range(len(signal)):
+            x = drive_signal[i]
+            if x > 0:
+                # Forward diode bias
+                threshold = 0.7 + asymmetry * 0.2
+                if x > threshold:
+                    distorted[i] = threshold + np.tanh((x - threshold) * 5) * 0.1
+                else:
+                    distorted[i] = x
+            else:
+                # Reverse diode bias
+                threshold = -0.7 - asymmetry * 0.1
+                if x < threshold:
+                    distorted[i] = threshold + np.tanh((x - threshold) * 3) * 0.05
+                else:
+                    distorted[i] = x
+        
+        return distorted
+    
+    def _apply_digital_distortion(self, signal, drive, asymmetry):
+        """Apply hard digital clipping."""
+        drive_signal = signal * (1.0 + drive * 5.0)
+        
+        # Asymmetric clipping
+        pos_clip = 1.0 + asymmetry * 0.3
+        neg_clip = -1.0 - asymmetry * 0.3
+        
+        return np.clip(drive_signal, neg_clip, pos_clip)
+    
+    def _apply_bitcrush_distortion(self, signal, drive, bits, target_sample_rate, actual_sample_rate):
+        """Apply bit crushing and sample rate reduction."""
+        drive_signal = signal * (1.0 + drive * 2.0)
+        
+        # Bit reduction
+        max_value = 2 ** (bits - 1) - 1
+        quantized = np.round(drive_signal * max_value) / max_value
+        
+        # Sample rate reduction
+        if target_sample_rate < actual_sample_rate:
+            downsample_factor = int(actual_sample_rate / target_sample_rate)
+            if downsample_factor > 1:
+                # Simple downsampling by taking every Nth sample
+                downsampled = np.zeros_like(quantized)
+                for i in range(len(quantized)):
+                    sample_index = (i // downsample_factor) * downsample_factor
+                    if sample_index < len(quantized):
+                        downsampled[i] = quantized[sample_index]
+                quantized = downsampled
+        
+        return quantized
+    
+    def _apply_waveshaper_distortion(self, signal, drive, harmonic_emphasis):
+        """Apply custom waveshaping curves."""
+        drive_signal = signal * (1.0 + drive * 3.0)
+        
+        # Custom waveshaping function with harmonic emphasis
+        distorted = np.zeros_like(signal)
+        for i in range(len(signal)):
+            x = drive_signal[i]
+            # Chebyshev polynomial-inspired waveshaping
+            shaped = x - (harmonic_emphasis * 0.3) * (x**3) + (harmonic_emphasis * 0.1) * (x**5)
+            distorted[i] = np.tanh(shaped)
+        
+        return distorted
+    
+    def _apply_foldback_distortion(self, signal, drive, asymmetry):
+        """Apply wave folding distortion."""
+        drive_signal = signal * (1.0 + drive * 4.0)
+        
+        # Asymmetric folding thresholds
+        pos_threshold = 1.0 + asymmetry * 0.5
+        neg_threshold = -1.0 - asymmetry * 0.5
+        
+        folded = np.zeros_like(signal)
+        for i in range(len(signal)):
+            x = drive_signal[i]
+            
+            # Positive folding
+            while x > pos_threshold:
+                x = 2 * pos_threshold - x
+            
+            # Negative folding  
+            while x < neg_threshold:
+                x = 2 * neg_threshold - x
+                
+            folded[i] = x
+        
+        return folded
+    
+    def _apply_ring_mod_distortion(self, signal, drive, phase, phase_increment, asymmetry):
+        """Apply ring modulation distortion."""
+        drive_signal = signal * (1.0 + drive * 2.0)
+        
+        modulated = np.zeros_like(signal)
+        for i in range(len(signal)):
+            # Ring modulation
+            modulator = np.sin(phase) * (1.0 + asymmetry * 0.3)
+            modulated[i] = drive_signal[i] * modulator
+            
+            phase += phase_increment
+            if phase > 2 * np.pi:
+                phase -= 2 * np.pi
+        
+        return modulated, phase
+    
+    def _apply_chaos_distortion(self, signal, drive, chaos_state, chaos_amount, asymmetry):
+        """Apply chaotic nonlinear distortion."""
+        drive_signal = signal * (1.0 + drive * 3.0)
+        
+        distorted = np.zeros_like(signal)
+        for i in range(len(signal)):
+            # Chaotic map evolution
+            chaos_state = (chaos_state * 3.8 * (1 - chaos_state)) % 1.0
+            
+            # Chaotic modulation of distortion
+            chaos_mod = (chaos_state - 0.5) * 2 * chaos_amount  # -1 to 1
+            
+            # Apply chaotic distortion
+            x = drive_signal[i]
+            chaos_factor = 1.0 + chaos_mod * 0.5 + asymmetry * 0.3
+            distorted[i] = np.tanh(x * chaos_factor)
+        
+        return distorted, chaos_state
+    
+    def _apply_fuzz_distortion(self, signal, drive, asymmetry):
+        """Apply classic fuzz box distortion."""
+        drive_signal = signal * (1.0 + drive * 6.0)
+        
+        # Fuzz characteristics with asymmetry
+        distorted = np.zeros_like(signal)
+        for i in range(len(signal)):
+            x = drive_signal[i]
+            
+            # Asymmetric fuzz response
+            if x >= 0:
+                fuzz_factor = 1.0 + asymmetry * 0.4
+                distorted[i] = np.sign(x) * min(abs(x * fuzz_factor), 1.0)
+            else:
+                fuzz_factor = 1.0 - asymmetry * 0.2
+                distorted[i] = np.sign(x) * min(abs(x * fuzz_factor), 0.9)
+        
+        return distorted
+    
+    def _apply_overdrive_distortion(self, signal, drive, asymmetry):
+        """Apply smooth overdrive distortion."""
+        drive_signal = signal * (1.0 + drive * 2.5)
+        
+        # Smooth overdrive curve with asymmetry
+        distorted = np.zeros_like(signal)
+        for i in range(len(signal)):
+            x = drive_signal[i]
+            
+            # Asymmetric smooth clipping
+            if x >= 0:
+                threshold = 0.5 + asymmetry * 0.2
+                if abs(x) > threshold:
+                    sign = np.sign(x)
+                    distorted[i] = sign * (threshold + (1 - threshold) * np.tanh((abs(x) - threshold) * 3))
+                else:
+                    distorted[i] = x
+            else:
+                threshold = 0.5 - asymmetry * 0.1
+                if abs(x) > threshold:
+                    sign = np.sign(x)
+                    distorted[i] = sign * (threshold + (1 - threshold) * np.tanh((abs(x) - threshold) * 2))
+                else:
+                    distorted[i] = x
+        
+        return distorted
+    
+    def _apply_destruction_distortion(self, signal, drive, harmonic_emphasis, chaos_amount):
+        """Apply extreme multi-stage destruction."""
+        current = signal * (1.0 + drive * 8.0)
+        
+        # Stage 1: Hard clipping
+        current = np.clip(current, -1.0, 1.0)
+        
+        # Stage 2: Bit crushing
+        current = np.round(current * 7) / 7
+        
+        # Stage 3: Waveshaping
+        current = current - 0.3 * (current**3) * harmonic_emphasis
+        
+        # Stage 4: Chaotic modulation
+        chaos_state = 0.5
+        for i in range(len(current)):
+            chaos_state = (chaos_state * 3.9 * (1 - chaos_state)) % 1.0
+            chaos_mod = (chaos_state - 0.5) * 2 * chaos_amount
+            current[i] = np.tanh(current[i] * (1 + chaos_mod * 0.5))
+        
+        # Stage 5: Final limiting
+        current = np.clip(current, -1.5, 1.5)
+        
+        return current
+    
+    def _apply_harmonic_emphasis(self, signal, emphasis):
+        """Apply harmonic emphasis post-processing."""
+        if emphasis <= 0.0:
+            return signal
+        
+        # Generate harmonics through nonlinear processing
+        emphasized = signal.copy()
+        
+        # Add harmonic content
+        for i in range(len(signal)):
+            x = signal[i]
+            # Add controlled harmonic distortion
+            harmonics = emphasis * 0.2 * (x**3 - 0.1 * x**5)
+            emphasized[i] = x + harmonics
+        
+        # Prevent excessive amplitude
+        emphasized = np.tanh(emphasized)
+        
+        return emphasized
+
 # Node mappings for ComfyUI - OPTIMIZED UX
 NODE_CLASS_MAPPINGS = {
     # MAIN NODES - Clean and focused
@@ -2046,6 +2654,7 @@ NODE_CLASS_MAPPINGS = {
     "FeedbackProcessor": FeedbackProcessorNode, # Feedback systems - NEW!
     "AudioSave": AudioSaveNode,                 # Utility
     "HarshFilter": HarshFilterNode,              # Advanced filtering
+    "MultiDistortion": MultiDistortionNode,      # Comprehensive distortion
     
     # LEGACY NODES - Hidden from main menu, kept for compatibility
     # Users can still access these if needed, but they're not promoted
@@ -2066,6 +2675,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "FeedbackProcessor": "🔄 Feedback Processor",
     "AudioSave": "💾 Audio Save",
     "HarshFilter": "🎛️ Harsh Filter",
+    "MultiDistortion": "🎛️ Multi-Distortion",
     
     # LEGACY - Hidden with underscore prefix
     "_WhiteNoise": "⚪ White Noise (Legacy)",

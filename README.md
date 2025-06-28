@@ -51,6 +51,16 @@ Extreme filtering with self-oscillation and morphing for harsh noise sculpting:
 - **Filter morphing**: Smooth transitions between filter types
 - **Stereo spread**: Different L/R frequencies for wide effects
 
+#### **MultiDistortion** 🎛️ ⭐ NEW!
+Comprehensive multi-stage distortion system with 12 distortion types:
+- **12 distortion types**: tube, transistor, diode, digital, bitcrush, waveshaper, foldback, ring_mod, chaos, fuzz, overdrive, destruction
+- **Multi-stage processing**: 1-4 stages with inter-stage feedback
+- **Pre-filtering**: Shape input spectrum before distortion
+- **Asymmetry control**: Positive/negative bias for character
+- **Harmonic emphasis**: Generate rich harmonic content
+- **Specialized modes**: Bitcrush with sample rate reduction, ring modulation, chaotic distortion
+- **Destruction mode**: Extreme 5-stage processing for ultimate chaos
+
 #### **AudioMixer** 🎛️
 Professional 4-channel mixer with individual controls:
 - **Per-channel gain**: 0-2x with precise control
@@ -82,9 +92,9 @@ Professional audio export with metadata:
 
 ## 🚀 **Roadmap: Future Expansion**
 
-### **Phase 1: Core Processing (v2.0)**
+### **Phase 1: Core Processing (v2.0)** - *67% COMPLETE*
 - ✅ **HarshFilter**: Extreme filtering with self-oscillation *(COMPLETED)*
-- **MultiDistortion**: Comprehensive distortion palette
+- ✅ **MultiDistortion**: Comprehensive distortion palette *(COMPLETED)*
 - **SpectralProcessor**: FFT-based spectral manipulation
 
 ### **Phase 2: Advanced Systems (v2.5)**  
@@ -124,10 +134,23 @@ NoiseGenerator → HarshFilter → AudioSave
               (resonance=0.9, comb mode)
 ```
 
-### **Advanced Processing Chain**  
+### **Multi-Distortion Processing**
 ```
-NoiseGenerator → FeedbackProcessor → ChaosNoiseMix → HarshFilter → AudioMixer → AudioSave
-                                                    (self-osc mode)
+NoiseGenerator → MultiDistortion → AudioSave
+              (destruction mode, 4 stages)
+```
+
+### **Complete Processing Chain**  
+```
+NoiseGenerator → MultiDistortion → HarshFilter → FeedbackProcessor → AudioSave
+              (tube, 2 stages)  (self-osc)    (complex mode)
+```
+
+### **Advanced Multi-Source**  
+```
+NoiseGenerator ─┬─ MultiDistortion (tube) ──┐
+PerlinNoise ────┼─ MultiDistortion (chaos) ─┼── AudioMixer → AudioSave
+BandLimitedNoise┴─ MultiDistortion (destroy)┘
 ```
 
 ## 🔧 **Installation**
@@ -171,21 +194,36 @@ pip install -r requirements.txt
 - **Morph mode**: Smooth transitions between filter types
 - **Chaos mode**: Unpredictable filter behavior
 
+### **Distortion Strategies**
+- **Tube/Overdrive**: Warm, musical saturation for tonal content
+- **Transistor/Diode**: Classic analog clipping for bite
+- **Digital**: Hard clipping for aggressive, modern sound
+- **Bitcrush**: Lo-fi digital artifacts (try 4-bit, 8kHz)
+- **Foldback**: Smooth, folding distortion for complex harmonics
+- **Ring Mod**: Metallic, inharmonic textures (try 220Hz, 440Hz)
+- **Chaos**: Unpredictable, evolving distortion character
+- **Destruction**: Ultimate chaos mode - use with caution!
+- **Multi-staging**: 2+ stages for complex, interdependent processing
+- **Asymmetry**: Add character bias (-0.5 to +0.5 recommended)
+
 ### **Mixing Strategies**
 - Use **AudioMixer** for clean, professional mixing
 - Use **ChaosNoiseMix** for experimental, harsh textures
 - Combine both for layered complexity
 - Apply **FeedbackProcessor** to any source for self-generation
 - Use **HarshFilter** for frequency sculpting and resonant peaks
+- Use **MultiDistortion** for comprehensive saturation and character
 
 ## 🎼 **Artistic Applications**
 
-- **Harsh Noise / Power Electronics**: ChaosNoiseMix + FeedbackProcessor
-- **Ambient Soundscapes**: PerlinNoise + gentle AudioMixer
-- **Industrial Textures**: BandLimitedNoise + FeedbackProcessor  
-- **Experimental Music**: All nodes in complex chains
-- **Sound Design**: Targeted noise types for specific textures
-- **Merzbow-Style Chaos**: Multiple FeedbackProcessors in feedback loops
+- **Harsh Noise / Power Electronics**: MultiDistortion (destruction) + HarshFilter + FeedbackProcessor
+- **Analog Warmth**: MultiDistortion (tube/overdrive) + gentle HarshFilter
+- **Digital Chaos**: MultiDistortion (bitcrush/digital) + ChaosNoiseMix
+- **Industrial Textures**: BandLimitedNoise + MultiDistortion (transistor) + FeedbackProcessor  
+- **Lo-Fi Aesthetics**: MultiDistortion (bitcrush, 4-bit) + HarshFilter (comb)
+- **Experimental Music**: All nodes in complex processing chains
+- **Sound Design**: Layered MultiDistortion stages for complex textures
+- **Merzbow-Style Chaos**: MultiDistortion (chaos) + FeedbackProcessor + HarshFilter
 
 ## 📝 **License**
 
