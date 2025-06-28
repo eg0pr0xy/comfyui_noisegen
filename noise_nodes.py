@@ -1,16 +1,11 @@
 """
-ComfyUI-NoiseGen v2.0 - The Ultimate Merzbow Noise Machine
-===========================================================
+ComfyUI-NoiseGen - The Ultimate Merzbow Noise Machine
 
-Advanced noise generation and audio processing for experimental music.
-Optimized for harsh noise, power electronics, and Merzbow-style chaos.
+Advanced noise generation and audio processing nodes for ComfyUI.
+Comprehensive suite for experimental audio, harsh noise, and industrial processing.
 
-Node Categories:
-🎵 GENERATORS  - NoiseGenerator, PerlinNoise, BandLimitedNoise  
-🔄 PROCESSORS  - FeedbackProcessor, HarshFilter
-🎸 EFFECTS     - MultiDistortion, SpectralProcessor
-🎛️ MIXERS      - AudioMixer, ChaosNoiseMix
-🔧 UTILITIES   - AudioSave
+Author: eg0pr0xy
+License: MIT
 """
 
 import os

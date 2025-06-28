@@ -1,6 +1,6 @@
 # 🎵 ComfyUI-NoiseGen: Advanced Noise & Audio Processing
 
-**Version 2.0** - The Ultimate Merzbow Noise Machine for ComfyUI
+The Ultimate Merzbow Noise Machine for ComfyUI
 
 ComfyUI-NoiseGen is a comprehensive audio generation and processing suite for ComfyUI, featuring advanced noise synthesis, spectral manipulation, harsh filtering, and multi-stage distortion. Perfect for creating experimental soundscapes, harsh noise textures, and industrial audio processing.
 
@@ -14,16 +14,16 @@ ComfyUI-NoiseGen is a comprehensive audio generation and processing suite for Co
 - **ChaosNoiseMix** - Nonlinear experimental processing
 
 ### 🎛️ **Advanced Processors (Phase 1 - COMPLETE)**
-- **🔄 FeedbackProcessor** *(NEW v2.0)* - 6 feedback modes with filtering & LFO
-- **🎛️ HarshFilter** *(NEW v2.0)* - 8 filter types with self-oscillation 
-- **🎸 MultiDistortion** *(NEW v2.0)* - 12 distortion types with multi-staging
-- **🌀 SpectralProcessor** *(NEW v2.0)* - 10 FFT-based spectral manipulation modes
+- **🔄 FeedbackProcessor** - 6 feedback modes with filtering & LFO
+- **🎛️ HarshFilter** - 8 filter types with self-oscillation 
+- **🎸 MultiDistortion** - 12 distortion types with multi-staging
+- **🌀 SpectralProcessor** - 10 FFT-based spectral manipulation modes
 
 ### 🔧 **Utility Nodes**
 - **AudioMixer** - Multi-channel mixing with panning
 - **AudioSave** - Enhanced export with waveform preview & playback controls
 
-### 📁 **External Audio Support** *(NEW)*
+### 📁 **External Audio Support**
 - **✅ VHS_LoadAudio Compatible** - Works seamlessly with VideoHelperSuite 
 - **🔄 Direct Processing** - No adapters needed, audio formats are compatible
 - **🎛️ Complete Pipeline** - External audio → Any NoiseGen processor → Enhanced Save
@@ -33,7 +33,7 @@ ComfyUI-NoiseGen is a comprehensive audio generation and processing suite for Co
 
 ## 📖 **Node Documentation**
 
-### **🔄 FeedbackProcessor** *(NEW v2.0)*
+### **🔄 FeedbackProcessor**
 Advanced feedback processing with filtering and modulation for self-generating textures.
 
 **Feedback Modes:**
@@ -59,7 +59,7 @@ Advanced feedback processing with filtering and modulation for self-generating t
 
 ---
 
-### **🎛️ HarshFilter** *(NEW v2.0)*
+### **🎛️ HarshFilter**
 Extreme filtering with self-oscillation, drive, and LFO modulation for harsh noise textures.
 
 **Filter Types:**
@@ -91,7 +91,7 @@ Extreme filtering with self-oscillation, drive, and LFO modulation for harsh noi
 
 ---
 
-### **🎸 MultiDistortion** *(NEW v2.0)*
+### **🎸 MultiDistortion**
 Comprehensive distortion processing with 12 types and multi-stage architecture.
 
 **Distortion Types:**
@@ -123,7 +123,7 @@ Comprehensive distortion processing with 12 types and multi-stage architecture.
 
 ---
 
-### **🌀 SpectralProcessor** *(NEW v2.0)*
+### **🌀 SpectralProcessor**
 Advanced FFT-based spectral manipulation for frequency-domain processing.
 
 **Spectral Modes:**
@@ -191,7 +191,7 @@ SpectralProcessor (gate, rhythmic) →
 AudioSave  
 ```
 
-### **🎵 External Audio Processing** *(NEW)*
+### **🎵 External Audio Processing**
 ```
 VHS_LoadAudio (your WAV/MP3/FLAC file) → 
 HarshFilter (comb filter, high resonance) → 
@@ -227,7 +227,7 @@ Load any of these formats using **VHS_LoadAudio** from VideoHelperSuite:
 - **Harsh Noise Remix**: Load any audio → FeedbackProcessor (runaway) → ChaosNoiseMix
 
 ### **💾 Enhanced AudioSave Features**
-The new AudioSave node includes:
+The AudioSave node includes:
 - **🎵 Waveform Visualization** - See your audio before exporting
 - **📊 Metadata Display** - Duration, sample rate, channels, file size
 - **🔊 Preview Integration** - Built-in playback controls
@@ -259,10 +259,10 @@ Search for "NoiseGen" in ComfyUI Manager and install directly.
 
 The `examples/` folder contains comprehensive workflow demonstrations:
 
-- **`spectral_processor_showcase.json`** *(NEW)* - Complete SpectralProcessor demo
-- **`multi_distortion_showcase.json`** *(NEW)* - All 12 distortion types
-- **`harsh_filter_showcase.json`** *(NEW)* - 8 filter types + modulation
-- **`feedback_processor_test.json`** *(NEW)* - 6 feedback modes 
+- **`spectral_processor_showcase.json`** - Complete SpectralProcessor demo
+- **`multi_distortion_showcase.json`** - All 12 distortion types
+- **`harsh_filter_showcase.json`** - 8 filter types + modulation
+- **`feedback_processor_test.json`** - 6 feedback modes 
 - **`japanese_noise_merzbow.json`** - Authentic Merzbow-style processing
 - **`stereo_ambient_soundscape.json`** - Evolving stereo textures
 - **`chaos_mix_test.json`** - Experimental chaos processing
@@ -271,23 +271,23 @@ The `examples/` folder contains comprehensive workflow demonstrations:
 
 ## 🗺 **Development Roadmap**
 
-### **✅ Phase 1 (v2.0) - COMPLETE**
+### **✅ Phase 1 - COMPLETE**
 - **FeedbackProcessor** - Advanced feedback with filtering ✅
 - **HarshFilter** - Extreme filtering with self-oscillation ✅
 - **MultiDistortion** - 12-type comprehensive distortion ✅
 - **SpectralProcessor** - FFT-based spectral manipulation ✅
 
-### **🚧 Phase 2 (v2.5) - Next Priority**
+### **🚧 Phase 2 - Next Priority**
 - **TrueChaos** - Mathematical chaos systems (Lorenz, Chua)
 - **GranularProcessor** - Advanced granular synthesis
 - **ConvolutionReverb** - Impulse response convolution
 
-### **🔮 Phase 3 (v3.0) - Analysis & Control**
+### **🔮 Phase 3 - Analysis & Control**
 - **ModulationMatrix** - Complex parameter modulation
 - **SpectrumAnalyzer** - Real-time spectral visualization  
 - **AudioAnalyzer** - RMS, peak, spectral centroid analysis
 
-### **🌟 Phase 4 (v3.5) - Advanced Features**
+### **🌟 Phase 4 - Advanced Features**
 - **SpatialProcessor** - 3D audio positioning
 - **UtilityProcessor** - Advanced audio utilities
 
@@ -343,4 +343,4 @@ MIT License - See LICENSE file for details.
 
 **🎵 Create. Destroy. Transform. Repeat.**
 
-*ComfyUI-NoiseGen v2.0 - The Ultimate Noise Laboratory* 
+*ComfyUI-NoiseGen - The Ultimate Noise Laboratory* 
