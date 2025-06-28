@@ -1372,7 +1372,7 @@ class GranularProcessorNode:
     RETURN_TYPES = ("AUDIO",)
     RETURN_NAMES = ("granular_audio",)
     FUNCTION = "process_granular"
-    CATEGORY = "🌟 NoiseGen/Granular"
+    CATEGORY = "🎵 NoiseGen/Granular"
     DESCRIPTION = "🌟 PHASE 2: Ultimate granular synthesis powerhouse for microsound control"
     
     def __init__(self):
@@ -1604,7 +1604,7 @@ class GranularSequencerNode:
     RETURN_TYPES = ("AUDIO",)
     RETURN_NAMES = ("sequenced_audio",)
     FUNCTION = "process_sequenced_granular"
-    CATEGORY = "🌟 NoiseGen/Granular"
+    CATEGORY = "🎵 NoiseGen/Granular"
     DESCRIPTION = "🎵 PHASE 2: Pattern-based granular control with step sequencing"
     
     def __init__(self):
@@ -1826,7 +1826,7 @@ class MicrosoundSculptorNode:
     RETURN_TYPES = ("AUDIO",)
     RETURN_NAMES = ("microsound_audio",)
     FUNCTION = "process_microsound"
-    CATEGORY = "🌟 NoiseGen/Granular"
+    CATEGORY = "🎵 NoiseGen/Granular"
     DESCRIPTION = "⚡ PHASE 2: Extreme granular manipulation for harsh noise and microsound art"
     
     def __init__(self):
