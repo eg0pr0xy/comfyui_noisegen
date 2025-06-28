@@ -4,34 +4,32 @@
   "nodes": [
     {
       "id": 1,
-      "type": "🎵 BandLimitedNoise",
+      "type": "NoiseGenerator",
       "pos": [100, 100],
-      "size": {"0": 315, "1": 618},
+      "size": {"0": 315, "1": 514},
       "flags": {},
       "order": 0,
       "mode": 0,
       "outputs": [
-        {"name": "AUDIO", "type": "AUDIO", "links": [1]}
+        {"name": "audio", "type": "AUDIO", "links": [1]}
       ],
-      "properties": {"Node name for S&R": "🎵 BandLimitedNoise"},
+      "properties": {"Node name for S&R": "NoiseGenerator"},
       "widgets_values": [
-        44100,
+        "white",
         8.0,
-        -9.0,
-        200.0,
-        4000.0,
-        "bandpass",
-        2.0,
-        0.5,
+        44100,
+        0.8,
         42,
-        false
+        2,
+        "independent",
+        1.0
       ]
     },
     {
       "id": 2,
-      "type": "🎵 MultiDistortion",
+      "type": "MicrosoundSculptor",
       "pos": [500, 100],
-      "size": {"0": 315, "1": 754},
+      "size": {"0": 315, "1": 700},
       "flags": {},
       "order": 1,
       "mode": 0,
@@ -39,27 +37,25 @@
         {"name": "audio", "type": "AUDIO", "link": 1}
       ],
       "outputs": [
-        {"name": "AUDIO", "type": "AUDIO", "links": [2]}
+        {"name": "microsound_audio", "type": "AUDIO", "links": [2]}
       ],
-      "properties": {"Node name for S&R": "🎵 MultiDistortion"},
+      "properties": {"Node name for S&R": "MicrosoundSculptor"},
       "widgets_values": [
-        "bitcrush",
-        5.0,
-        2,
+        "chaos",
+        0.8,
+        "grain_morph",
+        0.7,
+        15.0,
+        25.0,
         0.4,
-        "none",
-        1000.0,
-        0.3,
-        1.5,
-        0.3,
-        false
+        0.9
       ]
     },
     {
       "id": 3,
-      "type": "🎵 HarshFilter",
+      "type": "GranularSequencer",
       "pos": [900, 100],
-      "size": {"0": 315, "1": 858},
+      "size": {"0": 315, "1": 700},
       "flags": {},
       "order": 2,
       "mode": 0,
@@ -67,30 +63,24 @@
         {"name": "audio", "type": "AUDIO", "link": 2}
       ],
       "outputs": [
-        {"name": "AUDIO", "type": "AUDIO", "links": [3]}
+        {"name": "sequenced_audio", "type": "AUDIO", "links": [3]}
       ],
-      "properties": {"Node name for S&R": "🎵 HarshFilter"},
+      "properties": {"Node name for S&R": "GranularSequencer"},
       "widgets_values": [
-        "morph",
-        1500.0,
-        0.6,
-        "chaos",
-        2.0,
-        1.0,
-        0.5,
-        8.0,
-        "sawtooth",
-        8.0,
+        16,
+        0.0625,
+        50.0,
+        20.0,
         0.8,
         0.2,
-        false
+        0.9
       ]
     },
     {
       "id": 4,
-      "type": "🎵 SpectralProcessor",
+      "type": "MultiDistortion",
       "pos": [1300, 100],
-      "size": {"0": 315, "1": 858},
+      "size": {"0": 315, "1": 700},
       "flags": {},
       "order": 3,
       "mode": 0,
@@ -98,26 +88,22 @@
         {"name": "audio", "type": "AUDIO", "link": 3}
       ],
       "outputs": [
-        {"name": "AUDIO", "type": "AUDIO", "links": [4]}
+        {"name": "distorted_audio", "type": "AUDIO", "links": [4]}
       ],
-      "properties": {"Node name for S&R": "🎵 SpectralProcessor"},
+      "properties": {"Node name for S&R": "MultiDistortion"},
       "widgets_values": [
-        "gate",
-        1024,
+        "bitcrush",
+        5.0,
         0.5,
-        "hann",
-        0.6,
-        300.0,
-        6000.0,
-        0.0,
-        0.4,
-        0.05,
-        false
+        1.0,
+        2,
+        0.3,
+        0.8
       ]
     },
     {
       "id": 5,
-      "type": "🎵 AudioSave",
+      "type": "AudioSave",
       "pos": [1700, 100],
       "size": {"0": 315, "1": 334},
       "flags": {},
@@ -126,7 +112,7 @@
       "inputs": [
         {"name": "audio", "type": "AUDIO", "link": 4}
       ],
-      "properties": {"Node name for S&R": "🎵 AudioSave"},
+      "properties": {"Node name for S&R": "AudioSave"},
       "widgets_values": [
         "glitchy_breakcore_textures",
         "wav"

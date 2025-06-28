@@ -4,25 +4,33 @@
   "nodes": [
     {
       "id": 1,
-      "type": "VHS_LoadAudio",
+      "type": "PerlinNoise",
       "pos": [100, 100],
-      "size": {"0": 315, "1": 200},
+      "size": {"0": 315, "1": 600},
       "flags": {},
       "order": 0,
       "mode": 0,
       "outputs": [
-        {"name": "AUDIO", "type": "AUDIO", "links": [1]}
+        {"name": "audio", "type": "AUDIO", "links": [1]}
       ],
-      "properties": {"Node name for S&R": "VHS_LoadAudio"},
+      "properties": {"Node name for S&R": "PerlinNoise"},
       "widgets_values": [
-        "path/to/your/audio/file.wav"
+        15.0,
+        2.0,
+        44100,
+        0.8,
+        42,
+        2,
+        "independent",
+        6,
+        1.0
       ]
     },
     {
       "id": 2,
-      "type": "🎵 HarshFilter",
+      "type": "AudioAnalyzer",
       "pos": [500, 100],
-      "size": {"0": 315, "1": 858},
+      "size": {"0": 315, "1": 600},
       "flags": {},
       "order": 1,
       "mode": 0,
@@ -30,30 +38,28 @@
         {"name": "audio", "type": "AUDIO", "link": 1}
       ],
       "outputs": [
-        {"name": "AUDIO", "type": "AUDIO", "links": [2]}
+        {"name": "audio", "type": "AUDIO", "links": [2]},
+        {"name": "analysis_report", "type": "STRING", "links": []},
+        {"name": "rms_level", "type": "FLOAT", "links": []},
+        {"name": "peak_level", "type": "FLOAT", "links": []},
+        {"name": "spectral_centroid", "type": "FLOAT", "links": []},
+        {"name": "dynamic_range", "type": "FLOAT", "links": []}
       ],
-      "properties": {"Node name for S&R": "🎵 HarshFilter"},
+      "properties": {"Node name for S&R": "AudioAnalyzer"},
       "widgets_values": [
-        "comb",
-        800.0,
-        0.9,
-        "chaos",
-        2.5,
-        1.0,
-        0.8,
-        4.0,
-        "triangle",
-        4.0,
-        0.6,
-        0.2,
-        false
+        "comprehensive",
+        "2048",
+        0.5,
+        "hann",
+        16,
+        0.3
       ]
     },
     {
       "id": 3,
-      "type": "🎵 MultiDistortion",
+      "type": "SpectrumAnalyzer",
       "pos": [900, 100],
-      "size": {"0": 315, "1": 754},
+      "size": {"0": 315, "1": 700},
       "flags": {},
       "order": 2,
       "mode": 0,
@@ -61,27 +67,29 @@
         {"name": "audio", "type": "AUDIO", "link": 2}
       ],
       "outputs": [
-        {"name": "AUDIO", "type": "AUDIO", "links": [3]}
+        {"name": "audio", "type": "AUDIO", "links": [3]},
+        {"name": "spectrum_report", "type": "STRING", "links": []},
+        {"name": "peak_frequency", "type": "FLOAT", "links": []},
+        {"name": "spectral_centroid", "type": "FLOAT", "links": []},  
+        {"name": "spectral_energy", "type": "FLOAT", "links": []}
       ],
-      "properties": {"Node name for S&R": "🎵 MultiDistortion"},
+      "properties": {"Node name for S&R": "SpectrumAnalyzer"},
       "widgets_values": [
-        "destruction",
-        6.0,
-        3,
-        0.5,
-        "bandpass",
-        500.0,
-        0.7,
-        2.5,
-        0.3,
-        false
+        "2048",
+        0.75,
+        "hann",
+        "magnitude",
+        "log",
+        20.0,
+        20000.0,
+        0.8
       ]
     },
     {
       "id": 4,
-      "type": "🎵 SpectralProcessor",
+      "type": "ModulationMatrix",
       "pos": [1300, 100],
-      "size": {"0": 315, "1": 858},
+      "size": {"0": 315, "1": 800},
       "flags": {},
       "order": 3,
       "mode": 0,
@@ -89,26 +97,24 @@
         {"name": "audio", "type": "AUDIO", "link": 3}
       ],
       "outputs": [
-        {"name": "AUDIO", "type": "AUDIO", "links": [4]}
+        {"name": "modulated_audio", "type": "AUDIO", "links": [4]},
+        {"name": "matrix_report", "type": "STRING", "links": []},
+        {"name": "lfo1_value", "type": "FLOAT", "links": []},
+        {"name": "lfo2_value", "type": "FLOAT", "links": []},
+        {"name": "envelope_value", "type": "FLOAT", "links": []},
+        {"name": "follower_value", "type": "FLOAT", "links": []}
       ],
-      "properties": {"Node name for S&R": "🎵 SpectralProcessor"},
+      "properties": {"Node name for S&R": "ModulationMatrix"},
       "widgets_values": [
-        "chaos",
-        2048,
-        0.75,
-        "hann",
-        0.9,
+        8,
+        0.5,
         100.0,
-        8000.0,
-        0.0,
-        0.8,
-        0.1,
-        false
+        0.8
       ]
     },
     {
       "id": 5,
-      "type": "🎵 AudioSave",
+      "type": "AudioSave",
       "pos": [1700, 100],
       "size": {"0": 315, "1": 334},
       "flags": {},
@@ -117,9 +123,9 @@
       "inputs": [
         {"name": "audio", "type": "AUDIO", "link": 4}
       ],
-      "properties": {"Node name for S&R": "🎵 AudioSave"},
+      "properties": {"Node name for S&R": "AudioSave"},
       "widgets_values": [
-        "external_audio_processed",
+        "external_audio_processing",
         "wav"
       ]
     }

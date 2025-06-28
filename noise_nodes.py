@@ -2978,9 +2978,16 @@ class TrueChaosNode:
                              init_x, init_y, init_z, param_a, param_b, param_c):
         """Generate chaos attractor trajectory using numerical integration."""
         
+        # Validate inputs
+        if duration <= 0 or sample_rate <= 0 or time_scale <= 0:
+            raise ValueError(f"Invalid parameters: duration={duration}, sample_rate={sample_rate}, time_scale={time_scale}")
+        
         # Calculate integration parameters
         dt = time_scale / sample_rate  # Time step
         num_steps = int(duration * sample_rate)
+        
+        if num_steps <= 0:
+            raise ValueError(f"Invalid number of steps: {num_steps}")
         
         # Initialize state
         x, y, z = init_x, init_y, init_z
@@ -2992,6 +2999,11 @@ class TrueChaosNode:
             trajectory[0, i] = x
             trajectory[1, i] = y
             trajectory[2, i] = z
+            
+            # Check for numerical instability
+            if not (np.isfinite(x) and np.isfinite(y) and np.isfinite(z)):
+                print(f"⚠️  Chaos system {system_type} became unstable at step {i}, reinitializing...")
+                x, y, z = init_x + np.random.normal(0, 0.1), init_y + np.random.normal(0, 0.1), init_z + np.random.normal(0, 0.1)
             
             # Compute derivatives based on chaos system
             dx_dt, dy_dt, dz_dt = self._compute_chaos_derivatives(
@@ -3020,6 +3032,14 @@ class TrueChaosNode:
             x += (k1_x + 2*k2_x + 2*k3_x + k4_x) / 6
             y += (k1_y + 2*k2_y + 2*k3_y + k4_y) / 6
             z += (k1_z + 2*k2_z + 2*k3_z + k4_z) / 6
+        
+        # Validate trajectory before returning
+        if trajectory.shape != (3, num_steps):
+            raise ValueError(f"Trajectory shape mismatch: expected (3, {num_steps}), got {trajectory.shape}")
+        
+        if not np.all(np.isfinite(trajectory)):
+            print(f"⚠️  Warning: Trajectory contains non-finite values, applying safety clipping...")
+            trajectory = np.clip(trajectory, -1000, 1000)
         
         return trajectory
     
@@ -3115,7 +3135,8 @@ class TrueChaosNode:
                        chaos_intensity, amplitude, channels):
         """Convert chaos trajectory to audio signal."""
         
-        x_signal, y_signal, z_signal = trajectory
+        # Unpack trajectory correctly - trajectory is shape (3, num_steps)
+        x_signal, y_signal, z_signal = trajectory[0], trajectory[1], trajectory[2]
         num_samples = len(x_signal)
         
         # Normalize chaos signals to [-1, 1]
@@ -3203,16 +3224,22 @@ class TrueChaosNode:
         elif audio_np.ndim == 3:
             audio_np = audio_np.squeeze()
         
-        x_signal, y_signal, z_signal = chaos_trajectory
+        # Unpack trajectory correctly - trajectory is shape (3, num_steps)
+        x_signal, y_signal, z_signal = chaos_trajectory[0], chaos_trajectory[1], chaos_trajectory[2]
         
         # Match lengths by interpolation if needed
         if len(x_signal) != audio_np.shape[1]:
-            from scipy import interpolate
-            old_indices = np.linspace(0, len(x_signal) - 1, len(x_signal))
-            new_indices = np.linspace(0, len(x_signal) - 1, audio_np.shape[1])
-            
-            interp_x = interpolate.interp1d(old_indices, x_signal, kind='linear')
-            x_signal = interp_x(new_indices)
+            try:
+                from scipy import interpolate
+                old_indices = np.linspace(0, len(x_signal) - 1, len(x_signal))
+                new_indices = np.linspace(0, len(x_signal) - 1, audio_np.shape[1])
+                
+                interp_x = interpolate.interp1d(old_indices, x_signal, kind='linear')
+                x_signal = interp_x(new_indices)
+            except ImportError:
+                # Fallback to simple numpy interpolation
+                x_signal = np.interp(np.linspace(0, len(x_signal) - 1, audio_np.shape[1]), 
+                                   np.linspace(0, len(x_signal) - 1, len(x_signal)), x_signal)
         
         # Normalize chaos signal
         x_norm = self._normalize_signal(x_signal)
@@ -3256,7 +3283,8 @@ class TrueChaosNode:
     def _generate_chaos_report(self, system_type, trajectory, duration, sample_rate, time_scale):
         """Generate chaos analysis report."""
         
-        x_signal, y_signal, z_signal = trajectory
+        # Unpack trajectory correctly - trajectory is shape (3, num_steps)
+        x_signal, y_signal, z_signal = trajectory[0], trajectory[1], trajectory[2]
         
         # Calculate statistics
         x_mean, x_std = np.mean(x_signal), np.std(x_signal)

@@ -4,31 +4,30 @@
   "nodes": [
     {
       "id": 1,
-      "type": "🎵 NoiseGenerator",
+      "type": "NoiseGenerator",
       "pos": [100, 100],
       "size": {"0": 315, "1": 514},
       "flags": {},
       "order": 0,
       "mode": 0,
       "outputs": [
-        {"name": "AUDIO", "type": "AUDIO", "links": [1]}
+        {"name": "audio", "type": "AUDIO", "links": [1]}
       ],
-      "properties": {"Node name for S&R": "🎵 NoiseGenerator"},
+      "properties": {"Node name for S&R": "NoiseGenerator"},
       "widgets_values": [
         "white",
-        44100,
         5.0,
-        -12.0,
-        0.0,
-        1.0,
-        0.1,
+        44100,
+        0.8,
         42,
-        false
+        1,
+        "independent",
+        1.0
       ]
     },
     {
       "id": 2,
-      "type": "🎵 AudioSave",
+      "type": "AudioSave",
       "pos": [500, 100],
       "size": {"0": 315, "1": 334},
       "flags": {},
@@ -37,7 +36,7 @@
       "inputs": [
         {"name": "audio", "type": "AUDIO", "link": 1}
       ],
-      "properties": {"Node name for S&R": "🎵 AudioSave"},
+      "properties": {"Node name for S&R": "AudioSave"},
       "widgets_values": [
         "white_noise_example",
         "wav"
@@ -45,31 +44,30 @@
     },
     {
       "id": 3,
-      "type": "🎵 NoiseGenerator", 
+      "type": "NoiseGenerator", 
       "pos": [100, 700],
       "size": {"0": 315, "1": 514},
       "flags": {},
       "order": 2,
       "mode": 0,
       "outputs": [
-        {"name": "AUDIO", "type": "AUDIO", "links": [2]}
+        {"name": "audio", "type": "AUDIO", "links": [2]}
       ],
-      "properties": {"Node name for S&R": "🎵 NoiseGenerator"},
+      "properties": {"Node name for S&R": "NoiseGenerator"},
       "widgets_values": [
         "pink",
-        44100,
         5.0,
-        -12.0,
-        0.0,
-        1.0,
-        0.1,
+        44100,
+        0.8,
         42,
-        false
+        1,
+        "independent",
+        1.0
       ]
     },
     {
       "id": 4,
-      "type": "🎵 AudioSave",
+      "type": "AudioSave",
       "pos": [500, 700],
       "size": {"0": 315, "1": 334},
       "flags": {},
@@ -78,7 +76,7 @@
       "inputs": [
         {"name": "audio", "type": "AUDIO", "link": 2}
       ],
-      "properties": {"Node name for S&R": "🎵 AudioSave"},
+      "properties": {"Node name for S&R": "AudioSave"},
       "widgets_values": [
         "pink_noise_example",
         "wav"
@@ -86,31 +84,30 @@
     },
     {
       "id": 5,
-      "type": "🎵 NoiseGenerator",
+      "type": "NoiseGenerator",
       "pos": [100, 1300],
       "size": {"0": 315, "1": 514},
       "flags": {},
       "order": 4,
       "mode": 0,
       "outputs": [
-        {"name": "AUDIO", "type": "AUDIO", "links": [3]}
+        {"name": "audio", "type": "AUDIO", "links": [3]}
       ],
-      "properties": {"Node name for S&R": "🎵 NoiseGenerator"},
+      "properties": {"Node name for S&R": "NoiseGenerator"},
       "widgets_values": [
         "brown",
-        44100,
         5.0,
-        -12.0,
-        0.0,
-        1.0,
-        0.1,
+        44100,
+        0.8,
         42,
-        false
+        1,
+        "independent",
+        1.0
       ]
     },
     {
       "id": 6,
-      "type": "🎵 AudioSave",
+      "type": "AudioSave",
       "pos": [500, 1300],
       "size": {"0": 315, "1": 334},
       "flags": {},
@@ -119,7 +116,7 @@
       "inputs": [
         {"name": "audio", "type": "AUDIO", "link": 3}
       ],
-      "properties": {"Node name for S&R": "🎵 AudioSave"},
+      "properties": {"Node name for S&R": "AudioSave"},
       "widgets_values": [
         "brown_noise_example",
         "wav"
@@ -127,31 +124,30 @@
     },
     {
       "id": 7,
-      "type": "🎵 NoiseGenerator",
+      "type": "NoiseGenerator",
       "pos": [100, 1900],
       "size": {"0": 315, "1": 514},
       "flags": {},
       "order": 6,
       "mode": 0,
       "outputs": [
-        {"name": "AUDIO", "type": "AUDIO", "links": [4]}
+        {"name": "audio", "type": "AUDIO", "links": [4]}
       ],
-      "properties": {"Node name for S&R": "🎵 NoiseGenerator"},
+      "properties": {"Node name for S&R": "NoiseGenerator"},
       "widgets_values": [
-        "crackle",
-        44100,
+        "blue",
         5.0,
-        -12.0,
-        0.0,
-        1.0,
-        0.1,
+        44100,
+        0.8,
         42,
-        false
+        1,
+        "independent",
+        1.0
       ]
     },
     {
       "id": 8,
-      "type": "🎵 AudioSave",
+      "type": "AudioSave",
       "pos": [500, 1900],
       "size": {"0": 315, "1": 334},
       "flags": {},
@@ -160,9 +156,9 @@
       "inputs": [
         {"name": "audio", "type": "AUDIO", "link": 4}
       ],
-      "properties": {"Node name for S&R": "🎵 AudioSave"},
+      "properties": {"Node name for S&R": "AudioSave"},
       "widgets_values": [
-        "crackle_noise_example",
+        "blue_noise_example",
         "wav"
       ]
     }

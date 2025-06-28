@@ -4,31 +4,30 @@
   "nodes": [
     {
       "id": 1,
-      "type": "🎵 NoiseGenerator",
+      "type": "NoiseGenerator",
       "pos": [100, 100],
       "size": {"0": 315, "1": 514},
       "flags": {},
       "order": 0,
       "mode": 0,
       "outputs": [
-        {"name": "AUDIO", "type": "AUDIO", "links": [1]}
+        {"name": "audio", "type": "AUDIO", "links": [1]}
       ],
-      "properties": {"Node name for S&R": "🎵 NoiseGenerator"},
+      "properties": {"Node name for S&R": "NoiseGenerator"},
       "widgets_values": [
         "white",
-        44100,
         10.0,
-        -6.0,
-        0.0,
-        1.0,
-        0.1,
+        44100,
+        0.8,
         42,
-        false
+        1,
+        "independent",
+        1.0
       ]
     },
     {
       "id": 2,
-      "type": "🎵 FeedbackProcessor",
+      "type": "FeedbackProcessor",
       "pos": [500, 100],
       "size": {"0": 315, "1": 650},
       "flags": {},
@@ -38,26 +37,26 @@
         {"name": "audio", "type": "AUDIO", "link": 1}
       ],
       "outputs": [
-        {"name": "AUDIO", "type": "AUDIO", "links": [2]}
+        {"name": "feedback_audio", "type": "AUDIO", "links": [2]}
       ],
-      "properties": {"Node name for S&R": "🎵 FeedbackProcessor"},
+      "properties": {"Node name for S&R": "FeedbackProcessor"},
       "widgets_values": [
         "complex",
         0.8,
-        0.1,
+        2.0,
         "lowpass",
         1000.0,
         0.7,
         0.5,
         2.0,
         0.3,
-        -6.0,
-        false
+        "sine",
+        0.8
       ]
     },
     {
       "id": 3,
-      "type": "🎵 HarshFilter",
+      "type": "HarshFilter",
       "pos": [900, 100],
       "size": {"0": 315, "1": 858},
       "flags": {},
@@ -67,28 +66,25 @@
         {"name": "audio", "type": "AUDIO", "link": 2}
       ],
       "outputs": [
-        {"name": "AUDIO", "type": "AUDIO", "links": [3]}
+        {"name": "filtered_audio", "type": "AUDIO", "links": [3]}
       ],
-      "properties": {"Node name for S&R": "🎵 HarshFilter"},
+      "properties": {"Node name for S&R": "HarshFilter"},
       "widgets_values": [
         "comb",
         800.0,
         0.95,
-        "chaos",
         3.0,
+        "chaos",
         1.0,
         1.0,
-        2.0,
-        "triangle",
         2.0,
         0.5,
-        0.3,
-        false
+        0.8
       ]
     },
     {
       "id": 4,
-      "type": "🎵 MultiDistortion",
+      "type": "MultiDistortion",
       "pos": [1300, 100],
       "size": {"0": 315, "1": 754},
       "flags": {},
@@ -98,25 +94,22 @@
         {"name": "audio", "type": "AUDIO", "link": 3}
       ],
       "outputs": [
-        {"name": "AUDIO", "type": "AUDIO", "links": [4]}
+        {"name": "distorted_audio", "type": "AUDIO", "links": [4]}
       ],
-      "properties": {"Node name for S&R": "🎵 MultiDistortion"},
+      "properties": {"Node name for S&R": "MultiDistortion"},
       "widgets_values": [
         "destruction",
         8.0,
-        3,
         0.3,
-        "highpass",
-        200.0,
-        0.5,
-        2.0,
+        1.0,
+        3,
         0.2,
-        false
+        0.8
       ]
     },
     {
       "id": 5,
-      "type": "🎵 SpectralProcessor",
+      "type": "SpectralProcessor",
       "pos": [1700, 100],
       "size": {"0": 315, "1": 858},
       "flags": {},
@@ -126,26 +119,23 @@
         {"name": "audio", "type": "AUDIO", "link": 4}
       ],
       "outputs": [
-        {"name": "AUDIO", "type": "AUDIO", "links": [5]}
+        {"name": "processed_audio", "type": "AUDIO", "links": [5]}
       ],
-      "properties": {"Node name for S&R": "🎵 SpectralProcessor"},
+      "properties": {"Node name for S&R": "SpectralProcessor"},
       "widgets_values": [
         "chaos",
-        2048,
+        "2048",
         0.75,
         "hann",
-        0.8,
         100.0,
         8000.0,
-        0.0,
-        0.7,
-        0.1,
-        false
+        0.8,
+        0.7
       ]
     },
     {
       "id": 6,
-      "type": "🎵 AudioSave",
+      "type": "AudioSave",
       "pos": [2100, 100],
       "size": {"0": 315, "1": 334},
       "flags": {},
@@ -154,7 +144,7 @@
       "inputs": [
         {"name": "audio", "type": "AUDIO", "link": 5}
       ],
-      "properties": {"Node name for S&R": "🎵 AudioSave"},
+      "properties": {"Node name for S&R": "AudioSave"},
       "widgets_values": [
         "merzbow_harsh_noise_wall",
         "wav"

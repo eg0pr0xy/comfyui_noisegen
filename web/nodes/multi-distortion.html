@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MULTI DISTORTION</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial Black', Arial, sans-serif;
+            background: #000;
+            color: #fff;
+            line-height: 1.2;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0;
+        }
+
+        .header {
+            background: linear-gradient(90deg, #000 0%, #111 50%, #000 100%);
+            padding: 40px 20px;
+            border-bottom: 4px solid #ff0040;
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 4px,
+                rgba(255,0,64,0.1) 4px,
+                rgba(255,0,64,0.1) 8px
+            );
+            pointer-events: none;
+        }
+
+        .back-btn {
+            display: inline-block;
+            background: #fff;
+            color: #000;
+            padding: 12px 24px;
+            text-decoration: none;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 100%, 12px 100%);
+            transition: all 0.2s ease;
+            margin-bottom: 30px;
+        }
+
+        .back-btn:hover {
+            background: #ff0040;
+            transform: translateX(-4px);
+        }
+
+        .node-title {
+            font-size: clamp(3rem, 8vw, 8rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            color: #fff;
+            margin-bottom: 20px;
+            text-shadow: 4px 4px 0px #ff0040;
+        }
+
+        .node-category {
+            background: #ff0040;
+            color: #fff;
+            padding: 8px 20px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 100%, 8px 100%);
+            margin-bottom: 30px;
+        }
+
+        .node-desc {
+            font-size: 18px;
+            color: #ccc;
+            max-width: 800px;
+            margin-bottom: 40px;
+            font-weight: normal;
+        }
+
+        .node-visual {
+            background: #111;
+            border: 2px solid #333;
+            height: 300px;
+            margin: 40px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .node-visual::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            border: 3px solid #ff0040;
+            clip-path: polygon(0 0, 100% 0, 80% 100%, 0 100%);
+        }
+
+        .visual-text {
+            color: #ff0040;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            z-index: 1;
+            text-align: center;
+        }
+
+        .specs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            margin: 60px 20px;
+        }
+
+        .spec-section {
+            background: #111;
+            border: 1px solid #333;
+            position: relative;
+        }
+
+        .spec-section:nth-child(1) {
+            border-right: none;
+        }
+
+        .spec-title {
+            background: #ff0040;
+            color: #fff;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #333;
+        }
+
+        .param {
+            padding: 20px;
+            border-bottom: 1px solid #222;
+            transition: all 0.2s ease;
+        }
+
+        .param:hover {
+            background: rgba(255,0,64,0.05);
+            border-left: 4px solid #ff0040;
+        }
+
+        .param:last-child {
+            border-bottom: none;
+        }
+
+        .param-name {
+            color: #ff0040;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            font-size: 16px;
+            letter-spacing: 1px;
+        }
+
+        .param-type {
+            background: #333;
+            color: #fff;
+            padding: 4px 12px;
+            font-size: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 8px;
+            clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 100%, 6px 100%);
+        }
+
+        .param-range {
+            color: #fff;
+            font-weight: 700;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .param-desc {
+            color: #aaa;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .distortion-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2px;
+            margin: 60px 20px;
+            background: #ff0040;
+            padding: 2px;
+        }
+
+        .distortion-type {
+            background: #111;
+            padding: 25px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .distortion-type:hover {
+            background: #000;
+            transform: scale(1.02);
+        }
+
+        .distortion-type h4 {
+            color: #ff0040;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            font-size: 16px;
+            letter-spacing: 1px;
+        }
+
+        .distortion-type p {
+            color: #ccc;
+            font-size: 13px;
+            line-height: 1.4;
+            margin-bottom: 10px;
+        }
+
+        .use-case {
+            background: rgba(255,0,64,0.1);
+            padding: 8px;
+            color: #ff0040;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .examples {
+            background: #111;
+            margin: 60px 20px;
+            border: 2px solid #333;
+        }
+
+        .examples-title {
+            background: #fff;
+            color: #000;
+            padding: 30px;
+            font-size: 36px;
+            font-weight: 900;
+            text-transform: uppercase;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        .example {
+            border-bottom: 1px solid #222;
+            padding: 40px;
+        }
+
+        .example:last-child {
+            border-bottom: none;
+        }
+
+        .example-title {
+            color: #ff0040;
+            font-size: 24px;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+
+        .workflow {
+            background: #000;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #ff0040;
+            font-family: 'Courier New', monospace;
+            color: #ff0040;
+            font-size: 16px;
+            overflow-x: auto;
+        }
+
+        .workflow-node {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .settings {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: #000;
+        }
+
+        .settings th {
+            background: #333;
+            color: #fff;
+            padding: 15px;
+            text-align: left;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+
+        .settings td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #222;
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        .settings tr:hover {
+            background: rgba(255,0,64,0.05);
+        }
+
+        .tips {
+            background: #000;
+            margin: 60px 20px;
+            border: 2px solid #ff0040;
+            position: relative;
+            counter-reset: tip-counter;
+        }
+
+        .tips-title {
+            background: #ff0040;
+            color: #fff;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .tip {
+            padding: 20px;
+            border-bottom: 1px solid #111;
+            font-size: 16px;
+            color: #ccc;
+            position: relative;
+            padding-left: 60px;
+        }
+
+        .tip:last-child {
+            border-bottom: none;
+        }
+
+        .tip::before {
+            content: counter(tip-counter, decimal-leading-zero);
+            counter-increment: tip-counter;
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            color: #ff0040;
+            font-weight: 900;
+            font-size: 18px;
+            background: #111;
+            padding: 8px 12px;
+            clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 100%, 6px 100%);
+        }
+
+        .footer {
+            background: #111;
+            padding: 60px 20px;
+            text-align: center;
+            border-top: 2px solid #ff0040;
+            margin-top: 80px;
+        }
+
+        .footer h3 {
+            color: #ff0040;
+            font-size: 28px;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+
+        .footer p {
+            color: #ccc;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .specs {
+                grid-template-columns: 1fr;
+            }
+            
+            .distortion-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .node-title {
+                font-size: 3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="../index.html" class="back-btn">← BACK</a>
+            <div class="node-category">PROCESSOR</div>
+            <h1 class="node-title">MULTI<br>DISTORTION</h1>
+            <div class="node-desc">
+                Advanced multi-stage distortion processor with 12 different algorithms. 
+                From subtle tube warmth to extreme digital destruction and chaos-based sonic manipulation.
+            </div>
+        </div>
+
+        <div class="node-visual">
+            <div class="visual-text">
+                NODE SCREENSHOT<br>
+                PLACEHOLDER
+            </div>
+        </div>
+
+        <div class="specs">
+            <div class="spec-section">
+                <div class="spec-title">INPUTS</div>
+                
+                <div class="param">
+                    <div class="param-name">audio</div>
+                    <div class="param-type">AUDIO</div>
+                    <div class="param-range">Any ComfyUI audio format</div>
+                    <div class="param-desc">Input audio to be distorted.</div>
+                </div>
+
+                <div class="param">
+                    <div class="param-name">distortion_type</div>
+                    <div class="param-type">ENUM</div>
+                    <div class="param-range">12 types: tube, fuzz, overdrive, clip, fold, wrap, bitcrush, quantize, chaos, destroy, multi, custom</div>
+                    <div class="param-desc">Distortion algorithm with unique characteristics.</div>
+                </div>
+
+                <div class="param">
+                    <div class="param-name">drive</div>
+                    <div class="param-type">FLOAT</div>
+                    <div class="param-range">0.0 - 10.0</div>
+                    <div class="param-desc">Amount of distortion/gain applied.</div>
+                </div>
+
+                <div class="param">
+                    <div class="param-name">mix</div>
+                    <div class="param-type">FLOAT</div>
+                    <div class="param-range">0.0 - 1.0</div>
+                    <div class="param-desc">Dry/wet mix. 0.0 = original, 1.0 = fully distorted.</div>
+                </div>
+
+                <div class="param">
+                    <div class="param-name">stages</div>
+                    <div class="param-type">INT</div>
+                    <div class="param-range">1 - 8</div>
+                    <div class="param-desc">Number of sequential distortion stages.</div>
+                </div>
+
+                <div class="param">
+                    <div class="param-name">asymmetry</div>
+                    <div class="param-type">FLOAT</div>
+                    <div class="param-range">-1.0 - 1.0</div>
+                    <div class="param-desc">Asymmetric distortion bias.</div>
+                </div>
+            </div>
+
+            <div class="spec-section">
+                <div class="spec-title">OUTPUTS</div>
+                
+                <div class="param">
+                    <div class="param-name">audio</div>
+                    <div class="param-type">AUDIO</div>
+                    <div class="param-range">Same format as input</div>
+                    <div class="param-desc">Distorted audio output.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="distortion-grid">
+            <div class="distortion-type">
+                <h4>TUBE</h4>
+                <p>Warm analog tube amplifier simulation with soft clipping.</p>
+                <div class="use-case">WARM TEXTURES</div>
+            </div>
+            
+            <div class="distortion-type">
+                <h4>FUZZ</h4>
+                <p>Classic fuzz box distortion with square wave clipping.</p>
+                <div class="use-case">VINTAGE SOUNDS</div>
+            </div>
+            
+            <div class="distortion-type">
+                <h4>OVERDRIVE</h4>
+                <p>Dynamic overdrive responding to input level.</p>
+                <div class="use-case">MUSICAL DISTORTION</div>
+            </div>
+            
+            <div class="distortion-type">
+                <h4>CLIP</h4>
+                <p>Hard clipping at defined threshold.</p>
+                <div class="use-case">AGGRESSIVE LIMITING</div>
+            </div>
+            
+            <div class="distortion-type">
+                <h4>FOLD</h4>
+                <p>Wavefolding reflecting signal peaks.</p>
+                <div class="use-case">COMPLEX HARMONICS</div>
+            </div>
+            
+            <div class="distortion-type">
+                <h4>WRAP</h4>
+                <p>Phase wrapping creating discontinuous jumps.</p>
+                <div class="use-case">DIGITAL ARTIFACTS</div>
+            </div>
+            
+            <div class="distortion-type">
+                <h4>BITCRUSH</h4>
+                <p>Reduced bit depth creating quantization noise.</p>
+                <div class="use-case">LO-FI TEXTURES</div>
+            </div>
+            
+            <div class="distortion-type">
+                <h4>QUANTIZE</h4>
+                <p>Level quantization creating stepped waveforms.</p>
+                <div class="use-case">STEPPED TEXTURES</div>
+            </div>
+            
+            <div class="distortion-type">
+                <h4>CHAOS</h4>
+                <p>Chaotic distortion with random parameter modulation.</p>
+                <div class="use-case">UNPREDICTABLE</div>
+            </div>
+            
+            <div class="distortion-type">
+                <h4>DESTROY</h4>
+                <p>Extreme destruction combining multiple types.</p>
+                <div class="use-case">MAXIMUM DESTRUCTION</div>
+            </div>
+            
+            <div class="distortion-type">
+                <h4>MULTI</h4>
+                <p>Parallel/series combination of multiple types.</p>
+                <div class="use-case">COMPLEX TEXTURES</div>
+            </div>
+            
+            <div class="distortion-type">
+                <h4>CUSTOM</h4>
+                <p>User-definable waveshaping function.</p>
+                <div class="use-case">PRECISE CONTROL</div>
+            </div>
+        </div>
+
+        <div class="examples">
+            <div class="examples-title">USAGE EXAMPLES</div>
+            
+            <div class="example">
+                <div class="example-title">HARSH NOISE PROCESSING</div>
+                <div class="workflow">
+                    <span class="workflow-node">NOISE GENERATOR</span> → 
+                    <span class="workflow-node">MULTI DISTORTION</span> → 
+                    <span class="workflow-node">HARSH FILTER</span>
+                </div>
+                <table class="settings">
+                    <tr><th>PARAM</th><th>VALUE</th><th>PURPOSE</th></tr>
+                    <tr><td>distortion_type</td><td>chaos</td><td>Maximum unpredictability</td></tr>
+                    <tr><td>drive</td><td>8.0</td><td>Extreme distortion level</td></tr>
+                    <tr><td>stages</td><td>4</td><td>Multi-stage destruction</td></tr>
+                </table>
+            </div>
+
+            <div class="example">
+                <div class="example-title">LO-FI TEXTURE CREATION</div>
+                <div class="workflow">
+                    <span class="workflow-node">PERLIN NOISE</span> → 
+                    <span class="workflow-node">MULTI DISTORTION</span> → 
+                    <span class="workflow-node">CONVOLUTION REVERB</span>
+                </div>
+                <table class="settings">
+                    <tr><th>PARAM</th><th>VALUE</th><th>PURPOSE</th></tr>
+                    <tr><td>distortion_type</td><td>bitcrush</td><td>Lo-fi digital character</td></tr>
+                    <tr><td>drive</td><td>3.0</td><td>Moderate distortion</td></tr>
+                    <tr><td>mix</td><td>0.7</td><td>Blend with original</td></tr>
+                </table>
+            </div>
+
+            <div class="example">
+                <div class="example-title">EXTREME DESTRUCTION</div>
+                <div class="workflow">
+                    <span class="workflow-node">TRUE CHAOS</span> → 
+                    <span class="workflow-node">MULTI DISTORTION</span> → 
+                    <span class="workflow-node">MICROSOUND SCULPTOR</span>
+                </div>
+                <table class="settings">
+                    <tr><th>PARAM</th><th>VALUE</th><th>PURPOSE</th></tr>
+                    <tr><td>distortion_type</td><td>destroy</td><td>Maximum destruction</td></tr>
+                    <tr><td>drive</td><td>10.0</td><td>Maximum drive level</td></tr>
+                    <tr><td>stages</td><td>6</td><td>Extreme multi-staging</td></tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="tips">
+            <div class="tips-title">DISTORTION MASTERY</div>
+            <div class="tip">Start with low drive values (1.0-3.0) and gradually increase</div>
+            <div class="tip">Use mix parameter to blend distorted and clean signals</div>
+            <div class="tip">Multiple stages create exponential distortion effects</div>
+            <div class="tip">Tube and overdrive modes respond dynamically to input level</div>
+            <div class="tip">Bitcrush and quantize work best on complex source material</div>
+            <div class="tip">Chaos and destroy modes perfect for harsh noise applications</div>
+            <div class="tip">Asymmetry parameter adds character and harmonic complexity</div>
+            <div class="tip">Apply distortion before filtering for smoother results</div>
+            <div class="tip">Low bit values (1-4) create extreme lo-fi effects</div>
+            <div class="tip">Custom mode allows mathematical waveshaping functions</div>
+        </div>
+
+        <div class="footer">
+            <h3>MULTI DISTORTION</h3>
+            <p>Transform any audio from subtle warmth to total destruction</p>
+            <a href="../index.html" class="back-btn">EXPLORE MORE NODES</a>
+        </div>
+    </div>
+</body>
+</html> 

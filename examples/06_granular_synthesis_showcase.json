@@ -4,33 +4,30 @@
   "nodes": [
     {
       "id": 1,
-      "type": "🎵 NoiseGenerator",
+      "type": "BandLimitedNoise",
       "pos": [100, 100],
-      "size": {"0": 315, "1": 514},
+      "size": {"0": 315, "1": 500},
       "flags": {},
       "order": 0,
       "mode": 0,
       "outputs": [
-        {"name": "AUDIO", "type": "AUDIO", "links": [1]}
+        {"name": "audio", "type": "AUDIO", "links": [1]}
       ],
-      "properties": {"Node name for S&R": "🎵 NoiseGenerator"},
+      "properties": {"Node name for S&R": "BandLimitedNoise"},
       "widgets_values": [
-        "pink",
+        12.0,
+        200.0,
+        4000.0,
         44100,
-        8.0,
-        -15.0,
-        0.0,
-        1.0,
-        0.1,
-        42,
-        false
+        0.8,
+        42
       ]
     },
     {
       "id": 2,
-      "type": "🎵 GranularProcessor",
+      "type": "GranularProcessor",
       "pos": [500, 100],
-      "size": {"0": 315, "1": 1050},
+      "size": {"0": 315, "1": 700},
       "flags": {},
       "order": 1,
       "mode": 0,
@@ -38,144 +35,106 @@
         {"name": "audio", "type": "AUDIO", "link": 1}
       ],
       "outputs": [
-        {"name": "AUDIO", "type": "AUDIO", "links": [2]}
+        {"name": "granular_audio", "type": "AUDIO", "links": [2]}
       ],
-      "properties": {"Node name for S&R": "🎵 GranularProcessor"},
+      "properties": {"Node name for S&R": "GranularProcessor"},
       "widgets_values": [
-        50.0,
-        0.1,
-        0.5,
-        "hann",
+        150.0,
+        15.0,
+        1.5,
+        "gaussian",
         "random",
-        "semitones",
-        0.0,
-        0.3,
-        0.2,
-        0.4,
-        0.0,
-        false
+        "lfo",
+        0.8
       ]
     },
     {
       "id": 3,
-      "type": "🎵 GranularSequencer",
+      "type": "GranularSequencer",
       "pos": [900, 100],
-      "size": {"0": 315, "1": 1154},
+      "size": {"0": 315, "1": 700},
       "flags": {},
       "order": 2,
       "mode": 0,
       "inputs": [
-        {"name": "audio", "type": "AUDIO", "link": 2}
+        {"name": "audio", "type": "AUDIO", "link": 1}
       ],
       "outputs": [
-        {"name": "AUDIO", "type": "AUDIO", "links": [3]}
+        {"name": "sequenced_audio", "type": "AUDIO", "links": [3]}
       ],
-      "properties": {"Node name for S&R": "🎵 GranularSequencer"},
+      "properties": {"Node name for S&R": "GranularSequencer"},
       "widgets_values": [
-        16,
-        120.0,
-        "euclidean",
-        8,
-        16,
-        0.8,
+        12,
         0.1,
-        0.2,
-        1.0,
-        0.3,
-        false
+        80.0,
+        12.0,
+        0.7,
+        0.1,
+        0.8
       ]
     },
     {
       "id": 4,
-      "type": "🎵 MicrosoundSculptor",
+      "type": "ChaosNoiseMix",
       "pos": [1300, 100],
-      "size": {"0": 315, "1": 1050},
+      "size": {"0": 315, "1": 600},
       "flags": {},
       "order": 3,
       "mode": 0,
       "inputs": [
-        {"name": "audio", "type": "AUDIO", "link": 3}
+        {"name": "noise_a", "type": "AUDIO", "link": 2},
+        {"name": "noise_b", "type": "AUDIO", "link": 3}
       ],
       "outputs": [
-        {"name": "AUDIO", "type": "AUDIO", "links": [4]}
+        {"name": "chaos_audio", "type": "AUDIO", "links": [4]}
       ],
-      "properties": {"Node name for S&R": "🎵 MicrosoundSculptor"},
+      "properties": {"Node name for S&R": "ChaosNoiseMix"},
       "widgets_values": [
-        200.0,
-        0.02,
-        0.3,
-        "chaos",
+        "ring_mod",
         0.6,
-        "morph",
-        0.5,
         0.4,
-        2.0,
-        false
+        0.3,
+        0.8
       ]
     },
     {
       "id": 5,
-      "type": "🎵 AudioMixer",
+      "type": "MicrosoundSculptor",
       "pos": [1700, 100],
-      "size": {"0": 315, "1": 514},
+      "size": {"0": 315, "1": 700},
       "flags": {},
       "order": 4,
       "mode": 0,
       "inputs": [
-        {"name": "audio1", "type": "AUDIO", "link": 4},
-        {"name": "audio2", "type": "AUDIO", "link": 5}
+        {"name": "audio", "type": "AUDIO", "link": 4}
       ],
       "outputs": [
-        {"name": "AUDIO", "type": "AUDIO", "links": [6]}
+        {"name": "microsound_audio", "type": "AUDIO", "links": [5]}
       ],
-      "properties": {"Node name for S&R": "🎵 AudioMixer"},
+      "properties": {"Node name for S&R": "MicrosoundSculptor"},
       "widgets_values": [
-        0.7,
-        0.3,
-        0.0,
-        0.0,
-        -3.0,
-        false
+        "frequency_shift",
+        0.6,
+        "grain_feedback",
+        0.5,
+        30.0,
+        15.0,
+        0.2,
+        0.8
       ]
     },
     {
       "id": 6,
-      "type": "🎵 PerlinNoise",
-      "pos": [1300, 1300],
-      "size": {"0": 315, "1": 650},
-      "flags": {},
-      "order": 5,
-      "mode": 0,
-      "outputs": [
-        {"name": "AUDIO", "type": "AUDIO", "links": [5]}
-      ],
-      "properties": {"Node name for S&R": "🎵 PerlinNoise"},
-      "widgets_values": [
-        44100,
-        8.0,
-        -20.0,
-        0.005,
-        3,
-        0.5,
-        2.0,
-        123,
-        0.05,
-        "lowpass",
-        false
-      ]
-    },
-    {
-      "id": 7,
-      "type": "🎵 AudioSave",
+      "type": "AudioSave",
       "pos": [2100, 100],
       "size": {"0": 315, "1": 334},
       "flags": {},
-      "order": 6,
+      "order": 5,
       "mode": 0,
       "inputs": [
-        {"name": "audio", "type": "AUDIO", "link": 6}
+        {"name": "audio", "type": "AUDIO", "link": 5}
       ],
-      "properties": {"Node name for S&R": "🎵 AudioSave"},
+      "properties": {"Node name for S&R": "AudioSave"},
       "widgets_values": [
         "granular_synthesis_showcase",
         "wav"
@@ -184,11 +143,10 @@
   ],
   "links": [
     [1, 1, 0, 2, 0, "AUDIO"],
-    [2, 2, 0, 3, 0, "AUDIO"],
-    [3, 3, 0, 4, 0, "AUDIO"],
+    [2, 2, 0, 4, 0, "AUDIO"],
+    [3, 3, 0, 4, 1, "AUDIO"],
     [4, 4, 0, 5, 0, "AUDIO"],
-    [5, 6, 0, 5, 1, "AUDIO"],
-    [6, 5, 0, 7, 0, "AUDIO"]
+    [5, 5, 0, 6, 0, "AUDIO"]
   ],
   "groups": [],
   "config": {},

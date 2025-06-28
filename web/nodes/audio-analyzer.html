@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>🔬 Audio Analyzer - NOISEGEN Technical Reference</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(30, 30, 30, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+        }
+
+        .back-link {
+            background: #ff6b6b;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 10px;
+            display: inline-block;
+            margin-bottom: 30px;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .back-link:hover {
+            background: #ff5252;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.5);
+        }
+
+        .node-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #333, #444);
+            border-radius: 20px;
+            border: 2px solid #ffa726;
+        }
+
+        .node-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .node-title {
+            font-size: 3rem;
+            color: #ffa726;
+            margin-bottom: 15px;
+            font-weight: 900;
+        }
+
+        .node-category {
+            background: linear-gradient(45deg, #ffa726, #ff9800);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .node-description {
+            font-size: 1.3rem;
+            color: #ddd;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+
+        .node-image {
+            width: 100%;
+            max-width: 800px;
+            height: 400px;
+            background: linear-gradient(135deg, #444, #555);
+            border: 3px dashed #ffa726;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 40px auto;
+            color: #ffa726;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .node-image-icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
+        }
+
+        .specs-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin: 50px 0;
+        }
+
+        .spec-section {
+            background: linear-gradient(135deg, #2a2a2a, #3a3a3a);
+            padding: 30px;
+            border-radius: 20px;
+            border: 2px solid #555;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        .spec-title {
+            color: #ffa726;
+            font-size: 2rem;
+            margin-bottom: 25px;
+            border-bottom: 3px solid #ffa726;
+            padding-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .param {
+            background: rgba(255,255,255,0.05);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            border-left: 4px solid #ffa726;
+            transition: all 0.3s;
+        }
+
+        .param:hover {
+            background: rgba(255,255,255,0.08);
+            transform: translateX(5px);
+        }
+
+        .param-name {
+            font-weight: bold;
+            color: #ffa726;
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+        }
+
+        .param-type {
+            background: linear-gradient(45deg, #666, #777);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .param-range {
+            color: #ffa726;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        .param-description {
+            color: #ccc;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .analysis-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 40px 0;
+        }
+
+        .analysis-type {
+            background: linear-gradient(135deg, #2a2a2a, #3a3a3a);
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid #555;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .analysis-type:hover {
+            border-color: #ffa726;
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(255, 167, 38, 0.2);
+        }
+
+        .analysis-type h4 {
+            color: #ffa726;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .analysis-type p {
+            color: #ccc;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .measurement-range {
+            background: rgba(255, 167, 38, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            color: #ffa726;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .examples-section {
+            background: linear-gradient(135deg, #1a1a2e, #2a2a4a);
+            padding: 40px;
+            border-radius: 20px;
+            margin: 50px 0;
+            border: 2px solid #444;
+        }
+
+        .examples-title {
+            color: #ffa726;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .example {
+            background: rgba(0,0,0,0.4);
+            padding: 30px;
+            margin: 30px 0;
+            border-radius: 15px;
+            border-left: 5px solid #4ecdc4;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .example-title {
+            color: #4ecdc4;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .example-workflow {
+            background: #000;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            color: #0f0;
+            margin: 15px 0;
+            border: 2px solid #333;
+            overflow-x: auto;
+            font-size: 1.1rem;
+        }
+
+        .workflow-chain {
+            color: #ffa726;
+            font-weight: bold;
+        }
+
+        .settings-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .settings-table th {
+            background: linear-gradient(45deg, #ffa726, #ff9800);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .settings-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #444;
+            color: #ddd;
+            font-size: 1rem;
+        }
+
+        .settings-table tr:nth-child(even) {
+            background: rgba(255,255,255,0.03);
+        }
+
+        .settings-table tr:hover {
+            background: rgba(255, 167, 38, 0.1);
+        }
+
+        .tips-section {
+            background: linear-gradient(135deg, #4a3a2a, #5a4a3a);
+            padding: 30px;
+            border-radius: 20px;
+            margin: 40px 0;
+            border-left: 6px solid #ffa726;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        .tips-title {
+            color: #ffa726;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .tip {
+            margin: 15px 0;
+            padding: 15px 0;
+            color: #ddd;
+            font-size: 1.1rem;
+            border-bottom: 1px solid rgba(255, 167, 38, 0.2);
+        }
+
+        .tip:last-child {
+            border-bottom: none;
+        }
+
+        .tip::before {
+            content: "📊 ";
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 1200px) {
+            .specs-container { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 20px; }
+            .node-title { font-size: 2rem; }
+            .analysis-types { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../index.html" class="back-link">← Back to NOISEGEN</a>
+        
+        <div class="node-header">
+            <div class="node-icon">🔬</div>
+            <div class="node-category">UTILITY</div>
+            <h1 class="node-title">Audio Analyzer</h1>
+            <div class="node-description">
+                Professional real-time audio analysis suite with comprehensive measurements including RMS, peak, crest factor, THD+N, frequency band analysis, and dynamic range evaluation. Essential for scientific audio research, quality control, and sound design validation.
+            </div>
+        </div>
+
+        <div class="node-image">
+            <div class="node-image-icon">🔬</div>
+            <div>ComfyUI Audio Analyzer Node</div>
+            <div style="font-size: 1rem; color: #888; margin-top: 10px;">
+                [Screenshot showing real-time analysis meters and displays]
+            </div>
+        </div>
+
+        <div class="specs-container">
+            <div class="spec-section">
+                <h2 class="spec-title">📥 INPUTS</h2>
+                
+                <div class="param">
+                    <div class="param-name">audio</div>
+                    <div class="param-type">AUDIO</div>
+                    <div class="param-range">Any ComfyUI audio format</div>
+                    <div class="param-description">Input audio to be analyzed. Supports mono and stereo signals at any sample rate.</div>
+                </div>
+
+                <div class="param">
+                    <div class="param-name">analysis_mode</div>
+                    <div class="param-type">ENUM</div>
+                    <div class="param-range">Options: real_time, statistical, frequency, dynamics, quality, all</div>
+                    <div class="param-description">Type of analysis to perform. 'all' mode provides comprehensive measurements.</div>
+                </div>
+
+                <div class="param">
+                    <div class="param-name">window_size</div>
+                    <div class="param-type">INT</div>
+                    <div class="param-range">Range: 256 - 8192 samples</div>
+                    <div class="param-description">Analysis window size. Larger windows provide better frequency resolution but slower response.</div>
+                </div>
+
+                <div class="param">
+                    <div class="param-name">update_rate</div>
+                    <div class="param-type">FLOAT</div>
+                    <div class="param-range">Range: 1.0 - 100.0 Hz</div>
+                    <div class="param-description">Analysis update rate in Hz. Higher rates provide smoother real-time display.</div>
+                </div>
+
+                <div class="param">
+                    <div class="param-name">reference_level</div>
+                    <div class="param-type">FLOAT</div>
+                    <div class="param-range">Range: -60.0 - 0.0 dBFS</div>
+                    <div class="param-description">Reference level for relative measurements. Default: -20.0 dBFS</div>
+                </div>
+
+                <div class="param">
+                    <div class="param-name">frequency_bands</div>
+                    <div class="param-type">ENUM</div>
+                    <div class="param-range">Options: octave, third_octave, custom, full_spectrum</div>
+                    <div class="param-description">Frequency band analysis type for spectral measurements.</div>
+                </div>
+            </div>
+
+            <div class="spec-section">
+                <h2 class="spec-title">📤 OUTPUTS</h2>
+                
+                <div class="param">
+                    <div class="param-name">audio</div>
+                    <div class="param-type">AUDIO</div>
+                    <div class="param-range">Passthrough - same as input</div>
+                    <div class="param-description">Original audio passed through unchanged for daisy-chaining with other nodes.</div>
+                </div>
+
+                <div class="param">
+                    <div class="param-name">analysis_data</div>
+                    <div class="param-type">DICT</div>
+                    <div class="param-range">Comprehensive measurement dictionary</div>
+                    <div class="param-description">Complete analysis results including all measurements, available for data export or further processing.</div>
+                </div>
+
+                <div class="param">
+                    <div class="param-name">rms_level</div>
+                    <div class="param-type">FLOAT</div>
+                    <div class="param-range">dBFS</div>
+                    <div class="param-description">Current RMS level in dBFS for real-time monitoring and automation.</div>
+                </div>
+
+                <div class="param">
+                    <div class="param-name">peak_level</div>
+                    <div class="param-type">FLOAT</div>
+                    <div class="param-range">dBFS</div>
+                    <div class="param-description">Current peak level in dBFS for clipping detection and level management.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="analysis-types">
+            <div class="analysis-type">
+                <h4>📊 RMS Analysis</h4>
+                <p>Root Mean Square level measurement providing average signal power over time windows.</p>
+                <div class="measurement-range">Range: -∞ to 0 dBFS</div>
+            </div>
+            
+            <div class="analysis-type">
+                <h4>⚡ Peak Analysis</h4>
+                <p>True peak detection with oversampling for accurate digital peak measurement and clipping detection.</p>
+                <div class="measurement-range">Range: -∞ to +3 dBFS (oversampled)</div>
+            </div>
+            
+            <div class="analysis-type">
+                <h4>📈 Crest Factor</h4>
+                <p>Peak-to-RMS ratio indicating dynamic range and compression characteristics of the signal.</p>
+                <div class="measurement-range">Range: 0 to 50 dB typical</div>
+            </div>
+            
+            <div class="analysis-type">
+                <h4>🔬 THD+N Analysis</h4>
+                <p>Total Harmonic Distortion plus Noise measurement for quality assessment and equipment testing.</p>
+                <div class="measurement-range">Range: 0.001% to 50%</div>
+            </div>
+            
+            <div class="analysis-type">
+                <h4>🎵 Frequency Analysis</h4>
+                <p>Spectral content analysis with octave or third-octave band measurements for frequency balance assessment.</p>
+                <div class="measurement-range">20 Hz to Nyquist frequency</div>
+            </div>
+            
+            <div class="analysis-type">
+                <h4>⚖️ Dynamic Range</h4>
+                <p>DR14 and other dynamic range measurements for loudness war analysis and mastering evaluation.</p>
+                <div class="measurement-range">Range: 0 to 30+ DR units</div>
+            </div>
+            
+            <div class="analysis-type">
+                <h4>🎚️ Loudness Metering</h4>
+                <p>LUFS (Loudness Units Full Scale) measurement compliant with broadcasting standards.</p>
+                <div class="measurement-range">Range: -70 to 0 LUFS</div>
+            </div>
+            
+            <div class="analysis-type">
+                <h4>📻 Stereo Analysis</h4>
+                <p>Stereo width, correlation, and phase relationship measurements for stereo field evaluation.</p>
+                <div class="measurement-range">Correlation: -1.0 to +1.0</div>
+            </div>
+        </div>
+
+        <div class="examples-section">
+            <h2 class="examples-title">🔬 ANALYSIS EXAMPLES</h2>
+            
+            <div class="example">
+                <h3 class="example-title">📊 Noise Generator Quality Test</h3>
+                <div class="example-workflow">
+                    <span class="workflow-chain">Noise Generator</span> (white noise, 48kHz) 
+                    → <span class="workflow-chain">Audio Analyzer</span> (all modes) 
+                    → <span class="workflow-chain">Data Export</span>
+                </div>
+                <table class="settings-table">
+                    <tr><th>Parameter</th><th>Value</th><th>Purpose</th></tr>
+                    <tr><td>analysis_mode</td><td>all</td><td>Complete measurement suite</td></tr>
+                    <tr><td>window_size</td><td>4096</td><td>High frequency resolution</td></tr>
+                    <tr><td>update_rate</td><td>10.0</td><td>Smooth real-time display</td></tr>
+                    <tr><td>reference_level</td><td>-20.0</td><td>Standard reference</td></tr>
+                    <tr><td>frequency_bands</td><td>third_octave</td><td>Detailed frequency analysis</td></tr>
+                </table>
+            </div>
+
+            <div class="example">
+                <h3 class="example-title">🎸 Distortion Quality Assessment</h3>
+                <div class="example-workflow">
+                    <span class="workflow-chain">Audio Input</span> 
+                    → <span class="workflow-chain">Multi Distortion</span> 
+                    → <span class="workflow-chain">Audio Analyzer</span> (quality mode) 
+                    → <span class="workflow-chain">Report Generation</span>
+                </div>
+                <table class="settings-table">
+                    <tr><th>Parameter</th><th>Value</th><th>Purpose</th></tr>
+                    <tr><td>analysis_mode</td><td>quality</td><td>THD+N and distortion focus</td></tr>
+                    <tr><td>window_size</td><td>2048</td><td>Balance resolution/speed</td></tr>
+                    <tr><td>update_rate</td><td>25.0</td><td>Fast response</td></tr>
+                    <tr><td>reference_level</td><td>-12.0</td><td>Higher reference for distortion</td></tr>
+                </table>
+            </div>
+
+            <div class="example">
+                <h3 class="example-title">🔊 Speaker Response Measurement</h3>
+                <div class="example-workflow">
+                    <span class="workflow-chain">Band Limited Noise</span> 
+                    → <span class="workflow-chain">Audio Output</span> 
+                    → <span class="workflow-chain">Microphone Input</span> 
+                    → <span class="workflow-chain">Audio Analyzer</span> (frequency mode)
+                </div>
+                <table class="settings-table">
+                    <tr><th>Parameter</th><th>Value</th><th>Purpose</th></tr>
+                    <tr><td>analysis_mode</td><td>frequency</td><td>Frequency response focus</td></tr>
+                    <tr><td>window_size</td><td>8192</td><td>Maximum frequency detail</td></tr>
+                    <tr><td>frequency_bands</td><td>third_octave</td><td>Professional standard</td></tr>
+                    <tr><td>update_rate</td><td>5.0</td><td>Stable measurements</td></tr>
+                </table>
+            </div>
+
+            <div class="example">
+                <h3 class="example-title">🎚️ Mix Loudness Compliance</h3>
+                <div class="example-workflow">
+                    <span class="workflow-chain">Mixed Audio</span> 
+                    → <span class="workflow-chain">Audio Analyzer</span> (dynamics mode) 
+                    → <span class="workflow-chain">Loudness Report</span>
+                </div>
+                <table class="settings-table">
+                    <tr><th>Parameter</th><th>Value</th><th>Purpose</th></tr>
+                    <tr><td>analysis_mode</td><td>dynamics</td><td>Loudness and DR focus</td></tr>
+                    <tr><td>window_size</td><td>1024</td><td>Fast dynamics response</td></tr>
+                    <tr><td>update_rate</td><td>30.0</td><td>Broadcast standard</td></tr>
+                    <tr><td>reference_level</td><td>-23.0</td><td>LUFS broadcast reference</td></tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="tips-section">
+            <h2 class="tips-title">📊 Analysis Mastery Tips</h2>
+            <div class="tip">Use larger window sizes (4096-8192) for frequency analysis, smaller (256-1024) for dynamics tracking</div>
+            <div class="tip">RMS levels below -60 dBFS may be unreliable due to noise floor limitations</div>
+            <div class="tip">True peak readings above 0 dBFS indicate potential inter-sample peaks and clipping</div>
+            <div class="tip">Crest factor above 20 dB typically indicates very dynamic content or sparse signals</div>
+            <div class="tip">THD+N below 0.1% is considered high quality for digital audio processing</div>
+            <div class="tip">Dynamic range (DR) above 14 is considered good, above 20 is excellent for modern music</div>
+            <div class="tip">Stereo correlation below 0.5 indicates wide stereo imaging, above 0.9 indicates narrow/mono content</div>
+            <div class="tip">Use third-octave analysis for detailed frequency response, octave for general spectral balance</div>
+            <div class="tip">Higher update rates provide smoother displays but consume more CPU resources</div>
+            <div class="tip">Reference level should match your target output level for meaningful relative measurements</div>
+            <div class="tip">Enable 'all' mode for comprehensive analysis, specific modes for focused measurements</div>
+            <div class="tip">Export analysis data for detailed offline analysis and comparison between different processes</div>
+        </div>
+
+        <div style="text-align: center; margin-top: 60px; padding: 30px; background: rgba(255, 167, 38, 0.1); border-radius: 15px; border: 2px solid #ffa726;">
+            <h3 style="color: #ffa726; margin-bottom: 20px;">🔬 Ready to Analyze?</h3>
+            <p style="font-size: 1.1rem; margin-bottom: 20px;">Audio Analyzer provides professional-grade measurements for scientific audio analysis and quality control.</p>
+            <a href="../index.html" class="back-link">← Explore More Utilities</a>
+        </div>
+    </div>
+</body>
+</html> 
