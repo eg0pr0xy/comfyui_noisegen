@@ -1605,6 +1605,436 @@ class FeedbackProcessorNode:
         
         return output
 
+class HarshFilterNode:
+    """
+    Harsh Filter - Extreme filtering for noise sculpting and self-oscillation
+    
+    Advanced filter system designed for harsh noise and extreme audio processing.
+    Perfect for: Resonant peaks, self-oscillating drones, metallic textures, frequency destruction
+    
+    FILTER MODES:
+    - LOWPASS   - Classic low-pass filtering with resonance
+    - HIGHPASS  - High-pass filtering for brightness
+    - BANDPASS  - Band-pass for frequency isolation
+    - NOTCH     - Notch filtering for frequency removal
+    - COMB      - Comb filtering for metallic textures
+    - ALLPASS   - Phase-only filtering for phasing effects
+    - MORPH     - Morphing between filter types
+    - CHAOS     - Chaotic filter modulation
+    """
+    
+    FILTER_TYPES = [
+        "lowpass",      # Classic LP filter
+        "highpass",     # Classic HP filter  
+        "bandpass",     # Band-pass isolation
+        "notch",        # Frequency removal
+        "comb",         # Metallic textures
+        "allpass",      # Phase manipulation
+        "morph",        # Filter morphing
+        "chaos"         # Chaotic modulation
+    ]
+    
+    DRIVE_MODES = [
+        "clean",        # No saturation
+        "tube",         # Tube-style saturation
+        "transistor",   # Transistor saturation
+        "digital",      # Digital clipping
+        "chaos"         # Chaotic saturation
+    ]
+    
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "audio": ("AUDIO", {
+                    "tooltip": "Input audio to process through extreme filtering"
+                }),
+                "filter_type": (cls.FILTER_TYPES, {
+                    "default": "lowpass",
+                    "tooltip": "Filter type: lowpass=warm, highpass=bright, comb=metallic, chaos=unpredictable"
+                }),
+                "cutoff_freq": ("FLOAT", {
+                    "default": 1000.0, 
+                    "min": 10.0, 
+                    "max": 20000.0, 
+                    "step": 1.0,
+                    "tooltip": "Filter cutoff frequency in Hz (10Hz=deep, 20kHz=bright)"
+                }),
+                "resonance": ("FLOAT", {
+                    "default": 0.3, 
+                    "min": 0.0, 
+                    "max": 0.999, 
+                    "step": 0.001,
+                    "tooltip": "Filter resonance (0.0=gentle, 0.999=self-oscillating, >0.9=extreme)"
+                }),
+                "drive": ("FLOAT", {
+                    "default": 0.2, 
+                    "min": 0.0, 
+                    "max": 5.0, 
+                    "step": 0.01,
+                    "tooltip": "Filter drive/saturation amount (0.0=clean, 1.0=saturated, 5.0=extreme)"
+                }),
+                "drive_mode": (cls.DRIVE_MODES, {
+                    "default": "tube",
+                    "tooltip": "Saturation character: tube=warm, transistor=harsh, digital=glitchy, chaos=unpredictable"
+                }),
+                "filter_slope": ("FLOAT", {
+                    "default": 1.0, 
+                    "min": 0.5, 
+                    "max": 4.0, 
+                    "step": 0.1,
+                    "tooltip": "Filter slope steepness (0.5=gentle, 4.0=extreme brick-wall)"
+                }),
+                "morph_amount": ("FLOAT", {
+                    "default": 0.0, 
+                    "min": 0.0, 
+                    "max": 1.0, 
+                    "step": 0.01,
+                    "tooltip": "Filter morphing amount (0.0=pure type, 1.0=full morph, requires morph mode)"
+                }),
+                "modulation_rate": ("FLOAT", {
+                    "default": 0.5, 
+                    "min": 0.001, 
+                    "max": 50.0, 
+                    "step": 0.001,
+                    "tooltip": "Modulation rate for cutoff frequency (Hz) - creates movement"
+                }),
+                "modulation_depth": ("FLOAT", {
+                    "default": 0.1, 
+                    "min": 0.0, 
+                    "max": 1.0, 
+                    "step": 0.01,
+                    "tooltip": "Modulation depth (0.0=static, 1.0=extreme movement)"
+                }),
+                "amplitude": ("FLOAT", {
+                    "default": 0.8, 
+                    "min": 0.0, 
+                    "max": 2.0, 
+                    "step": 0.01,
+                    "tooltip": "Output amplitude (0.0=silence, 1.0=normal, 2.0=loud)"
+                }),
+            },
+            "optional": {
+                "wet_dry_mix": ("FLOAT", {
+                    "default": 1.0, 
+                    "min": 0.0, 
+                    "max": 1.0, 
+                    "step": 0.01,
+                    "tooltip": "Wet/dry mix (0.0=original only, 1.0=filtered only)"
+                }),
+                "stereo_spread": ("FLOAT", {
+                    "default": 0.0, 
+                    "min": 0.0, 
+                    "max": 1.0, 
+                    "step": 0.01,
+                    "tooltip": "Stereo frequency spread (0.0=mono, 1.0=different L/R frequencies)"
+                }),
+            }
+        }
+    
+    RETURN_TYPES = ("AUDIO",)
+    RETURN_NAMES = ("filtered_audio",)
+    FUNCTION = "process_harsh_filter"
+    CATEGORY = "🎵 NoiseGen/Processing"
+    DESCRIPTION = "Extreme filtering with self-oscillation, saturation, and morphing for harsh noise sculpting"
+    
+    def process_harsh_filter(self, audio, filter_type, cutoff_freq, resonance, drive, 
+                           drive_mode, filter_slope, morph_amount, modulation_rate, 
+                           modulation_depth, amplitude, wet_dry_mix=1.0, stereo_spread=0.0):
+        """Process audio through extreme harsh filtering."""
+        try:
+            # Extract audio data
+            waveform = audio["waveform"]
+            sample_rate = audio["sample_rate"]
+            
+            # Convert to numpy
+            if hasattr(waveform, 'cpu'):
+                audio_np = waveform.cpu().numpy()
+            else:
+                audio_np = waveform
+            
+            # Ensure 2D array [channels, samples]
+            if audio_np.ndim == 1:
+                audio_np = audio_np.reshape(1, -1)
+            
+            # Process each channel
+            processed_channels = []
+            for channel in range(audio_np.shape[0]):
+                channel_audio = audio_np[channel]
+                
+                # Calculate stereo frequency offset
+                freq_offset = 0.0
+                if audio_np.shape[0] > 1 and stereo_spread > 0.0:
+                    # Different frequencies for L/R channels
+                    freq_multiplier = 1.0 + (stereo_spread * 0.2 * (1 if channel == 0 else -1))
+                    actual_cutoff = cutoff_freq * freq_multiplier
+                else:
+                    actual_cutoff = cutoff_freq
+                
+                processed = self._apply_harsh_filtering(
+                    channel_audio, sample_rate, filter_type, actual_cutoff, 
+                    resonance, drive, drive_mode, filter_slope, morph_amount,
+                    modulation_rate, modulation_depth, wet_dry_mix
+                )
+                processed_channels.append(processed)
+            
+            # Stack channels back together
+            result = np.stack(processed_channels, axis=0) * amplitude
+            
+            # Convert back to tensor format
+            result_tensor = torch.from_numpy(result).float()
+            
+            # Create output audio
+            output_audio = {
+                "waveform": result_tensor,
+                "sample_rate": sample_rate
+            }
+            
+            return (output_audio,)
+            
+        except Exception as e:
+            print(f"❌ Error in harsh filtering: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            return (audio,)  # Return original on error
+    
+    def _apply_harsh_filtering(self, audio, sample_rate, filter_type, cutoff_freq, 
+                             resonance, drive, drive_mode, filter_slope, morph_amount,
+                             mod_rate, mod_depth, wet_dry_mix):
+        """Apply sophisticated harsh filtering to audio."""
+        
+        # Initialize filter states (multiple stages for steeper slopes)
+        num_stages = max(1, int(filter_slope * 2))
+        filter_states = []
+        for _ in range(num_stages):
+            filter_states.append({"x1": 0.0, "x2": 0.0, "y1": 0.0, "y2": 0.0})
+        
+        # LFO for modulation
+        lfo_phase = 0.0
+        lfo_increment = 2 * np.pi * mod_rate / sample_rate
+        
+        # Chaos state for chaotic modes
+        chaos_state = 0.5
+        
+        output = np.zeros_like(audio)
+        
+        # Process sample by sample for real-time modulation
+        for i in range(len(audio)):
+            # Calculate modulated cutoff frequency
+            if mod_depth > 0.0:
+                lfo_value = np.sin(lfo_phase)
+                if filter_type == "chaos":
+                    # Chaotic modulation
+                    chaos_state = (chaos_state * 3.8 * (1 - chaos_state)) % 1.0
+                    mod_value = (chaos_state - 0.5) * 2  # -1 to 1
+                else:
+                    mod_value = lfo_value
+                
+                modulated_cutoff = cutoff_freq * (1 + mod_depth * mod_value * 0.8)
+                modulated_cutoff = max(10.0, min(modulated_cutoff, sample_rate * 0.49))
+                lfo_phase += lfo_increment
+                if lfo_phase > 2 * np.pi:
+                    lfo_phase -= 2 * np.pi
+            else:
+                modulated_cutoff = cutoff_freq
+            
+            # Apply drive/saturation before filtering (if enabled)
+            driven_sample = audio[i]
+            if drive > 0.0:
+                driven_sample = self._apply_drive(driven_sample, drive, drive_mode)
+            
+            # Apply filtering (multiple stages for steeper slopes)
+            filtered_sample = driven_sample
+            for stage in range(num_stages):
+                filtered_sample = self._apply_filter_stage(
+                    filtered_sample, filter_type, modulated_cutoff, 
+                    resonance, sample_rate, filter_states[stage], morph_amount
+                )
+            
+            # Apply wet/dry mix
+            output[i] = audio[i] * (1 - wet_dry_mix) + filtered_sample * wet_dry_mix
+            
+            # Safety limiting
+            if abs(output[i]) > 3.0:
+                output[i] = np.sign(output[i]) * 3.0
+        
+        return output
+    
+    def _apply_filter_stage(self, signal, filter_type, cutoff, resonance, sample_rate, state, morph_amount):
+        """Apply a single filter stage with specified type."""
+        
+        # Calculate filter coefficients
+        nyquist = sample_rate / 2.0
+        normalized_cutoff = max(10.0, min(cutoff, nyquist - 100)) / nyquist
+        
+        # Biquad coefficients calculation
+        w = 2 * np.pi * normalized_cutoff
+        cos_w = np.cos(w)
+        sin_w = np.sin(w)
+        
+        # Resonance with extreme values (can self-oscillate)
+        Q = max(0.1, 1.0 / (1.0 - resonance * 0.999))
+        alpha = sin_w / (2.0 * Q)
+        
+        # Filter coefficient selection based on type
+        if filter_type == "lowpass":
+            b0 = (1 - cos_w) / 2
+            b1 = 1 - cos_w
+            b2 = (1 - cos_w) / 2
+            a0 = 1 + alpha
+            a1 = -2 * cos_w
+            a2 = 1 - alpha
+            
+        elif filter_type == "highpass":
+            b0 = (1 + cos_w) / 2
+            b1 = -(1 + cos_w)
+            b2 = (1 + cos_w) / 2
+            a0 = 1 + alpha
+            a1 = -2 * cos_w
+            a2 = 1 - alpha
+            
+        elif filter_type == "bandpass":
+            b0 = alpha
+            b1 = 0
+            b2 = -alpha
+            a0 = 1 + alpha
+            a1 = -2 * cos_w
+            a2 = 1 - alpha
+            
+        elif filter_type == "notch":
+            b0 = 1
+            b1 = -2 * cos_w
+            b2 = 1
+            a0 = 1 + alpha
+            a1 = -2 * cos_w
+            a2 = 1 - alpha
+            
+        elif filter_type == "comb":
+            # Comb filter implementation
+            delay_samples = max(1, int(sample_rate / cutoff))
+            if 'comb_buffer' not in state:
+                state['comb_buffer'] = np.zeros(delay_samples)
+            elif len(state['comb_buffer']) != delay_samples:
+                state['comb_buffer'] = np.zeros(delay_samples)
+            
+            # Comb filter processing
+            delayed = state['comb_buffer'][0]
+            output = signal + resonance * delayed
+            
+            # Shift buffer
+            state['comb_buffer'][:-1] = state['comb_buffer'][1:]
+            state['comb_buffer'][-1] = output
+            
+            return output
+            
+        elif filter_type == "allpass":
+            # All-pass filter
+            b0 = -alpha
+            b1 = 1
+            b2 = alpha
+            a0 = 1 + alpha
+            a1 = 1
+            a2 = alpha
+            
+        elif filter_type == "morph":
+            # Morph between lowpass and highpass
+            # Lowpass coefficients
+            lp_b0 = (1 - cos_w) / 2
+            lp_b1 = 1 - cos_w
+            lp_b2 = (1 - cos_w) / 2
+            
+            # Highpass coefficients  
+            hp_b0 = (1 + cos_w) / 2
+            hp_b1 = -(1 + cos_w)
+            hp_b2 = (1 + cos_w) / 2
+            
+            # Morph between them
+            b0 = lp_b0 * (1 - morph_amount) + hp_b0 * morph_amount
+            b1 = lp_b1 * (1 - morph_amount) + hp_b1 * morph_amount
+            b2 = lp_b2 * (1 - morph_amount) + hp_b2 * morph_amount
+            a0 = 1 + alpha
+            a1 = -2 * cos_w
+            a2 = 1 - alpha
+            
+        elif filter_type == "chaos":
+            # Chaotic filter - randomize coefficients slightly
+            chaos_factor = 0.1 * morph_amount
+            b0 = (1 - cos_w) / 2 * (1 + chaos_factor * (np.random.random() - 0.5))
+            b1 = (1 - cos_w) * (1 + chaos_factor * (np.random.random() - 0.5))
+            b2 = (1 - cos_w) / 2 * (1 + chaos_factor * (np.random.random() - 0.5))
+            a0 = 1 + alpha
+            a1 = -2 * cos_w * (1 + chaos_factor * (np.random.random() - 0.5))
+            a2 = 1 - alpha
+        
+        else:  # Default to lowpass
+            b0 = (1 - cos_w) / 2
+            b1 = 1 - cos_w
+            b2 = (1 - cos_w) / 2
+            a0 = 1 + alpha
+            a1 = -2 * cos_w
+            a2 = 1 - alpha
+        
+        # Normalize coefficients
+        b0 /= a0
+        b1 /= a0
+        b2 /= a0
+        a1 /= a0
+        a2 /= a0
+        
+        # Apply biquad filter
+        output = (b0 * signal + 
+                 b1 * state["x1"] + 
+                 b2 * state["x2"] - 
+                 a1 * state["y1"] - 
+                 a2 * state["y2"])
+        
+        # Update state
+        state["x2"] = state["x1"]
+        state["x1"] = signal
+        state["y2"] = state["y1"]
+        state["y1"] = output
+        
+        return output
+    
+    def _apply_drive(self, signal, drive_amount, drive_mode):
+        """Apply saturation/drive to the signal."""
+        
+        if drive_amount <= 0.0:
+            return signal
+        
+        # Scale drive amount
+        drive_scale = 1.0 + drive_amount * 4.0
+        driven_signal = signal * drive_scale
+        
+        if drive_mode == "clean":
+            return driven_signal
+        
+        elif drive_mode == "tube":
+            # Tube-style soft saturation
+            if abs(driven_signal) > 1.0:
+                driven_signal = np.tanh(driven_signal * 0.7) * 1.4
+            return driven_signal
+        
+        elif drive_mode == "transistor":
+            # Transistor-style asymmetric saturation
+            if driven_signal > 0:
+                driven_signal = min(driven_signal, 1.0 + 0.3 * np.tanh((driven_signal - 1.0) * 3))
+            else:
+                driven_signal = max(driven_signal, -1.0 - 0.2 * np.tanh((-driven_signal - 1.0) * 2))
+            return driven_signal
+        
+        elif drive_mode == "digital":
+            # Digital clipping
+            return np.clip(driven_signal, -1.0, 1.0)
+        
+        elif drive_mode == "chaos":
+            # Chaotic saturation
+            chaos_factor = abs(driven_signal) * 0.1
+            random_factor = (np.random.random() - 0.5) * chaos_factor
+            return np.tanh(driven_signal * (1 + random_factor))
+        
+        return driven_signal
+
 # Node mappings for ComfyUI - OPTIMIZED UX
 NODE_CLASS_MAPPINGS = {
     # MAIN NODES - Clean and focused
@@ -1615,6 +2045,7 @@ NODE_CLASS_MAPPINGS = {
     "AudioMixer": AudioMixerNode,               # Professional mixing
     "FeedbackProcessor": FeedbackProcessorNode, # Feedback systems - NEW!
     "AudioSave": AudioSaveNode,                 # Utility
+    "HarshFilter": HarshFilterNode,              # Advanced filtering
     
     # LEGACY NODES - Hidden from main menu, kept for compatibility
     # Users can still access these if needed, but they're not promoted
@@ -1634,6 +2065,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "AudioMixer": "🎛️ Audio Mixer",
     "FeedbackProcessor": "🔄 Feedback Processor",
     "AudioSave": "💾 Audio Save",
+    "HarshFilter": "🎛️ Harsh Filter",
     
     # LEGACY - Hidden with underscore prefix
     "_WhiteNoise": "⚪ White Noise (Legacy)",

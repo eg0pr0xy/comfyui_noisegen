@@ -41,6 +41,16 @@ Extreme mixing for harsh noise and power electronics:
 - **Bit crushing**: Digital artifacts and lo-fi effects
 - **Feedback delay**: Metallic resonances
 
+#### **HarshFilter** 🎛️ ⭐ NEW!
+Extreme filtering with self-oscillation and morphing for harsh noise sculpting:
+- **8 filter types**: lowpass, highpass, bandpass, notch, comb, allpass, morph, chaos
+- **High resonance**: Up to 0.999 for self-oscillating drones
+- **Drive modes**: tube, transistor, digital, chaos saturation
+- **Variable slope**: 0.5x to 4x steepness for brick-wall effects
+- **LFO modulation**: Moving cutoff frequencies with chaotic options
+- **Filter morphing**: Smooth transitions between filter types
+- **Stereo spread**: Different L/R frequencies for wide effects
+
 #### **AudioMixer** 🎛️
 Professional 4-channel mixer with individual controls:
 - **Per-channel gain**: 0-2x with precise control
@@ -73,7 +83,7 @@ Professional audio export with metadata:
 ## 🚀 **Roadmap: Future Expansion**
 
 ### **Phase 1: Core Processing (v2.0)**
-- **HarshFilter**: Extreme filtering with self-oscillation
+- ✅ **HarshFilter**: Extreme filtering with self-oscillation *(COMPLETED)*
 - **MultiDistortion**: Comprehensive distortion palette
 - **SpectralProcessor**: FFT-based spectral manipulation
 
@@ -108,9 +118,16 @@ PerlinNoise ─────┼── AudioMixer → AudioSave
 BandLimitedNoise ─┘
 ```
 
+### **Harsh Filter Sculpting**
+```
+NoiseGenerator → HarshFilter → AudioSave
+              (resonance=0.9, comb mode)
+```
+
 ### **Advanced Processing Chain**  
 ```
-NoiseGenerator → FeedbackProcessor → ChaosNoiseMix → AudioMixer → AudioSave
+NoiseGenerator → FeedbackProcessor → ChaosNoiseMix → HarshFilter → AudioMixer → AudioSave
+                                                    (self-osc mode)
 ```
 
 ## 🔧 **Installation**
@@ -145,11 +162,21 @@ pip install -r requirements.txt
 - **Perlin**: Organic, evolving textures
 - **Band-limited**: Targeted frequency focus
 
+### **Filtering Techniques**
+- **Low resonance (0.0-0.3)**: Gentle frequency shaping
+- **Medium resonance (0.4-0.7)**: Pronounced peaks and character
+- **High resonance (0.8-0.95)**: Extreme peaks, near self-oscillation
+- **Self-oscillation (0.96-0.999)**: Pure tone generation from filter
+- **Comb filters**: Metallic, robotic textures (try 440Hz, 880Hz)
+- **Morph mode**: Smooth transitions between filter types
+- **Chaos mode**: Unpredictable filter behavior
+
 ### **Mixing Strategies**
 - Use **AudioMixer** for clean, professional mixing
 - Use **ChaosNoiseMix** for experimental, harsh textures
 - Combine both for layered complexity
 - Apply **FeedbackProcessor** to any source for self-generation
+- Use **HarshFilter** for frequency sculpting and resonant peaks
 
 ## 🎼 **Artistic Applications**
 
