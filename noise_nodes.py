@@ -2643,6 +2643,559 @@ class MultiDistortionNode:
         
         return emphasized
 
+class SpectralProcessorNode:
+    """
+    Spectral Processor - FFT-based spectral manipulation for extreme frequency-domain processing
+    
+    Advanced spectral analysis and manipulation system using FFT for frequency-domain control.
+    Perfect for: Spectral filtering, frequency shifting, spectral morphing, phase manipulation
+    
+    SPECTRAL MODES:
+    - ENHANCE     - Boost specific frequency bands
+    - SUPPRESS    - Attenuate frequency bands  
+    - SHIFT       - Frequency shifting and pitch effects
+    - MORPH       - Spectral morphing and crossfading
+    - GATE        - Spectral gating and masking
+    - COMPRESS    - Spectral compression/expansion
+    - CHAOS       - Chaotic spectral manipulation
+    - PHASE       - Phase-only manipulation
+    - VOCODER     - Spectral vocoding effects
+    - FREEZE      - Spectral freezing and hold
+    """
+    
+    SPECTRAL_MODES = [
+        "enhance",      # Frequency enhancement
+        "suppress",     # Frequency suppression
+        "shift",        # Frequency shifting
+        "morph",        # Spectral morphing
+        "gate",         # Spectral gating
+        "compress",     # Spectral compression
+        "chaos",        # Chaotic manipulation
+        "phase",        # Phase manipulation
+        "vocoder",      # Vocoding effects
+        "freeze"        # Spectral freezing
+    ]
+    
+    WINDOW_TYPES = [
+        "hann",         # Hann window (default)
+        "hamming",      # Hamming window
+        "blackman",     # Blackman window
+        "kaiser",       # Kaiser window
+        "rectangular"   # Rectangular window
+    ]
+    
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "audio": ("AUDIO", {
+                    "tooltip": "Input audio for spectral processing"
+                }),
+                "spectral_mode": (cls.SPECTRAL_MODES, {
+                    "default": "enhance",
+                    "tooltip": "Spectral processing mode: enhance=boost bands, suppress=cut bands, shift=pitch effects"
+                }),
+                "fft_size": (["512", "1024", "2048", "4096", "8192"], {
+                    "default": "2048",
+                    "tooltip": "FFT size: larger=better frequency resolution, smaller=better time resolution"
+                }),
+                "overlap_factor": ("FLOAT", {
+                    "default": 0.75, 
+                    "min": 0.25, 
+                    "max": 0.95, 
+                    "step": 0.05,
+                    "tooltip": "Window overlap factor (0.75=75% overlap, higher=smoother but more CPU)"
+                }),
+                "window_type": (cls.WINDOW_TYPES, {
+                    "default": "hann",
+                    "tooltip": "Window function: hann=smooth, blackman=less leakage, rectangular=sharp"
+                }),
+                "frequency_range_low": ("FLOAT", {
+                    "default": 100.0, 
+                    "min": 10.0, 
+                    "max": 10000.0, 
+                    "step": 10.0,
+                    "tooltip": "Lower frequency bound for processing (Hz)"
+                }),
+                "frequency_range_high": ("FLOAT", {
+                    "default": 8000.0, 
+                    "min": 100.0, 
+                    "max": 20000.0, 
+                    "step": 10.0,
+                    "tooltip": "Upper frequency bound for processing (Hz)"
+                }),
+                "intensity": ("FLOAT", {
+                    "default": 0.5, 
+                    "min": 0.0, 
+                    "max": 2.0, 
+                    "step": 0.01,
+                    "tooltip": "Processing intensity (0.0=no effect, 1.0=full effect, 2.0=extreme)"
+                }),
+                "wet_dry_mix": ("FLOAT", {
+                    "default": 1.0, 
+                    "min": 0.0, 
+                    "max": 1.0, 
+                    "step": 0.01,
+                    "tooltip": "Wet/dry mix (0.0=original, 1.0=processed)"
+                }),
+            },
+            "optional": {
+                "shift_amount": ("FLOAT", {
+                    "default": 0.0, 
+                    "min": -2400.0, 
+                    "max": 2400.0, 
+                    "step": 1.0,
+                    "tooltip": "Frequency shift amount in cents (-1200=down octave, +1200=up octave)"
+                }),
+                "gate_threshold": ("FLOAT", {
+                    "default": -40.0, 
+                    "min": -80.0, 
+                    "max": 0.0, 
+                    "step": 1.0,
+                    "tooltip": "Spectral gate threshold in dB (lower=more gating)"
+                }),
+                "compression_ratio": ("FLOAT", {
+                    "default": 2.0, 
+                    "min": 1.0, 
+                    "max": 10.0, 
+                    "step": 0.1,
+                    "tooltip": "Spectral compression ratio (1.0=no compression, 10.0=extreme)"
+                }),
+                "phase_randomization": ("FLOAT", {
+                    "default": 0.0, 
+                    "min": 0.0, 
+                    "max": 1.0, 
+                    "step": 0.01,
+                    "tooltip": "Phase randomization amount (0.0=original phase, 1.0=random phase)"
+                }),
+                "chaos_amount": ("FLOAT", {
+                    "default": 0.3, 
+                    "min": 0.0, 
+                    "max": 1.0, 
+                    "step": 0.01,
+                    "tooltip": "Chaos injection for unpredictable spectral variations"
+                }),
+                "freeze_probability": ("FLOAT", {
+                    "default": 0.1, 
+                    "min": 0.0, 
+                    "max": 1.0, 
+                    "step": 0.01,
+                    "tooltip": "Probability of spectral freezing per frame"
+                }),
+                "stereo_spread": ("FLOAT", {
+                    "default": 0.0, 
+                    "min": 0.0, 
+                    "max": 1.0, 
+                    "step": 0.01,
+                    "tooltip": "Stereo parameter spread (0.0=mono, 1.0=different L/R processing)"
+                }),
+            }
+        }
+    
+    RETURN_TYPES = ("AUDIO",)
+    RETURN_NAMES = ("processed_audio",)
+    FUNCTION = "process_spectral"
+    CATEGORY = "🎵 NoiseGen/Processing"
+    DESCRIPTION = "Advanced FFT-based spectral manipulation for frequency-domain processing and effects"
+    
+    def process_spectral(self, audio, spectral_mode, fft_size, overlap_factor, window_type,
+                        frequency_range_low, frequency_range_high, intensity, wet_dry_mix,
+                        shift_amount=0.0, gate_threshold=-40.0, compression_ratio=2.0,
+                        phase_randomization=0.0, chaos_amount=0.3, freeze_probability=0.1,
+                        stereo_spread=0.0):
+        """Process audio through advanced spectral manipulation."""
+        try:
+            # Extract audio data
+            waveform = audio["waveform"]
+            sample_rate = audio["sample_rate"]
+            
+            # Convert to numpy
+            if hasattr(waveform, 'cpu'):
+                audio_np = waveform.cpu().numpy()
+            else:
+                audio_np = waveform
+            
+            # Ensure 2D array [channels, samples]
+            if audio_np.ndim == 1:
+                audio_np = audio_np.reshape(1, -1)
+            
+            # Store original for wet/dry mixing
+            original_audio = audio_np.copy()
+            
+            # Process each channel
+            processed_channels = []
+            for channel in range(audio_np.shape[0]):
+                channel_audio = audio_np[channel]
+                
+                # Calculate stereo parameter variations
+                if audio_np.shape[0] > 1 and stereo_spread > 0.0:
+                    # Different parameters for L/R channels
+                    channel_shift = shift_amount * (1.0 + stereo_spread * 0.5 * (1 if channel == 0 else -1))
+                    channel_chaos = chaos_amount * (1.0 + stereo_spread * 0.3 * (1 if channel == 0 else -1))
+                    channel_phase = phase_randomization * (1.0 + stereo_spread * 0.2 * (1 if channel == 0 else -1))
+                else:
+                    channel_shift = shift_amount
+                    channel_chaos = chaos_amount
+                    channel_phase = phase_randomization
+                
+                processed = self._apply_spectral_processing(
+                    channel_audio, sample_rate, spectral_mode, int(fft_size), 
+                    overlap_factor, window_type, frequency_range_low, frequency_range_high,
+                    intensity, channel_shift, gate_threshold, compression_ratio,
+                    channel_phase, channel_chaos, freeze_probability
+                )
+                processed_channels.append(processed)
+            
+            # Stack channels back together
+            processed_audio = np.stack(processed_channels, axis=0)
+            
+            # Apply wet/dry mixing
+            result = original_audio * (1 - wet_dry_mix) + processed_audio * wet_dry_mix
+            
+            # Convert back to tensor format
+            result_tensor = torch.from_numpy(result).float()
+            
+            # Create output audio
+            output_audio = {
+                "waveform": result_tensor,
+                "sample_rate": sample_rate
+            }
+            
+            return (output_audio,)
+            
+        except Exception as e:
+            print(f"❌ Error in spectral processing: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            return (audio,)  # Return original on error
+    
+    def _apply_spectral_processing(self, audio, sample_rate, mode, fft_size, overlap_factor,
+                                  window_type, freq_low, freq_high, intensity, shift_amount,
+                                  gate_threshold, compression_ratio, phase_randomization,
+                                  chaos_amount, freeze_probability):
+        """Apply sophisticated spectral processing to audio."""
+        
+        # Calculate hop size from overlap factor
+        hop_size = int(fft_size * (1.0 - overlap_factor))
+        
+        # Create window function
+        window = self._create_window(fft_size, window_type)
+        
+        # Calculate frequency bin ranges
+        nyquist = sample_rate / 2.0
+        low_bin = int((freq_low / nyquist) * (fft_size // 2))
+        high_bin = int((freq_high / nyquist) * (fft_size // 2))
+        low_bin = max(1, min(low_bin, fft_size // 2 - 1))
+        high_bin = max(low_bin + 1, min(high_bin, fft_size // 2))
+        
+        # Pad audio for processing
+        padding = fft_size
+        padded_audio = np.pad(audio, (padding, padding), mode='reflect')
+        
+        # Initialize output
+        output_audio = np.zeros_like(padded_audio)
+        window_sum = np.zeros_like(padded_audio)
+        
+        # Spectral freezing state
+        frozen_spectrum = None
+        freeze_counter = 0
+        
+        # Chaos state
+        chaos_state = 0.5
+        
+        # Process in overlapping frames
+        for frame_start in range(0, len(padded_audio) - fft_size + 1, hop_size):
+            frame_end = frame_start + fft_size
+            
+            # Extract windowed frame
+            frame = padded_audio[frame_start:frame_end] * window
+            
+            # Apply FFT
+            spectrum = np.fft.fft(frame)
+            magnitude = np.abs(spectrum)
+            phase = np.angle(spectrum)
+            
+            # Process spectrum based on mode
+            if mode == "enhance":
+                processed_magnitude, processed_phase = self._enhance_spectrum(
+                    magnitude, phase, low_bin, high_bin, intensity)
+            elif mode == "suppress":
+                processed_magnitude, processed_phase = self._suppress_spectrum(
+                    magnitude, phase, low_bin, high_bin, intensity)
+            elif mode == "shift":
+                processed_magnitude, processed_phase = self._shift_spectrum(
+                    magnitude, phase, shift_amount, sample_rate, fft_size, intensity)
+            elif mode == "morph":
+                processed_magnitude, processed_phase = self._morph_spectrum(
+                    magnitude, phase, low_bin, high_bin, intensity, chaos_amount)
+            elif mode == "gate":
+                processed_magnitude, processed_phase = self._gate_spectrum(
+                    magnitude, phase, gate_threshold, low_bin, high_bin, intensity)
+            elif mode == "compress":
+                processed_magnitude, processed_phase = self._compress_spectrum(
+                    magnitude, phase, compression_ratio, low_bin, high_bin, intensity)
+            elif mode == "chaos":
+                processed_magnitude, processed_phase, chaos_state = self._chaos_spectrum(
+                    magnitude, phase, chaos_state, chaos_amount, low_bin, high_bin, intensity)
+            elif mode == "phase":
+                processed_magnitude, processed_phase = self._phase_spectrum(
+                    magnitude, phase, phase_randomization, low_bin, high_bin, intensity)
+            elif mode == "vocoder":
+                processed_magnitude, processed_phase = self._vocoder_spectrum(
+                    magnitude, phase, low_bin, high_bin, intensity, chaos_amount)
+            elif mode == "freeze":
+                processed_magnitude, processed_phase, frozen_spectrum, freeze_counter = self._freeze_spectrum(
+                    magnitude, phase, frozen_spectrum, freeze_counter, freeze_probability, 
+                    low_bin, high_bin, intensity)
+            else:
+                processed_magnitude, processed_phase = magnitude, phase
+            
+            # Reconstruct complex spectrum
+            processed_spectrum = processed_magnitude * np.exp(1j * processed_phase)
+            
+            # Apply inverse FFT
+            processed_frame = np.real(np.fft.ifft(processed_spectrum))
+            
+            # Apply window and overlap-add
+            windowed_frame = processed_frame * window
+            output_audio[frame_start:frame_end] += windowed_frame
+            window_sum[frame_start:frame_end] += window
+        
+        # Normalize by window sum to prevent amplitude modulation
+        nonzero_mask = window_sum > 0.01
+        output_audio[nonzero_mask] /= window_sum[nonzero_mask]
+        
+        # Remove padding
+        output_audio = output_audio[padding:-padding]
+        
+        # Ensure output length matches input
+        if len(output_audio) != len(audio):
+            output_audio = output_audio[:len(audio)]
+        
+        return output_audio
+    
+    def _create_window(self, size, window_type):
+        """Create window function."""
+        if window_type == "hann":
+            return 0.5 * (1 - np.cos(2 * np.pi * np.arange(size) / (size - 1)))
+        elif window_type == "hamming":
+            return 0.54 - 0.46 * np.cos(2 * np.pi * np.arange(size) / (size - 1))
+        elif window_type == "blackman":
+            n = np.arange(size)
+            return 0.42 - 0.5 * np.cos(2 * np.pi * n / (size - 1)) + 0.08 * np.cos(4 * np.pi * n / (size - 1))
+        elif window_type == "kaiser":
+            # Kaiser window approximation (Blackman-like for no scipy dependency)
+            n = np.arange(size)
+            # Use Blackman as Kaiser approximation
+            return 0.42 - 0.5 * np.cos(2 * np.pi * n / (size - 1)) + 0.08 * np.cos(4 * np.pi * n / (size - 1))
+        elif window_type == "rectangular":
+            return np.ones(size)
+        else:
+            return np.ones(size)  # Default to rectangular
+    
+    def _enhance_spectrum(self, magnitude, phase, low_bin, high_bin, intensity):
+        """Enhance specific frequency bands."""
+        enhanced_magnitude = magnitude.copy()
+        enhancement_factor = 1.0 + intensity * 2.0
+        enhanced_magnitude[low_bin:high_bin] *= enhancement_factor
+        return enhanced_magnitude, phase
+    
+    def _suppress_spectrum(self, magnitude, phase, low_bin, high_bin, intensity):
+        """Suppress specific frequency bands."""
+        suppressed_magnitude = magnitude.copy()
+        suppression_factor = 1.0 - intensity * 0.9  # Don't completely zero
+        suppressed_magnitude[low_bin:high_bin] *= max(0.1, suppression_factor)
+        return suppressed_magnitude, phase
+    
+    def _shift_spectrum(self, magnitude, phase, shift_cents, sample_rate, fft_size, intensity):
+        """Apply frequency shifting."""
+        if abs(shift_cents) < 1.0:
+            return magnitude, phase
+        
+        # Convert cents to frequency ratio
+        shift_ratio = 2.0 ** (shift_cents / 1200.0)
+        
+        # Apply shifting with intensity control
+        shifted_magnitude = np.zeros_like(magnitude)
+        shifted_phase = np.zeros_like(phase)
+        
+        for i in range(len(magnitude)):
+            # Calculate source bin
+            source_bin = i / shift_ratio
+            source_idx = int(source_bin)
+            
+            if 0 <= source_idx < len(magnitude) - 1:
+                # Linear interpolation
+                frac = source_bin - source_idx
+                interp_magnitude = magnitude[source_idx] * (1 - frac) + magnitude[source_idx + 1] * frac
+                interp_phase = phase[source_idx] * (1 - frac) + phase[source_idx + 1] * frac
+                
+                # Apply with intensity
+                shifted_magnitude[i] = magnitude[i] * (1 - intensity) + interp_magnitude * intensity
+                shifted_phase[i] = phase[i] * (1 - intensity) + interp_phase * intensity
+            else:
+                shifted_magnitude[i] = magnitude[i]
+                shifted_phase[i] = phase[i]
+        
+        return shifted_magnitude, shifted_phase
+    
+    def _morph_spectrum(self, magnitude, phase, low_bin, high_bin, intensity, chaos_amount):
+        """Apply spectral morphing with chaos."""
+        morphed_magnitude = magnitude.copy()
+        morphed_phase = phase.copy()
+        
+        # Create morphing pattern
+        morph_range = high_bin - low_bin
+        if morph_range > 0:
+            for i in range(low_bin, high_bin):
+                # Morph factor varies across frequency range
+                bin_factor = (i - low_bin) / morph_range
+                morph_factor = intensity * (0.5 + 0.5 * np.sin(bin_factor * np.pi * 4))
+                
+                # Add chaos variation
+                chaos_factor = 1.0 + chaos_amount * (np.random.random() - 0.5)
+                
+                # Apply morphing
+                morphed_magnitude[i] *= (1.0 + morph_factor * chaos_factor)
+                morphed_phase[i] += morph_factor * chaos_factor * np.pi
+        
+        return morphed_magnitude, morphed_phase
+    
+    def _gate_spectrum(self, magnitude, phase, threshold_db, low_bin, high_bin, intensity):
+        """Apply spectral gating."""
+        gated_magnitude = magnitude.copy()
+        
+        # Convert threshold to linear
+        threshold_linear = 10.0 ** (threshold_db / 20.0)
+        max_magnitude = np.max(magnitude[low_bin:high_bin])
+        
+        if max_magnitude > 0:
+            threshold_linear *= max_magnitude
+            
+            for i in range(low_bin, high_bin):
+                if magnitude[i] < threshold_linear:
+                    # Apply gating with intensity control
+                    gate_factor = intensity
+                    gated_magnitude[i] *= (1.0 - gate_factor)
+        
+        return gated_magnitude, phase
+    
+    def _compress_spectrum(self, magnitude, phase, ratio, low_bin, high_bin, intensity):
+        """Apply spectral compression."""
+        compressed_magnitude = magnitude.copy()
+        
+        # Find average magnitude in the range
+        if high_bin > low_bin:
+            avg_magnitude = np.mean(magnitude[low_bin:high_bin])
+            
+            for i in range(low_bin, high_bin):
+                if magnitude[i] > avg_magnitude:
+                    # Compress above average
+                    excess = magnitude[i] - avg_magnitude
+                    compressed_excess = excess / ratio
+                    new_magnitude = avg_magnitude + compressed_excess
+                    
+                    # Apply with intensity
+                    compressed_magnitude[i] = magnitude[i] * (1 - intensity) + new_magnitude * intensity
+        
+        return compressed_magnitude, phase
+    
+    def _chaos_spectrum(self, magnitude, phase, chaos_state, chaos_amount, low_bin, high_bin, intensity):
+        """Apply chaotic spectral manipulation."""
+        chaotic_magnitude = magnitude.copy()
+        chaotic_phase = phase.copy()
+        
+        for i in range(low_bin, high_bin):
+            # Evolve chaos state
+            chaos_state = (chaos_state * 3.9 * (1 - chaos_state)) % 1.0
+            
+            # Chaotic modulation
+            chaos_mod = (chaos_state - 0.5) * 2 * chaos_amount  # -1 to 1
+            
+            # Apply to magnitude and phase
+            mag_factor = 1.0 + chaos_mod * intensity * 0.5
+            phase_mod = chaos_mod * intensity * np.pi
+            
+            chaotic_magnitude[i] *= mag_factor
+            chaotic_phase[i] += phase_mod
+        
+        return chaotic_magnitude, chaotic_phase, chaos_state
+    
+    def _phase_spectrum(self, magnitude, phase, randomization, low_bin, high_bin, intensity):
+        """Apply phase manipulation."""
+        phase_processed = phase.copy()
+        
+        for i in range(low_bin, high_bin):
+            if randomization > 0:
+                # Random phase component
+                random_phase = (np.random.random() - 0.5) * 2 * np.pi * randomization
+                phase_processed[i] = phase[i] * (1 - intensity) + random_phase * intensity
+        
+        return magnitude, phase_processed
+    
+    def _vocoder_spectrum(self, magnitude, phase, low_bin, high_bin, intensity, chaos_amount):
+        """Apply vocoder-style spectral processing."""
+        vocoded_magnitude = magnitude.copy()
+        
+        # Create spectral bands for vocoding
+        num_bands = min(16, high_bin - low_bin)
+        if num_bands > 1:
+            band_size = (high_bin - low_bin) // num_bands
+            
+            for band in range(num_bands):
+                band_start = low_bin + band * band_size
+                band_end = min(band_start + band_size, high_bin)
+                
+                # Calculate band energy
+                band_energy = np.mean(magnitude[band_start:band_end])
+                
+                # Apply vocoding with chaos
+                chaos_factor = 1.0 + chaos_amount * (np.random.random() - 0.5)
+                vocode_factor = (band_energy * chaos_factor * intensity) + (1.0 - intensity)
+                
+                # Apply to band
+                vocoded_magnitude[band_start:band_end] *= vocode_factor
+        
+        return vocoded_magnitude, phase
+    
+    def _freeze_spectrum(self, magnitude, phase, frozen_spectrum, freeze_counter, 
+                        freeze_probability, low_bin, high_bin, intensity):
+        """Apply spectral freezing."""
+        processed_magnitude = magnitude.copy()
+        processed_phase = phase.copy()
+        
+        # Check if we should freeze or unfreeze
+        if np.random.random() < freeze_probability:
+            if frozen_spectrum is None:
+                # Start freezing
+                frozen_spectrum = {
+                    'magnitude': magnitude[low_bin:high_bin].copy(),
+                    'phase': phase[low_bin:high_bin].copy()
+                }
+                freeze_counter = 0
+            else:
+                # Stop freezing
+                frozen_spectrum = None
+                freeze_counter = 0
+        
+        # Apply freezing if active
+        if frozen_spectrum is not None:
+            freeze_counter += 1
+            
+            # Mix frozen spectrum with current
+            freeze_mix = min(intensity, freeze_counter / 10.0)  # Gradual freeze
+            
+            processed_magnitude[low_bin:high_bin] = (
+                magnitude[low_bin:high_bin] * (1 - freeze_mix) + 
+                frozen_spectrum['magnitude'] * freeze_mix
+            )
+            processed_phase[low_bin:high_bin] = (
+                phase[low_bin:high_bin] * (1 - freeze_mix) + 
+                frozen_spectrum['phase'] * freeze_mix
+            )
+        
+        return processed_magnitude, processed_phase, frozen_spectrum, freeze_counter
+
 # Node mappings for ComfyUI - OPTIMIZED UX
 NODE_CLASS_MAPPINGS = {
     # MAIN NODES - Clean and focused
@@ -2655,6 +3208,7 @@ NODE_CLASS_MAPPINGS = {
     "AudioSave": AudioSaveNode,                 # Utility
     "HarshFilter": HarshFilterNode,              # Advanced filtering
     "MultiDistortion": MultiDistortionNode,      # Comprehensive distortion
+    "SpectralProcessor": SpectralProcessorNode,    # Advanced spectral processing
     
     # LEGACY NODES - Hidden from main menu, kept for compatibility
     # Users can still access these if needed, but they're not promoted
@@ -2676,6 +3230,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "AudioSave": "💾 Audio Save",
     "HarshFilter": "🎛️ Harsh Filter",
     "MultiDistortion": "🎛️ Multi-Distortion",
+    "SpectralProcessor": "🎛️ Spectral Processor",
     
     # LEGACY - Hidden with underscore prefix
     "_WhiteNoise": "⚪ White Noise (Legacy)",

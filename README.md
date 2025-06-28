@@ -1,161 +1,195 @@
-# 🎵 ComfyUI-NoiseGen
+# 🎵 ComfyUI-NoiseGen: Advanced Noise & Audio Processing
 
-A powerful noise generation and audio processing package for ComfyUI, designed for experimental music, harsh noise, sound design, and Merzbow-style audio manipulation.
+**Version 2.0** - The Ultimate Merzbow Noise Machine for ComfyUI
 
-## ✨ **NEW: FeedbackProcessor Node** 
-🔄 **Advanced feedback systems for self-generating Merzbow-style textures**
-- Multiple feedback modes: Simple, Filtered, Saturated, Modulated, Complex, Runaway
-- Built-in filtering with resonance control (LP/HP/BP/Notch/Allpass)
-- LFO modulation of delay time for pitch shifting effects
-- Nonlinear saturation in feedback loop
-- Safety limiting to prevent system damage
-- Perfect for: Metallic resonances, self-generating chaos, power electronics
+ComfyUI-NoiseGen is a comprehensive audio generation and processing suite for ComfyUI, featuring advanced noise synthesis, spectral manipulation, harsh filtering, and multi-stage distortion. Perfect for creating experimental soundscapes, harsh noise textures, and industrial audio processing.
 
-## 🎛️ **Core Nodes**
+## 🚀 **PHASE 1 COMPLETE (100%)** 
+**Advanced Processing Suite - ALL IMPLEMENTED ✅**
 
-### **Universal Noise Generator** 🎵
-Generate 7 types of scientifically-accurate noise with professional stereo options:
-- **White**: Flat frequency spectrum (pure static)
-- **Pink**: 1/f spectrum (natural balance)  
-- **Brown**: 1/f² spectrum (deep rumble)
-- **Blue**: +3dB/octave (bright/harsh)
-- **Violet**: +6dB/octave (ultra-bright)
-- **Perlin**: Organic variations with controllable complexity
-- **Band-limited**: Frequency-filtered noise for targeted ranges
+### 🎛️ **Core Generators (Foundational)**
+- **NoiseGenerator** - 8 noise types with spectral control
+- **PerlinNoise** - Organic, natural noise textures  
+- **BandLimitedNoise** - Frequency-constrained generation
+- **ChaosNoiseMix** - Nonlinear experimental processing
 
-### **Processing Nodes** 🔧
+### 🎛️ **Advanced Processors (Phase 1 - COMPLETE)**
+- **🔄 FeedbackProcessor** *(NEW v2.0)* - 6 feedback modes with filtering & LFO
+- **🎛️ HarshFilter** *(NEW v2.0)* - 8 filter types with self-oscillation 
+- **🎸 MultiDistortion** *(NEW v2.0)* - 12 distortion types with multi-staging
+- **🌀 SpectralProcessor** *(NEW v2.0)* - 10 FFT-based spectral manipulation modes
 
-#### **FeedbackProcessor** 🔄 ⭐ NEW!
-Advanced feedback systems essential for Merzbow-style self-generating textures:
-- **6 feedback modes**: simple → complex → runaway (dangerous!)
-- **Filtering in feedback loop**: Shape resonance character
-- **LFO modulation**: Pitch shifting and movement  
-- **Saturation**: Nonlinear harmonic generation
-- **Safety limiting**: Prevent runaway feedback damage
+### 🔧 **Utility Nodes**
+- **AudioMixer** - Multi-channel mixing with panning
+- **AudioSave** - Export to WAV/FLAC/MP3
 
-#### **ChaosNoiseMix** 💥  
-Extreme mixing for harsh noise and power electronics:
-- **11 mix modes**: add, multiply, xor, ring_mod, chaos, etc.
-- **Chaos injection**: Random variations for unpredictability
-- **Built-in distortion**: Harsh saturation and drive
-- **Bit crushing**: Digital artifacts and lo-fi effects
-- **Feedback delay**: Metallic resonances
+---
 
-#### **HarshFilter** 🎛️ ⭐ NEW!
-Extreme filtering with self-oscillation and morphing for harsh noise sculpting:
-- **8 filter types**: lowpass, highpass, bandpass, notch, comb, allpass, morph, chaos
-- **High resonance**: Up to 0.999 for self-oscillating drones
-- **Drive modes**: tube, transistor, digital, chaos saturation
-- **Variable slope**: 0.5x to 4x steepness for brick-wall effects
-- **LFO modulation**: Moving cutoff frequencies with chaotic options
-- **Filter morphing**: Smooth transitions between filter types
-- **Stereo spread**: Different L/R frequencies for wide effects
+## 📖 **Node Documentation**
 
-#### **MultiDistortion** 🎛️ ⭐ NEW!
-Comprehensive multi-stage distortion system with 12 distortion types:
-- **12 distortion types**: tube, transistor, diode, digital, bitcrush, waveshaper, foldback, ring_mod, chaos, fuzz, overdrive, destruction
-- **Multi-stage processing**: 1-4 stages with inter-stage feedback
-- **Pre-filtering**: Shape input spectrum before distortion
-- **Asymmetry control**: Positive/negative bias for character
-- **Harmonic emphasis**: Generate rich harmonic content
-- **Specialized modes**: Bitcrush with sample rate reduction, ring modulation, chaotic distortion
-- **Destruction mode**: Extreme 5-stage processing for ultimate chaos
+### **🔄 FeedbackProcessor** *(NEW v2.0)*
+Advanced feedback processing with filtering and modulation for self-generating textures.
 
-#### **AudioMixer** 🎛️
-Professional 4-channel mixer with individual controls:
-- **Per-channel gain**: 0-2x with precise control
-- **Pan controls**: Full stereo positioning
-- **Master gain**: Final level control
-- **Clean mixing**: Addition-based algorithm
+**Feedback Modes:**
+- `simple` - Direct delay feedback  
+- `filtered` - LP/HP/BP/Notch/Allpass filtering in loop
+- `saturated` - Nonlinear saturation in feedback
+- `modulated` - LFO-modulated delay time
+- `complex` - Multi-tap with filtering
+- `runaway` - Unstable feedback with safety limiting
 
-### **Specialized Generators** 🌊
+**Key Features:**
+- Built-in filtering (5 types) with resonance
+- LFO modulation for pitch shifting effects  
+- Nonlinear saturation for harmonic generation
+- Safety limiting prevents runaway feedback
+- Sample-by-sample processing for real feedback
 
-#### **PerlinNoise** 
-Organic noise with natural variations:
-- **Frequency control**: Base oscillation rate
-- **Octaves**: Complexity layers (1-8)
-- **Natural textures**: Smooth, organic variations
+**Artistic Applications:**
+- **Merzbow-style**: Complex mode with high feedback (0.7-0.9)
+- **Drones**: Filtered mode with LP filter + high resonance
+- **Glitch**: Modulated mode with fast LFO + high depth
+- **Harsh walls**: Runaway mode with controlled chaos
 
-#### **BandLimitedNoise** 📡
-Frequency-filtered noise generation:
-- **Precise filtering**: Define exact frequency ranges
-- **Scientific accuracy**: Proper band-limiting
-- **Targeted textures**: Focus on specific frequency bands
+---
 
-### **Utilities** 💾
+### **🎛️ HarshFilter** *(NEW v2.0)*
+Extreme filtering with self-oscillation, drive, and LFO modulation for harsh noise textures.
 
-#### **AudioSave**
-Professional audio export with metadata:
-- **Multiple formats**: WAV, FLAC, MP3
-- **Metadata preservation**: Generation parameters
-- **Timestamped filenames**: Organized output
+**Filter Types:**
+- `lowpass` / `highpass` / `bandpass` / `notch` - Classic filters
+- `comb` - Comb filtering for metallic textures
+- `allpass` - Phase manipulation without amplitude change
+- `morph` - Dynamic morphing between filter types  
+- `chaos` - Chaotic filter behavior
 
-## 🚀 **Roadmap: Future Expansion**
+**Drive Modes:**
+- `clean` - No distortion
+- `tube` - Warm tube saturation
+- `transistor` - Solid-state clipping
+- `digital` - Hard digital clipping
+- `chaos` - Chaotic nonlinear processing
 
-### **Phase 1: Core Processing (v2.0)** - *67% COMPLETE*
-- ✅ **HarshFilter**: Extreme filtering with self-oscillation *(COMPLETED)*
-- ✅ **MultiDistortion**: Comprehensive distortion palette *(COMPLETED)*
-- **SpectralProcessor**: FFT-based spectral manipulation
+**Key Features:**
+- Self-oscillating resonance up to 0.999 for drone generation
+- Variable filter slope (0.5x to 4x steepness)
+- LFO modulation with chaotic options
+- Filter morphing between types
+- Stereo spread for different L/R processing
 
-### **Phase 2: Advanced Systems (v2.5)**  
-- **TrueChaos**: Mathematically accurate chaotic oscillators
-- **GranularProcessor**: Granular synthesis for micro-textures
-- **ConvolutionReverb**: Industrial impulse response processing
+**Artistic Applications:**
+- **Self-oscillation**: Set resonance to 0.95+ for pure tones
+- **Sweeps**: Use LFO modulation of cutoff frequency
+- **Harsh textures**: Comb filter + high drive + chaos mode
+- **Morphing**: Use morph filter type with varying morph_amount
 
-### **Phase 3: Control & Analysis (v3.0)**
-- **ModulationMatrix**: Complex parameter automation
-- **SpectrumAnalyzer**: Real-time visual feedback
-- **AudioAnalyzer**: Advanced signal analysis
+---
 
-## 🎵 **Example Workflows**
+### **🎸 MultiDistortion** *(NEW v2.0)*
+Comprehensive distortion processing with 12 types and multi-stage architecture.
 
-### **Basic Noise Generation**
+**Distortion Types:**
+- `tube` - Warm tube saturation
+- `transistor` - Solid-state transistor clipping
+- `diode` - Diode clipping characteristics
+- `digital` - Hard digital clipping
+- `bitcrush` - Bit reduction + sample rate reduction  
+- `waveshaper` - Nonlinear waveshaping
+- `foldback` - Wave folding distortion
+- `ring_mod` - Ring modulation effects
+- `chaos` - Chaotic nonlinear processing
+- `fuzz` - Classic fuzz box simulation
+- `overdrive` - Soft overdrive saturation
+- `destruction` - Extreme 5-stage processing
+
+**Key Features:**
+- Multi-stage processing (1-4 stages) with inter-stage feedback
+- Pre-filtering to shape input spectrum before distortion
+- Asymmetry control for positive/negative bias
+- Harmonic emphasis for rich harmonic content
+- Stereo spread for different L/R channel processing
+
+**Artistic Applications:**
+- **Harsh noise**: Destruction mode with 3+ stages
+- **Warm saturation**: Tube mode with low drive + harmonic emphasis
+- **Digital artifacts**: Bitcrush with low bit depth + sample rate
+- **Chaotic textures**: Chaos mode with high asymmetry
+
+---
+
+### **🌀 SpectralProcessor** *(NEW v2.0)*
+Advanced FFT-based spectral manipulation for frequency-domain processing.
+
+**Spectral Modes:**
+- `enhance` - Boost specific frequency bands
+- `suppress` - Attenuate frequency bands
+- `shift` - Frequency shifting and pitch effects
+- `morph` - Spectral morphing and crossfading
+- `gate` - Spectral gating and masking
+- `compress` - Spectral compression/expansion
+- `chaos` - Chaotic spectral manipulation
+- `phase` - Phase-only manipulation
+- `vocoder` - Spectral vocoding effects
+- `freeze` - Spectral freezing and hold
+
+**Window Functions:**
+- `hann` - Smooth window (default)
+- `hamming` - Reduced spectral leakage
+- `blackman` - Minimal spectral leakage
+- `kaiser` - Configurable characteristics
+- `rectangular` - Sharp transitions
+
+**Key Features:**
+- Configurable FFT sizes (512-8192) for time/frequency resolution
+- Variable overlap (25%-95%) for smooth processing
+- Frequency range control for targeted processing
+- Phase randomization for textural effects
+- Spectral freezing for static textures
+
+**Artistic Applications:**
+- **Frequency isolation**: Enhance/suppress specific bands
+- **Pitch effects**: Shift mode with cent-based shifting
+- **Textural chaos**: Chaos mode with high intensity
+- **Spectral gates**: Gate mode for rhythmic spectral effects
+- **Frozen textures**: Freeze mode for static spectral holds
+
+---
+
+## 🎨 **Artistic Workflow Examples**
+
+### **🔥 Merzbow-Style Harsh Noise Wall**
 ```
-NoiseGenerator → AudioSave
+NoiseGenerator (white) → 
+FeedbackProcessor (complex, 0.8 feedback) → 
+HarshFilter (comb, high resonance) → 
+MultiDistortion (destruction, 3 stages) → 
+SpectralProcessor (chaos) → 
+AudioSave
 ```
 
-### **Merzbow-Style Feedback Chaos**
+### **🌊 Evolving Ambient Drone** 
 ```
-NoiseGenerator → FeedbackProcessor → ChaosNoiseMix → AudioSave
-                      ↑                      ↑
-NoiseGenerator → FeedbackProcessor ────────┘
-```
-
-### **Professional Mixing**
-```
-NoiseGenerator ──┐
-PerlinNoise ─────┼── AudioMixer → AudioSave
-BandLimitedNoise ─┘
+PerlinNoise (slow evolution) → 
+HarshFilter (lowpass, self-oscillation) → 
+FeedbackProcessor (filtered, long delay) → 
+SpectralProcessor (freeze, random probability) → 
+AudioSave
 ```
 
-### **Harsh Filter Sculpting**
+### **⚡ Glitchy Breakcore Textures**
 ```
-NoiseGenerator → HarshFilter → AudioSave
-              (resonance=0.9, comb mode)
-```
-
-### **Multi-Distortion Processing**
-```
-NoiseGenerator → MultiDistortion → AudioSave
-              (destruction mode, 4 stages)
+BandLimitedNoise → 
+MultiDistortion (bitcrush + ring_mod) → 
+HarshFilter (morph, fast LFO) → 
+SpectralProcessor (gate, rhythmic) → 
+AudioSave  
 ```
 
-### **Complete Processing Chain**  
-```
-NoiseGenerator → MultiDistortion → HarshFilter → FeedbackProcessor → AudioSave
-              (tube, 2 stages)  (self-osc)    (complex mode)
-```
+---
 
-### **Advanced Multi-Source**  
-```
-NoiseGenerator ─┬─ MultiDistortion (tube) ──┐
-PerlinNoise ────┼─ MultiDistortion (chaos) ─┼── AudioMixer → AudioSave
-BandLimitedNoise┴─ MultiDistortion (destroy)┘
-```
+## 🛠 **Installation**
 
-## 🔧 **Installation**
-
-### **Git Clone (Recommended)**
+### **Method 1: Git Clone (Recommended)**
 ```bash
 cd ComfyUI/custom_nodes
 git clone https://github.com/eg0pr0xy/comfyui_noisegen.git
@@ -163,77 +197,102 @@ cd comfyui_noisegen
 pip install -r requirements.txt
 ```
 
-### **Dependencies**
-- `numpy` - Mathematical operations
-- `torch` - Tensor operations (ComfyUI dependency)
-- `soundfile` - Audio file I/O
-- `scipy` - Scientific computing
+### **Method 2: ComfyUI Manager**
+Search for "NoiseGen" in ComfyUI Manager and install directly.
 
-## 🎛️ **Usage Tips**
-
-### **Feedback Safety** ⚠️
-- Start with low feedback amounts (< 0.5)
-- Use "runaway" mode carefully - it's designed to be unstable!
-- Monitor output levels to prevent speaker damage
-- Set reasonable delay times (0.1-10ms for metallic, 10-100ms for echo)
-
-### **Noise Character Guide**
-- **White**: Starting point, flat spectrum
-- **Pink**: Natural, balanced (great for mixing)
-- **Brown**: Deep, rumbling textures
-- **Blue/Violet**: Bright, harsh, cutting through mix
-- **Perlin**: Organic, evolving textures
-- **Band-limited**: Targeted frequency focus
-
-### **Filtering Techniques**
-- **Low resonance (0.0-0.3)**: Gentle frequency shaping
-- **Medium resonance (0.4-0.7)**: Pronounced peaks and character
-- **High resonance (0.8-0.95)**: Extreme peaks, near self-oscillation
-- **Self-oscillation (0.96-0.999)**: Pure tone generation from filter
-- **Comb filters**: Metallic, robotic textures (try 440Hz, 880Hz)
-- **Morph mode**: Smooth transitions between filter types
-- **Chaos mode**: Unpredictable filter behavior
-
-### **Distortion Strategies**
-- **Tube/Overdrive**: Warm, musical saturation for tonal content
-- **Transistor/Diode**: Classic analog clipping for bite
-- **Digital**: Hard clipping for aggressive, modern sound
-- **Bitcrush**: Lo-fi digital artifacts (try 4-bit, 8kHz)
-- **Foldback**: Smooth, folding distortion for complex harmonics
-- **Ring Mod**: Metallic, inharmonic textures (try 220Hz, 440Hz)
-- **Chaos**: Unpredictable, evolving distortion character
-- **Destruction**: Ultimate chaos mode - use with caution!
-- **Multi-staging**: 2+ stages for complex, interdependent processing
-- **Asymmetry**: Add character bias (-0.5 to +0.5 recommended)
-
-### **Mixing Strategies**
-- Use **AudioMixer** for clean, professional mixing
-- Use **ChaosNoiseMix** for experimental, harsh textures
-- Combine both for layered complexity
-- Apply **FeedbackProcessor** to any source for self-generation
-- Use **HarshFilter** for frequency sculpting and resonant peaks
-- Use **MultiDistortion** for comprehensive saturation and character
-
-## 🎼 **Artistic Applications**
-
-- **Harsh Noise / Power Electronics**: MultiDistortion (destruction) + HarshFilter + FeedbackProcessor
-- **Analog Warmth**: MultiDistortion (tube/overdrive) + gentle HarshFilter
-- **Digital Chaos**: MultiDistortion (bitcrush/digital) + ChaosNoiseMix
-- **Industrial Textures**: BandLimitedNoise + MultiDistortion (transistor) + FeedbackProcessor  
-- **Lo-Fi Aesthetics**: MultiDistortion (bitcrush, 4-bit) + HarshFilter (comb)
-- **Experimental Music**: All nodes in complex processing chains
-- **Sound Design**: Layered MultiDistortion stages for complex textures
-- **Merzbow-Style Chaos**: MultiDistortion (chaos) + FeedbackProcessor + HarshFilter
-
-## 📝 **License**
-
-MIT License - Feel free to use, modify, and distribute.
-
-## 🔗 **Links**
-
-- **GitHub**: [https://github.com/eg0pr0xy/comfyui_noisegen](https://github.com/eg0pr0xy/comfyui_noisegen)
-- **ComfyUI**: [https://github.com/comfyanonymous/ComfyUI](https://github.com/comfyanonymous/ComfyUI)
+### **Method 3: Manual Download**
+1. Download ZIP from GitHub releases
+2. Extract to `ComfyUI/custom_nodes/comfyui_noisegen/`
+3. Install dependencies: `pip install numpy torch torchaudio`
 
 ---
 
-*Generate chaos. Create beauty. Push boundaries.* 🎵💥 
+## 🎵 **Example Workflows**
+
+The `examples/` folder contains comprehensive workflow demonstrations:
+
+- **`spectral_processor_showcase.json`** *(NEW)* - Complete SpectralProcessor demo
+- **`multi_distortion_showcase.json`** *(NEW)* - All 12 distortion types
+- **`harsh_filter_showcase.json`** *(NEW)* - 8 filter types + modulation
+- **`feedback_processor_test.json`** *(NEW)* - 6 feedback modes 
+- **`japanese_noise_merzbow.json`** - Authentic Merzbow-style processing
+- **`stereo_ambient_soundscape.json`** - Evolving stereo textures
+- **`chaos_mix_test.json`** - Experimental chaos processing
+
+---
+
+## 🗺 **Development Roadmap**
+
+### **✅ Phase 1 (v2.0) - COMPLETE**
+- **FeedbackProcessor** - Advanced feedback with filtering ✅
+- **HarshFilter** - Extreme filtering with self-oscillation ✅
+- **MultiDistortion** - 12-type comprehensive distortion ✅
+- **SpectralProcessor** - FFT-based spectral manipulation ✅
+
+### **🚧 Phase 2 (v2.5) - Next Priority**
+- **TrueChaos** - Mathematical chaos systems (Lorenz, Chua)
+- **GranularProcessor** - Advanced granular synthesis
+- **ConvolutionReverb** - Impulse response convolution
+
+### **🔮 Phase 3 (v3.0) - Analysis & Control**
+- **ModulationMatrix** - Complex parameter modulation
+- **SpectrumAnalyzer** - Real-time spectral visualization  
+- **AudioAnalyzer** - RMS, peak, spectral centroid analysis
+
+### **🌟 Phase 4 (v3.5) - Advanced Features**
+- **SpatialProcessor** - 3D audio positioning
+- **UtilityProcessor** - Advanced audio utilities
+
+---
+
+## 💡 **Tips & Best Practices**
+
+### **🔊 Performance Optimization**
+- Use shorter durations for experimentation
+- Lower FFT sizes (1024) for real-time work
+- Higher FFT sizes (4096+) for offline processing
+- Monitor CPU usage with complex feedback chains
+
+### **🎛️ Sound Design Tips**
+- **Layer different noise types** for complex textures
+- **Chain processors** for extreme transformations
+- **Use feedback sparingly** - a little goes a long way
+- **Experiment with stereo spread** for wider soundstages
+- **Mix wet/dry signals** to retain some original character
+
+### **⚠️ Safety Guidelines**
+- **Start with low amplitudes** (0.1-0.3) when experimenting
+- **Use limiters** after extreme processing chains
+- **Save frequently** - some combinations are unrepeatable!
+- **Monitor volume levels** - harsh processing can be LOUD
+
+---
+
+## 🤝 **Contributing**
+
+Contributions welcome! Please:
+1. Fork the repository
+2. Create feature branches (`git checkout -b feature/amazing-processor`)
+3. Follow code style guidelines
+4. Add comprehensive documentation
+5. Submit pull requests with detailed descriptions
+
+---
+
+## 📄 **License**
+
+MIT License - See LICENSE file for details.
+
+---
+
+## 🙏 **Acknowledgments**
+
+- **Masami Akita (Merzbow)** - Inspiration for harsh noise processing
+- **ComfyUI Community** - Framework and ecosystem
+- **Noise Artists Worldwide** - Pushing boundaries of experimental audio
+
+---
+
+**🎵 Create. Destroy. Transform. Repeat.**
+
+*ComfyUI-NoiseGen v2.0 - The Ultimate Noise Laboratory* 
