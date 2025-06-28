@@ -361,7 +361,7 @@ def numpy_to_comfy_audio(audio_array: np.ndarray, sample_rate: int) -> dict:
         "_samples": waveform.shape[1],
         "_duration": float(waveform.shape[1] / sample_rate),
         "_bit_depth": 32,  # Float32 format
-        "_generated_by": "NoiseGen"
+        "_generated_by": "ComfyUI-NoiseGen"
     }
     
     return audio_data
