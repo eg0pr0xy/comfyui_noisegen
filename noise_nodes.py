@@ -452,6 +452,271 @@ class PerlinNoiseNode:
             audio_output = numpy_to_comfy_audio(silence, sample_rate)
             return (audio_output,)
 
+class AudioMixerNode:
+    """Professional audio mixer with individual channel controls.
+    
+    Provides traditional mixing capabilities with:
+    - Individual gain controls for each input
+    - Pan controls for stereo positioning
+    - Clean addition-based mixing
+    - Professional audio standards
+    
+    Perfect for: Music production, sound design, traditional audio work
+    """
+    
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "audio_a": ("AUDIO", {
+                    "tooltip": "First audio input - any audio source"
+                }),
+                "gain_a": ("FLOAT", {
+                    "default": 1.0, 
+                    "min": 0.0, 
+                    "max": 2.0, 
+                    "step": 0.01,
+                    "tooltip": "Volume level for input A (0.0=mute, 1.0=unity, 2.0=+6dB)"
+                }),
+                "pan_a": ("FLOAT", {
+                    "default": 0.0, 
+                    "min": -1.0, 
+                    "max": 1.0, 
+                    "step": 0.01,
+                    "tooltip": "Pan position for input A (-1.0=left, 0.0=center, 1.0=right)"
+                }),
+            },
+            "optional": {
+                "audio_b": ("AUDIO", {
+                    "tooltip": "Second audio input (optional)"
+                }),
+                "gain_b": ("FLOAT", {
+                    "default": 1.0, 
+                    "min": 0.0, 
+                    "max": 2.0, 
+                    "step": 0.01,
+                    "tooltip": "Volume level for input B"
+                }),
+                "pan_b": ("FLOAT", {
+                    "default": 0.0, 
+                    "min": -1.0, 
+                    "max": 1.0, 
+                    "step": 0.01,
+                    "tooltip": "Pan position for input B"
+                }),
+                "audio_c": ("AUDIO", {
+                    "tooltip": "Third audio input (optional)"
+                }),
+                "gain_c": ("FLOAT", {
+                    "default": 1.0, 
+                    "min": 0.0, 
+                    "max": 2.0, 
+                    "step": 0.01,
+                    "tooltip": "Volume level for input C"
+                }),
+                "pan_c": ("FLOAT", {
+                    "default": 0.0, 
+                    "min": -1.0, 
+                    "max": 1.0, 
+                    "step": 0.01,
+                    "tooltip": "Pan position for input C"
+                }),
+                "audio_d": ("AUDIO", {
+                    "tooltip": "Fourth audio input (optional)"
+                }),
+                "gain_d": ("FLOAT", {
+                    "default": 1.0, 
+                    "min": 0.0, 
+                    "max": 2.0, 
+                    "step": 0.01,
+                    "tooltip": "Volume level for input D"
+                }),
+                "pan_d": ("FLOAT", {
+                    "default": 0.0, 
+                    "min": -1.0, 
+                    "max": 1.0, 
+                    "step": 0.01,
+                    "tooltip": "Pan position for input D"
+                }),
+                "master_gain": ("FLOAT", {
+                    "default": 1.0, 
+                    "min": 0.0, 
+                    "max": 2.0, 
+                    "step": 0.01,
+                    "tooltip": "Master output level (applied after mixing)"
+                }),
+            }
+        }
+    
+    RETURN_TYPES = ("AUDIO",)
+    RETURN_NAMES = ("mixed_audio",)
+    FUNCTION = "mix_audio"
+    CATEGORY = "🎵 NoiseGen/Utils"
+    DESCRIPTION = "Professional audio mixer with individual gain and pan controls for up to 4 inputs"
+    
+    def mix_audio(self, audio_a, gain_a, pan_a, audio_b=None, gain_b=1.0, pan_b=0.0, 
+                  audio_c=None, gain_c=1.0, pan_c=0.0, audio_d=None, gain_d=1.0, pan_d=0.0, 
+                  master_gain=1.0):
+        """Mix multiple audio inputs with professional controls."""
+        try:
+            # Validate primary input
+            if audio_a is None:
+                raise ValueError("Audio input A is required")
+            if not isinstance(audio_a, dict) or 'waveform' not in audio_a or 'sample_rate' not in audio_a:
+                raise ValueError("Audio input A is not a valid audio object")
+            
+            # Get primary audio properties
+            sample_rate = audio_a["sample_rate"]
+            
+            # Collect all valid inputs
+            inputs = []
+            gains = []
+            pans = []
+            
+            # Process each input
+            for audio, gain, pan, name in [
+                (audio_a, gain_a, pan_a, "A"),
+                (audio_b, gain_b, pan_b, "B"), 
+                (audio_c, gain_c, pan_c, "C"),
+                (audio_d, gain_d, pan_d, "D")
+            ]:
+                if audio is not None:
+                    if not isinstance(audio, dict) or 'waveform' not in audio or 'sample_rate' not in audio:
+                        print(f"Warning: Invalid audio input {name}, skipping")
+                        continue
+                    
+                    # Extract and convert waveform
+                    waveform = audio["waveform"]
+                    if hasattr(waveform, 'cpu'):
+                        waveform = waveform.cpu().numpy()
+                    
+                    # Ensure proper shape [channels, samples]
+                    if waveform.ndim == 1:
+                        waveform = waveform[np.newaxis, :]
+                    elif waveform.ndim > 2:
+                        waveform = waveform.view(waveform.size(0), -1)
+                    
+                    inputs.append(waveform.astype(np.float32))
+                    gains.append(float(gain))
+                    pans.append(float(pan))
+                    
+                    print(f"✅ Input {name}: {waveform.shape} @ {audio['sample_rate']}Hz, gain={gain:.2f}, pan={pan:.2f}")
+            
+            if len(inputs) == 0:
+                raise ValueError("No valid audio inputs provided")
+            
+            # Determine output format
+            max_channels = max(inp.shape[0] for inp in inputs)
+            max_length = max(inp.shape[1] for inp in inputs)
+            
+            # Force stereo output for proper panning
+            output_channels = max(2, max_channels)
+            
+            print(f"🎛️ Mixing {len(inputs)} inputs → {output_channels}ch, {max_length} samples")
+            
+            # Initialize output buffer
+            mixed = np.zeros((output_channels, max_length), dtype=np.float32)
+            
+            # Mix each input
+            for i, (waveform, gain, pan) in enumerate(zip(inputs, gains, pans)):
+                # Apply gain
+                scaled = waveform * gain
+                
+                # Extend to match output length
+                if scaled.shape[1] < max_length:
+                    padded = np.zeros((scaled.shape[0], max_length), dtype=np.float32)
+                    padded[:, :scaled.shape[1]] = scaled
+                    scaled = padded
+                elif scaled.shape[1] > max_length:
+                    scaled = scaled[:, :max_length]
+                
+                # Apply panning and add to mix
+                if output_channels == 1:
+                    # Mono output - ignore panning
+                    if scaled.shape[0] == 1:
+                        mixed[0] += scaled[0]
+                    else:
+                        # Mix down stereo to mono
+                        mixed[0] += np.mean(scaled, axis=0)
+                        
+                elif output_channels == 2:
+                    # Stereo output with panning
+                    if scaled.shape[0] == 1:
+                        # Mono input - apply panning
+                        left_gain = np.sqrt((1.0 - pan) / 2.0) if pan >= 0 else 1.0
+                        right_gain = np.sqrt((1.0 + pan) / 2.0) if pan <= 0 else 1.0
+                        
+                        mixed[0] += scaled[0] * left_gain
+                        mixed[1] += scaled[0] * right_gain
+                    else:
+                        # Stereo input - apply pan as balance
+                        if pan < 0:
+                            # Pan left - reduce right channel
+                            mixed[0] += scaled[0]
+                            mixed[1] += scaled[1] * (1.0 + pan)
+                        elif pan > 0:
+                            # Pan right - reduce left channel  
+                            mixed[0] += scaled[0] * (1.0 - pan)
+                            mixed[1] += scaled[1]
+                        else:
+                            # Center - no change
+                            mixed[:2] += scaled[:2]
+                else:
+                    # Multi-channel - simple addition (no panning)
+                    channels_to_mix = min(scaled.shape[0], output_channels)
+                    mixed[:channels_to_mix] += scaled[:channels_to_mix]
+            
+            # Apply master gain
+            mixed *= master_gain
+            
+            # Prevent clipping with soft limiting
+            max_amplitude = np.max(np.abs(mixed))
+            if max_amplitude > 1.0:
+                # Soft limiting
+                mixed = np.tanh(mixed)
+                print(f"⚠️ Applied soft limiting (peak was {max_amplitude:.2f})")
+            
+            # Convert back to ComfyUI format
+            audio_output = numpy_to_comfy_audio(mixed, sample_rate)
+            
+            # Add mixing metadata
+            audio_output["_metadata"] = {
+                "mixed_inputs": len(inputs),
+                "output_channels": output_channels,
+                "master_gain": master_gain,
+                "_generated_by": "ComfyUI-NoiseGen-AudioMixer"
+            }
+            
+            print(f"🎵 Mixed audio: {output_channels}ch, {max_length} samples, {len(inputs)} inputs")
+            
+            return (audio_output,)
+            
+        except Exception as e:
+            print(f"❌ Error in AudioMixer: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            
+            # Fallback - return first input with gain applied
+            try:
+                if audio_a is not None:
+                    fallback_waveform = audio_a["waveform"]
+                    if hasattr(fallback_waveform, 'cpu'):
+                        fallback_waveform = fallback_waveform.cpu().numpy()
+                    
+                    if fallback_waveform.ndim == 1:
+                        fallback_waveform = fallback_waveform[np.newaxis, :]
+                    
+                    fallback_waveform = fallback_waveform.astype(np.float32) * gain_a * master_gain
+                    audio_output = numpy_to_comfy_audio(fallback_waveform, audio_a["sample_rate"])
+                    return (audio_output,)
+            except:
+                pass
+            
+            # Final emergency fallback
+            emergency_audio = np.random.normal(0, 0.01, (1, 44100)).astype(np.float32)
+            audio_output = numpy_to_comfy_audio(emergency_audio, 44100)
+            return (audio_output,)
+
 class ChaosNoiseMixNode:
     """
     Chaos Noise Mix - Extreme processing for harsh noise / Merzbow-style chaos
@@ -496,8 +761,8 @@ class ChaosNoiseMixNode:
                     "tooltip": "Second audio input - will be mixed with first audio"
                 }),
                 "mix_mode": (cls.MIX_MODES, {
-                    "default": "chaos",
-                    "tooltip": "Mixing algorithm: chaos=extreme, xor=digital harsh, ring_mod=carrier freq, add=gentle"
+                    "default": "add",
+                    "tooltip": "Mixing algorithm: add=clean mixing, chaos=extreme, xor=digital harsh, ring_mod=carrier freq"
                 }),
                 "mix_ratio": ("FLOAT", {
                     "default": 0.5, 
@@ -1034,6 +1299,7 @@ NODE_CLASS_MAPPINGS = {
     "PerlinNoise": PerlinNoiseNode,             # Unique parameters (frequency, octaves)
     "BandLimitedNoise": BandLimitedNoiseNode,   # Unique parameters (freq filtering)
     "ChaosNoiseMix": ChaosNoiseMixNode,         # Advanced mixing
+    "AudioMixer": AudioMixerNode,               # Professional mixing
     "AudioSave": AudioSaveNode,                 # Utility
     
     # LEGACY NODES - Hidden from main menu, kept for compatibility
@@ -1051,6 +1317,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "PerlinNoise": "🌊 Perlin Noise",
     "BandLimitedNoise": "📻 Band-Limited Noise", 
     "ChaosNoiseMix": "🔥 Chaos Noise Mix",
+    "AudioMixer": "🎛️ Audio Mixer",
     "AudioSave": "💾 Save Audio",
     
     # LEGACY - Hidden with underscore prefix

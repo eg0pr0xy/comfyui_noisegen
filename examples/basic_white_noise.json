@@ -1,32 +1,86 @@
 {
-  "1": {
-    "inputs": {
-      "noise_type": "white",
-      "duration": 10.0,
-      "sample_rate": 44100,
-      "amplitude": 0.5,
-      "seed": 42,
-      "channels": 1,
-      "stereo_mode": "independent",
-      "stereo_width": 1.0
-    },
-    "class_type": "NoiseGenerator",
-    "_meta": {
-      "title": "Basic White Noise Generator"
-    }
-  },
-  "2": {
-    "inputs": {
-      "audio": [
-        "1",
-        0
+  "last_node_id": 4,
+  "last_link_id": 4,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "NoiseGenerator",
+      "pos": [100, 100],
+      "size": {"0": 315, "1": 426},
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "outputs": [
+        {"name": "audio", "type": "AUDIO", "links": [1], "shape": 3}
       ],
-      "filename_prefix": "white_noise_",
-      "format": "wav"
+      "title": "WHITE NOISE SOURCE",
+      "properties": {"Node name for S&R": "NoiseGenerator"},
+      "widgets_values": ["white", 3.0, 44100, 0.7, 42, 1, "independent", 1.0]
     },
-    "class_type": "AudioSave",
-    "_meta": {
-      "title": "Save White Noise"
+    {
+      "id": 2,
+      "type": "NoiseGenerator", 
+      "pos": [100, 600],
+      "size": {"0": 315, "1": 426},
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "outputs": [
+        {"name": "audio", "type": "AUDIO", "links": [2], "shape": 3}
+      ],
+      "title": "PINK NOISE SOURCE",
+      "properties": {"Node name for S&R": "NoiseGenerator"},
+      "widgets_values": ["pink", 3.0, 44100, 0.5, 123, 1, "independent", 1.0]
+    },
+    {
+      "id": 3,
+      "type": "AudioMixer",
+      "pos": [500, 300],
+      "size": {"0": 315, "1": 306},
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {"name": "audio_a", "type": "AUDIO", "link": 1},
+        {"name": "audio_b", "type": "AUDIO", "link": 2}
+      ],
+      "outputs": [
+        {"name": "mixed_audio", "type": "AUDIO", "links": [3]}
+      ],
+      "title": "🎛️ PROFESSIONAL MIXER",
+      "properties": {"Node name for S&R": "AudioMixer"},
+      "widgets_values": [0.8, -0.3, 0.6, 0.3, 1.0, 0.0, 1.0, 0.0, 1.0]
+    },
+    {
+      "id": 4,
+      "type": "AudioSave",
+      "pos": [900, 350],
+      "size": {"0": 315, "1": 126},
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {"name": "audio", "type": "AUDIO", "link": 3}
+      ],
+      "outputs": [
+        {"name": "audio", "type": "AUDIO", "links": null},
+        {"name": "filepath", "type": "STRING", "links": null}
+      ],
+      "title": "💾 SAVE MIXED AUDIO",
+      "properties": {"Node name for S&R": "AudioSave"},
+      "widgets_values": ["Professional_Mix_", "wav"]
     }
-  }
+  ],
+  "links": [
+    [1, 1, 0, 3, 0, "AUDIO"],
+    [2, 2, 0, 3, 1, "AUDIO"],
+    [3, 3, 0, 4, 0, "AUDIO"]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "title": "PROFESSIONAL AUDIO MIXING - White + Pink Noise",
+    "description": "Demonstrates proper audio mixing with individual gain and pan controls:\n\n🎵 AUDIO SOURCES:\n- White Noise: Gain 0.8, Pan Left (-0.3)\n- Pink Noise: Gain 0.6, Pan Right (+0.3)\n\n🎛️ MIXER FEATURES:\n- Individual gain controls for each input\n- Pan controls for stereo positioning\n- Clean addition-based mixing\n- Soft limiting to prevent clipping\n\n💡 PROFESSIONAL WORKFLOW:\n1. Generate different noise sources\n2. Mix with proper gain staging\n3. Position in stereo field\n4. Save final mix\n\nPerfect example of how audio mixing should work!"
+  },
+  "version": 0.4
 } 
