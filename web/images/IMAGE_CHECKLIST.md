@@ -26,11 +26,15 @@
 - [ ] `audio_analyzer.jpg` - Real-time analysis display
 - [ ] `spectrum_analyzer.jpg` - FFT spectrum visualization
 
-## 🎬 **WORKFLOW SCREENSHOTS** (Optional)
-- [ ] `workflow_basic_noise.jpg` - Simple noise generation workflow
-- [ ] `workflow_granular_texture.jpg` - Complex granular processing chain
-- [ ] `workflow_chaos_mixing.jpg` - Chaos-based sound design
-- [ ] `workflow_spectral_processing.jpg` - Frequency domain manipulation
+## 🎬 **WORKFLOW SCREENSHOTS** ✅ **COMPLETED & INTEGRATED**
+- [x] `01_workflow_basic_noise.jpg` - Basic noise generation workflow ✅ **LIVE**
+- [x] `02_merzbow_harsh_noise_wall.png` - Merzbow-style harsh noise processing ✅ **LIVE**
+- [x] `03_evolving_ambient_drone.png` - Chaos-based ambient textures ✅ **LIVE**
+- [x] `04_glitchy_breakcore_textures.png` - Granular microsound processing ✅ **LIVE**
+- [x] `05_external_audio_processing.png` - Audio analysis capabilities ✅ **LIVE**
+- [x] `06_granular_synthesis_showcase.png` - Advanced granular synthesis ✅ **LIVE**
+
+**Status:** All 6 workflow screenshots are now integrated into the main index.html page with professional showcase section!
 
 ## 🎨 **ICONS & GRAPHICS** (Optional)
 - [ ] Small icons for each node category (64x64px)

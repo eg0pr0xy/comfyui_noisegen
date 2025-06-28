@@ -378,6 +378,125 @@
             transform: translateX(-4px);
         }
 
+        /* WORKFLOW SHOWCASE */
+        .workflow-showcase {
+            margin: 60px 20px;
+            background: #111;
+            border: 2px solid #333;
+        }
+
+        .section-header {
+            background: #fff;
+            color: #000;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .section-title {
+            font-size: 36px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .section-subtitle {
+            font-size: 16px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #666;
+        }
+
+        .workflows-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 0;
+            padding: 0;
+        }
+
+        .workflow-card {
+            background: #000;
+            border: 1px solid #333;
+            position: relative;
+            transition: all 0.2s ease;
+            overflow: hidden;
+        }
+
+        .workflow-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: #00ffff;
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.2s ease;
+            z-index: 2;
+        }
+
+        .workflow-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .workflow-card:hover {
+            background: #111;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,255,255,0.2);
+        }
+
+        .workflow-image {
+            position: relative;
+            overflow: hidden;
+            height: 200px;
+            background: #222;
+        }
+
+        .workflow-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.2s ease;
+        }
+
+        .workflow-card:hover .workflow-image img {
+            transform: scale(1.05);
+        }
+
+        .workflow-info {
+            padding: 25px;
+            position: relative;
+        }
+
+        .workflow-name {
+            font-size: 18px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .workflow-desc {
+            color: #ccc;
+            font-size: 14px;
+            line-height: 1.4;
+            margin-bottom: 15px;
+            font-weight: normal;
+        }
+
+        .workflow-nodes {
+            color: #00ffff;
+            font-size: 11px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 8px 0;
+            border-top: 1px solid #333;
+        }
+
         /* RESPONSIVE */
         @media (max-width: 768px) {
             .stats-section {
@@ -387,6 +506,14 @@
             
             .node-grid {
                 grid-template-columns: 1fr;
+            }
+            
+            .workflows-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .workflow-showcase {
+                margin: 40px 10px;
             }
             
             .brand-title {
@@ -441,6 +568,82 @@
             <div class="stat">
                 <div class="stat-number">6</div>
                 <div class="stat-label">CHAOS SYSTEMS</div>
+            </div>
+        </div>
+
+        <!-- WORKFLOW SHOWCASE SECTION -->
+        <div class="workflow-showcase">
+            <div class="section-header">
+                <div class="section-title">WORKFLOW SHOWCASE</div>
+                <div class="section-subtitle">6 PROFESSIONAL EXAMPLE WORKFLOWS</div>
+            </div>
+            
+            <div class="workflows-grid">
+                <div class="workflow-card">
+                    <div class="workflow-image">
+                        <img src="images/screenshots/01_workflow_basic_noise.jpg" alt="Basic Noise Types Workflow">
+                    </div>
+                    <div class="workflow-info">
+                        <div class="workflow-name">01. BASIC NOISE TYPES</div>
+                        <div class="workflow-desc">Scientific noise generation: White, Pink, Brown, Blue</div>
+                        <div class="workflow-nodes">4 GENERATORS • 4 SAVERS</div>
+                    </div>
+                </div>
+
+                <div class="workflow-card">
+                    <div class="workflow-image">
+                        <img src="images/screenshots/02_merzbow_harsh_noise_wall.png" alt="Merzbow Harsh Noise Wall Workflow">
+                    </div>
+                    <div class="workflow-info">
+                        <div class="workflow-name">02. HARSH NOISE WALL</div>
+                        <div class="workflow-desc">Extreme processing chain: Feedback → Filter → Distortion → Spectral</div>
+                        <div class="workflow-nodes">5 PROCESSORS • MERZBOW STYLE</div>
+                    </div>
+                </div>
+
+                <div class="workflow-card">
+                    <div class="workflow-image">
+                        <img src="images/screenshots/03_evolving_ambient_drone.png" alt="Evolving Ambient Drone Workflow">
+                    </div>
+                    <div class="workflow-info">
+                        <div class="workflow-name">03. AMBIENT DRONE</div>
+                        <div class="workflow-desc">Chaos mathematics: Lorenz Attractor → Granular → Reverb</div>
+                        <div class="workflow-nodes">CHAOS SYSTEMS • 30 SECONDS</div>
+                    </div>
+                </div>
+
+                <div class="workflow-card">
+                    <div class="workflow-image">
+                        <img src="images/screenshots/04_glitchy_breakcore_textures.png" alt="Glitchy Breakcore Textures Workflow">
+                    </div>
+                    <div class="workflow-info">
+                        <div class="workflow-name">04. BREAKCORE GLITCH</div>
+                        <div class="workflow-desc">Microsound sculpting: 15ms grains → 16-step sequencer → Bitcrush</div>
+                        <div class="workflow-nodes">HIGH-SPEED • GRANULAR</div>
+                    </div>
+                </div>
+
+                <div class="workflow-card">
+                    <div class="workflow-image">
+                        <img src="images/screenshots/05_external_audio_processing.png" alt="External Audio Processing Workflow">
+                    </div>
+                    <div class="workflow-info">
+                        <div class="workflow-name">05. AUDIO ANALYSIS</div>
+                        <div class="workflow-desc">Professional analysis: Perlin → Analyzer → Spectrum → Matrix</div>
+                        <div class="workflow-nodes">8x8 MODULATION • ANALYSIS</div>
+                    </div>
+                </div>
+
+                <div class="workflow-card">
+                    <div class="workflow-image">
+                        <img src="images/screenshots/06_granular_synthesis_showcase.png" alt="Granular Synthesis Showcase Workflow">
+                    </div>
+                    <div class="workflow-info">
+                        <div class="workflow-name">06. GRANULAR SHOWCASE</div>
+                        <div class="workflow-desc">Advanced granular: Parallel processing → Chaos mix → Microsound</div>
+                        <div class="workflow-nodes">PARALLEL PATHS • COMPLEX</div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -680,7 +883,7 @@
             <h2 class="footer-title">NOISEGEN</h2>
             <p class="footer-desc">Professional noise generation and audio processing for ComfyUI. From scientific precision to chaotic destruction.</p>
             <a href="https://github.com/eg0pr0xy/comfyui_noisegen" class="github-link">GITHUB REPOSITORY</a>
-        </footer>
-    </div>
+                  </footer>
+      </div>
 </body>
 </html> 

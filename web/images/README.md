@@ -29,18 +29,22 @@ audio_analyzer.jpg
 spectrum_analyzer.jpg
 ```
 
-### `/screenshots/` - Workflow Examples
+### `/screenshots/` - Workflow Examples ✅ **COMPLETED**
 **Purpose:** Screenshots showing nodes in action within workflows
 **Recommended Size:** 1200x800px or larger
 **Format:** JPG or PNG
 
-**Naming Convention:**
+**✅ CURRENT FILES:**
 ```
-workflow_basic_noise.jpg
-workflow_granular_texture.jpg
-workflow_chaos_mixing.jpg
-workflow_spectral_processing.jpg
+01_workflow_basic_noise.jpg          ✅ INTEGRATED
+02_merzbow_harsh_noise_wall.png      ✅ INTEGRATED  
+03_evolving_ambient_drone.png        ✅ INTEGRATED
+04_glitchy_breakcore_textures.png    ✅ INTEGRATED
+05_external_audio_processing.png     ✅ INTEGRATED
+06_granular_synthesis_showcase.png   ✅ INTEGRATED
 ```
+
+**Status:** All 6 workflow screenshots are now live in the main index.html showcase section!
 
 ### `/icons/` - Small Node Icons
 **Purpose:** Small icons/thumbnails for use in documentation
