@@ -1,4 +1,4 @@
-# 💀 NOISEGEN 💀
+# 💀 COMFYUI NOISE GENERATOR 💀
 
 > **"Noise is the most impolite music."** - Merzbow
 
