@@ -174,10 +174,17 @@ class PerlinNoiseNode:
         try:
             duration, sample_rate, amplitude, channels = validate_audio_params(duration, sample_rate, amplitude, channels)
             
+            # Note: persistence parameter is accepted but not used in the core function
+            # It's kept for UI compatibility - could be implemented as fractal persistence in future
             result_np = generate_perlin_noise(
                 duration=duration, frequency=frequency, sample_rate=sample_rate, amplitude=amplitude,
-                seed=seed, channels=channels, stereo_mode=stereo_mode, octaves=octaves, persistence=persistence
+                seed=seed, channels=channels, stereo_mode=stereo_mode, octaves=octaves
             )
+            
+            # Apply persistence as amplitude scaling for now
+            if persistence != 1.0:
+                result_np *= persistence
+            
             result = numpy_to_comfy_audio(result_np, sample_rate)
             return (result,)
             
