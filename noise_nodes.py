@@ -126,20 +126,22 @@ class NoiseGeneratorNode:
             }
             
             # Generate noise
-            if noise_type == "white": result = generate_white_noise(**params)
-            elif noise_type == "pink": result = generate_pink_noise(**params)
-            elif noise_type == "brown": result = generate_brown_noise(**params)
-            elif noise_type == "blue": result = generate_blue_noise(**params)
-            elif noise_type == "violet": result = generate_violet_noise(**params)
-            elif noise_type == "perlin": result = generate_perlin_noise(frequency=frequency, octaves=octaves, **params)
-            elif noise_type == "bandlimited": result = generate_bandlimited_noise(low_frequency=low_freq, high_frequency=high_freq, **params)
-            else: result = generate_white_noise(**params)
+            if noise_type == "white": result_np = generate_white_noise(**params)
+            elif noise_type == "pink": result_np = generate_pink_noise(**params)
+            elif noise_type == "brown": result_np = generate_brown_noise(**params)
+            elif noise_type == "blue": result_np = generate_blue_noise(**params)
+            elif noise_type == "violet": result_np = generate_violet_noise(**params)
+            elif noise_type == "perlin": result_np = generate_perlin_noise(frequency=frequency, octaves=octaves, **params)
+            elif noise_type == "bandlimited": result_np = generate_bandlimited_noise(low_freq=low_freq, high_freq=high_freq, **params)
+            else: result_np = generate_white_noise(**params)
             
+            # Convert to ComfyUI audio format
+            result = numpy_to_comfy_audio(result_np, sample_rate)
             return (result,)
             
         except Exception as e:
             print(f"❌ Error in noise generation: {str(e)}")
-            fallback = create_audio_dict(np.zeros((channels, int(sample_rate * 0.1))), sample_rate)
+            fallback = numpy_to_comfy_audio(np.zeros((channels, int(sample_rate * 0.1))), sample_rate)
             return (fallback,)
 
 
@@ -172,15 +174,16 @@ class PerlinNoiseNode:
         try:
             duration, sample_rate, amplitude, channels = validate_audio_params(duration, sample_rate, amplitude, channels)
             
-            result = generate_perlin_noise(
+            result_np = generate_perlin_noise(
                 duration=duration, frequency=frequency, sample_rate=sample_rate, amplitude=amplitude,
                 seed=seed, channels=channels, stereo_mode=stereo_mode, octaves=octaves, persistence=persistence
             )
+            result = numpy_to_comfy_audio(result_np, sample_rate)
             return (result,)
             
         except Exception as e:
             print(f"❌ Error in Perlin generation: {str(e)}")
-            fallback = create_audio_dict(np.zeros((channels, int(sample_rate * 0.1))), sample_rate)
+            fallback = numpy_to_comfy_audio(np.zeros((channels, int(sample_rate * 0.1))), sample_rate)
             return (fallback,)
 
 
@@ -211,15 +214,16 @@ class BandLimitedNoiseNode:
             duration, sample_rate, amplitude, channels = validate_audio_params(duration, sample_rate, amplitude, 1)
             if high_frequency <= low_frequency: high_frequency = low_frequency + 100.0
             
-            result = generate_bandlimited_noise(
-                duration=duration, low_frequency=low_frequency, high_frequency=high_frequency,
+            result_np = generate_bandlimited_noise(
+                duration=duration, low_freq=low_frequency, high_freq=high_frequency,
                 sample_rate=sample_rate, amplitude=amplitude, seed=seed, channels=1
             )
+            result = numpy_to_comfy_audio(result_np, sample_rate)
             return (result,)
             
         except Exception as e:
             print(f"❌ Error in band-limited generation: {str(e)}")
-            fallback = create_audio_dict(np.zeros((1, int(sample_rate * 0.1))), sample_rate)
+            fallback = numpy_to_comfy_audio(np.zeros((1, int(sample_rate * 0.1))), sample_rate)
             return (fallback,)
 
 
