@@ -1027,124 +1027,6 @@ class AudioSaveNode:
             fallback_path = filepath if filepath is not None else f"Error: Could not save audio - {str(e)}"
             return (audio, fallback_path)
 
-class AudioPreviewNode:
-    """Instant audio preview in ComfyUI interface.
-    
-    Creates temporary audio files for ComfyUI's preview system, enabling
-    instant playback without external file management.
-    """
-    
-    @classmethod
-    def INPUT_TYPES(cls):
-        return {
-            "required": {
-                "audio": (AUDIO_TYPE, {
-                    "tooltip": "Audio data to preview (connects to any NoiseGen audio output)"
-                }),
-                "filename_prefix": ("STRING", {
-                    "default": "Preview_",
-                    "tooltip": "Prefix for temporary preview file"
-                }),
-            }
-        }
-    
-    RETURN_TYPES = ()
-    RETURN_NAMES = ()
-    FUNCTION = "preview_audio"
-    CATEGORY = "🎵 NoiseGen/Utils"
-    OUTPUT_NODE = True
-    DESCRIPTION = "Preview audio directly in ComfyUI interface with instant playback controls"
-    
-    def preview_audio(self, audio, filename_prefix="Preview_"):
-        """Preview audio in ComfyUI interface with temporary file."""
-        try:
-            import time
-            import torch
-            
-            # Use ComfyUI's folder_paths if available, fallback to temp
-            if folder_paths is not None:
-                temp_dir = folder_paths.get_temp_directory()
-            else:
-                import tempfile
-                temp_dir = tempfile.gettempdir()
-            
-            # Extract audio data
-            waveform = audio["waveform"]
-            sample_rate = audio["sample_rate"]
-            
-            # Convert to CPU if on GPU
-            if hasattr(waveform, 'cpu'):
-                waveform = waveform.cpu()
-            
-            # Ensure waveform is a torch tensor
-            if not isinstance(waveform, torch.Tensor):
-                waveform = torch.from_numpy(waveform).float()
-            
-            # Ensure proper format for torchaudio.save [channels, samples]
-            if waveform.ndim == 1:
-                waveform = waveform.unsqueeze(0)
-            elif waveform.ndim > 2:
-                waveform = waveform.view(waveform.size(0), -1)
-            
-            waveform = waveform.float()
-            
-            # Create temporary preview file with unique name
-            timestamp = int(time.time() * 1000)
-            temp_filename = f"NoiseGen_{filename_prefix}{timestamp}.wav"
-            temp_filepath = os.path.join(temp_dir, temp_filename)
-            
-            # Ensure temp directory exists
-            os.makedirs(temp_dir, exist_ok=True)
-            
-            # Save to temporary file for preview (force WAV format for compatibility)
-            torchaudio.save(temp_filepath, waveform, sample_rate, format="wav")
-            
-            # Verify file was created successfully
-            if not os.path.exists(temp_filepath):
-                raise FileNotFoundError(f"Failed to create preview file: {temp_filepath}")
-            
-            file_size = os.path.getsize(temp_filepath)
-            if file_size == 0:
-                raise ValueError(f"Preview file is empty: {temp_filepath}")
-            
-            # Enhanced preview information for console
-            channels, samples = waveform.shape
-            duration = samples / sample_rate
-            
-            print(f"🎧 Audio preview ready: {temp_filename}")
-            print(f"   📊 Duration: {duration:.2f}s, Sample Rate: {sample_rate}Hz, Channels: {channels}")
-            print(f"   📁 File: {temp_filepath} ({file_size} bytes)")
-            
-            # Get metadata if available
-            if isinstance(audio, dict) and "_metadata" in audio:
-                metadata = audio["_metadata"]
-                if "noise_type" in metadata:
-                    print(f"   🎼 Type: {metadata['noise_type'].title()} Noise")
-            
-            # Return in ComfyUI's expected UI format
-            # Try multiple formats to ensure compatibility
-            result = {
-                "ui": {
-                    "audio": [temp_filename],
-                    "text": [f"🎧 {temp_filename} ({duration:.1f}s, {sample_rate}Hz)"]
-                }
-            }
-            
-            return result
-            
-        except Exception as e:
-            print(f"❌ Error creating audio preview: {str(e)}")
-            import traceback
-            traceback.print_exc()
-            
-            # Return empty but valid UI structure on error
-            return {
-                "ui": {
-                    "audio": [],
-                    "text": [f"❌ Preview failed: {str(e)}"]
-                }
-            }
-
 # Node mappings for ComfyUI - OPTIMIZED UX
 NODE_CLASS_MAPPINGS = {
     # MAIN NODES - Clean and focused
@@ -1153,7 +1035,6 @@ NODE_CLASS_MAPPINGS = {
     "BandLimitedNoise": BandLimitedNoiseNode,   # Unique parameters (freq filtering)
     "ChaosNoiseMix": ChaosNoiseMixNode,         # Advanced mixing
     "AudioSave": AudioSaveNode,                 # Utility
-    "AudioPreview": AudioPreviewNode,           # Preview playback
     
     # LEGACY NODES - Hidden from main menu, kept for compatibility
     # Users can still access these if needed, but they're not promoted
@@ -1171,7 +1052,6 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "BandLimitedNoise": "📻 Band-Limited Noise", 
     "ChaosNoiseMix": "🔥 Chaos Noise Mix",
     "AudioSave": "💾 Save Audio",
-    "AudioPreview": "🎧 Preview Audio",
     
     # LEGACY - Hidden with underscore prefix
     "_WhiteNoise": "⚪ White Noise (Legacy)",

@@ -85,12 +85,6 @@ pip install -r requirements.txt
 
 ### **NoiseGen/Utils**
 - **Save Audio** - Export to WAV/FLAC/MP3
-- **Preview Audio** - Instant playback in ComfyUI interface
-
----
-
-## NEW: Instant Audio Preview
-🎧 **Listen to your noise immediately in ComfyUI!** No more opening external files - just connect the new **"Preview Audio"** node and get instant playback with play/pause controls right in the interface.
 
 ---
 
@@ -149,9 +143,8 @@ pip install -r requirements.txt
 ### **Simple Workflow**
 1. Add `Noise Generator` node
 2. Set noise type, duration, and amplitude  
-3. Connect to `Preview Audio` node for instant listening
-4. Optionally connect to `Save Audio` for file export
-5. Run workflow and listen immediately!
+3. Connect to `Save Audio` node for file export
+4. Run workflow and check ComfyUI/output/audio/ for your file!
 
 ### **Complex Harsh Noise**
 1. Create multiple noise sources (white, brown, perlin)
