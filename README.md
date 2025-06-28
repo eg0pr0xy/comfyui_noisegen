@@ -21,7 +21,13 @@ ComfyUI-NoiseGen is a comprehensive audio generation and processing suite for Co
 
 ### 🔧 **Utility Nodes**
 - **AudioMixer** - Multi-channel mixing with panning
-- **AudioSave** - Export to WAV/FLAC/MP3
+- **AudioSave** - Enhanced export with waveform preview & playback controls
+
+### 📁 **External Audio Support** *(NEW)*
+- **✅ VHS_LoadAudio Compatible** - Works seamlessly with VideoHelperSuite 
+- **🔄 Direct Processing** - No adapters needed, audio formats are compatible
+- **🎛️ Complete Pipeline** - External audio → Any NoiseGen processor → Enhanced Save
+- **📊 Enhanced AudioSave** - Waveform visualization, metadata display, preview controls
 
 ---
 
@@ -184,6 +190,48 @@ HarshFilter (morph, fast LFO) →
 SpectralProcessor (gate, rhythmic) → 
 AudioSave  
 ```
+
+### **🎵 External Audio Processing** *(NEW)*
+```
+VHS_LoadAudio (your WAV/MP3/FLAC file) → 
+HarshFilter (comb filter, high resonance) → 
+MultiDistortion (destruction mode) → 
+SpectralProcessor (chaos, high intensity) → 
+AudioSave (with waveform preview)
+```
+
+---
+
+## 📁 **Working with External Audio Files**
+
+ComfyUI-NoiseGen now **works seamlessly** with external audio files! No adapters or converters needed.
+
+### **✅ Supported Formats**
+Load any of these formats using **VHS_LoadAudio** from VideoHelperSuite:
+- **WAV** - Uncompressed (best quality)
+- **MP3** - Compressed (smaller files)  
+- **FLAC** - Lossless compression
+- **OGG** - Open source format
+- **M4A** - Apple format
+
+### **🚀 Quick Start**
+1. **Install VideoHelperSuite** (if not already installed)
+2. **Add VHS_LoadAudio node** to your workflow
+3. **Load your audio file** (drag & drop or browse)
+4. **Connect directly** to any NoiseGen processing node
+5. **Process and save** with enhanced AudioSave
+
+### **🎛️ Example Workflows**
+- **Track Destruction**: Load your favorite song → MultiDistortion (destruction) → AudioSave
+- **Ambient Granularization**: Load field recording → HarshFilter (self-oscillation) → SpectralProcessor (freeze)
+- **Harsh Noise Remix**: Load any audio → FeedbackProcessor (runaway) → ChaosNoiseMix
+
+### **💾 Enhanced AudioSave Features**
+The new AudioSave node includes:
+- **🎵 Waveform Visualization** - See your audio before exporting
+- **📊 Metadata Display** - Duration, sample rate, channels, file size
+- **🔊 Preview Integration** - Built-in playback controls
+- **📁 Multiple Formats** - WAV, FLAC, MP3 (coming soon)
 
 ---
 
