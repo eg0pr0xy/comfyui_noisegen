@@ -82,21 +82,9 @@ class NoiseGeneratorNode:
     
     @classmethod
     def VALIDATE_INPUTS(cls, **kwargs):
-        """Validate inputs and fix legacy workflow parameter issues."""
-        # Handle legacy parameter swapping
-        channels = kwargs.get("channels")
-        stereo_mode = kwargs.get("stereo_mode") 
-        
-        # Detect and fix parameter swapping
-        if isinstance(channels, str) and channels in ["independent", "correlated", "decorrelated"]:
-            # Parameters are swapped - fix them
-            if isinstance(stereo_mode, (int, str)) and str(stereo_mode) in ["1", "2"]:
-                # Return corrected parameters
-                corrected_kwargs = kwargs.copy()
-                corrected_kwargs["channels"] = int(stereo_mode)
-                corrected_kwargs["stereo_mode"] = channels
-                return corrected_kwargs
-        
+        """Validate inputs for basic type checking."""
+        # ComfyUI VALIDATE_INPUTS should only return True or error strings
+        # Parameter correction is handled in generate_noise method
         return True
     
     def generate_noise(self, noise_type, duration, sample_rate, amplitude, seed, channels, 
