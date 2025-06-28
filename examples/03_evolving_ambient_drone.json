@@ -1,0 +1,148 @@
+{
+  "last_node_id": 5,
+  "last_link_id": 4,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "🎵 PerlinNoise",
+      "pos": [100, 100],
+      "size": {"0": 315, "1": 650},
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "outputs": [
+        {"name": "AUDIO", "type": "AUDIO", "links": [1]}
+      ],
+      "properties": {"Node name for S&R": "🎵 PerlinNoise"},
+      "widgets_values": [
+        44100,
+        15.0,
+        -12.0,
+        0.01,
+        4,
+        0.5,
+        2.0,
+        42,
+        0.1,
+        "none",
+        false
+      ]
+    },
+    {
+      "id": 2,
+      "type": "🎵 HarshFilter",
+      "pos": [500, 100],
+      "size": {"0": 315, "1": 858},
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {"name": "audio", "type": "AUDIO", "link": 1}
+      ],
+      "outputs": [
+        {"name": "AUDIO", "type": "AUDIO", "links": [2]}
+      ],
+      "properties": {"Node name for S&R": "🎵 HarshFilter"},
+      "widgets_values": [
+        "lowpass",
+        400.0,
+        0.98,
+        "clean",
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        "sine",
+        0.0,
+        0.0,
+        0.1,
+        false
+      ]
+    },
+    {
+      "id": 3,
+      "type": "🎵 FeedbackProcessor",
+      "pos": [900, 100],
+      "size": {"0": 315, "1": 650},
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {"name": "audio", "type": "AUDIO", "link": 2}
+      ],
+      "outputs": [
+        {"name": "AUDIO", "type": "AUDIO", "links": [3]}
+      ],
+      "properties": {"Node name for S&R": "🎵 FeedbackProcessor"},
+      "widgets_values": [
+        "filtered",
+        0.6,
+        2.0,
+        "lowpass",
+        800.0,
+        0.3,
+        0.1,
+        0.5,
+        0.0,
+        -18.0,
+        false
+      ]
+    },
+    {
+      "id": 4,
+      "type": "🎵 SpectralProcessor",
+      "pos": [1300, 100],
+      "size": {"0": 315, "1": 858},
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {"name": "audio", "type": "AUDIO", "link": 3}
+      ],
+      "outputs": [
+        {"name": "AUDIO", "type": "AUDIO", "links": [4]}
+      ],
+      "properties": {"Node name for S&R": "🎵 SpectralProcessor"},
+      "widgets_values": [
+        "freeze",
+        2048,
+        0.75,
+        "hann",
+        0.3,
+        80.0,
+        2000.0,
+        0.0,
+        0.3,
+        0.1,
+        false
+      ]
+    },
+    {
+      "id": 5,
+      "type": "🎵 AudioSave",
+      "pos": [1700, 100],
+      "size": {"0": 315, "1": 334},
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {"name": "audio", "type": "AUDIO", "link": 4}
+      ],
+      "properties": {"Node name for S&R": "🎵 AudioSave"},
+      "widgets_values": [
+        "evolving_ambient_drone",
+        "wav"
+      ]
+    }
+  ],
+  "links": [
+    [1, 1, 0, 2, 0, "AUDIO"],
+    [2, 2, 0, 3, 0, "AUDIO"],
+    [3, 3, 0, 4, 0, "AUDIO"],
+    [4, 4, 0, 5, 0, "AUDIO"]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {},
+  "version": 0.4
+} 

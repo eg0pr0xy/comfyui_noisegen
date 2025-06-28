@@ -1,0 +1,180 @@
+{
+  "last_node_id": 8,
+  "last_link_id": 4,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "🎵 NoiseGenerator",
+      "pos": [100, 100],
+      "size": {"0": 315, "1": 514},
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "outputs": [
+        {"name": "AUDIO", "type": "AUDIO", "links": [1]}
+      ],
+      "properties": {"Node name for S&R": "🎵 NoiseGenerator"},
+      "widgets_values": [
+        "white",
+        44100,
+        5.0,
+        -12.0,
+        0.0,
+        1.0,
+        0.1,
+        42,
+        false
+      ]
+    },
+    {
+      "id": 2,
+      "type": "🎵 AudioSave",
+      "pos": [500, 100],
+      "size": {"0": 315, "1": 334},
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {"name": "audio", "type": "AUDIO", "link": 1}
+      ],
+      "properties": {"Node name for S&R": "🎵 AudioSave"},
+      "widgets_values": [
+        "white_noise_example",
+        "wav"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "🎵 NoiseGenerator", 
+      "pos": [100, 700],
+      "size": {"0": 315, "1": 514},
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "outputs": [
+        {"name": "AUDIO", "type": "AUDIO", "links": [2]}
+      ],
+      "properties": {"Node name for S&R": "🎵 NoiseGenerator"},
+      "widgets_values": [
+        "pink",
+        44100,
+        5.0,
+        -12.0,
+        0.0,
+        1.0,
+        0.1,
+        42,
+        false
+      ]
+    },
+    {
+      "id": 4,
+      "type": "🎵 AudioSave",
+      "pos": [500, 700],
+      "size": {"0": 315, "1": 334},
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {"name": "audio", "type": "AUDIO", "link": 2}
+      ],
+      "properties": {"Node name for S&R": "🎵 AudioSave"},
+      "widgets_values": [
+        "pink_noise_example",
+        "wav"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "🎵 NoiseGenerator",
+      "pos": [100, 1300],
+      "size": {"0": 315, "1": 514},
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "outputs": [
+        {"name": "AUDIO", "type": "AUDIO", "links": [3]}
+      ],
+      "properties": {"Node name for S&R": "🎵 NoiseGenerator"},
+      "widgets_values": [
+        "brown",
+        44100,
+        5.0,
+        -12.0,
+        0.0,
+        1.0,
+        0.1,
+        42,
+        false
+      ]
+    },
+    {
+      "id": 6,
+      "type": "🎵 AudioSave",
+      "pos": [500, 1300],
+      "size": {"0": 315, "1": 334},
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {"name": "audio", "type": "AUDIO", "link": 3}
+      ],
+      "properties": {"Node name for S&R": "🎵 AudioSave"},
+      "widgets_values": [
+        "brown_noise_example",
+        "wav"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "🎵 NoiseGenerator",
+      "pos": [100, 1900],
+      "size": {"0": 315, "1": 514},
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "outputs": [
+        {"name": "AUDIO", "type": "AUDIO", "links": [4]}
+      ],
+      "properties": {"Node name for S&R": "🎵 NoiseGenerator"},
+      "widgets_values": [
+        "crackle",
+        44100,
+        5.0,
+        -12.0,
+        0.0,
+        1.0,
+        0.1,
+        42,
+        false
+      ]
+    },
+    {
+      "id": 8,
+      "type": "🎵 AudioSave",
+      "pos": [500, 1900],
+      "size": {"0": 315, "1": 334},
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {"name": "audio", "type": "AUDIO", "link": 4}
+      ],
+      "properties": {"Node name for S&R": "🎵 AudioSave"},
+      "widgets_values": [
+        "crackle_noise_example",
+        "wav"
+      ]
+    }
+  ],
+  "links": [
+    [1, 1, 0, 2, 0, "AUDIO"],
+    [2, 3, 0, 4, 0, "AUDIO"], 
+    [3, 5, 0, 6, 0, "AUDIO"],
+    [4, 7, 0, 8, 0, "AUDIO"]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {},
+  "version": 0.4
+} 
