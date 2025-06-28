@@ -960,6 +960,9 @@ class AudioMixerNode:
                 "audio_c": ("AUDIO", {"tooltip": "Third audio input"}),
                 "gain_c": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 2.0, "step": 0.01}),
                 "pan_c": ("FLOAT", {"default": 0.0, "min": -1.0, "max": 1.0, "step": 0.01}),
+                "audio_d": ("AUDIO", {"tooltip": "Fourth audio input"}),
+                "gain_d": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 2.0, "step": 0.01}),
+                "pan_d": ("FLOAT", {"default": 0.0, "min": -1.0, "max": 1.0, "step": 0.01}),
                 "master_gain": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 2.0, "step": 0.01}),
             }
         }
@@ -968,10 +971,10 @@ class AudioMixerNode:
     RETURN_NAMES = ("mixed_audio",)
     FUNCTION = "mix_audio"
     CATEGORY = "🎵 NoiseGen/Mixing"
-    DESCRIPTION = "Professional audio mixer with gain and pan controls for up to 3 inputs"
+    DESCRIPTION = "Professional audio mixer with gain and pan controls for up to 4 inputs"
     
     def mix_audio(self, audio_a, gain_a, pan_a, audio_b=None, gain_b=1.0, pan_b=0.0, 
-                  audio_c=None, gain_c=1.0, pan_c=0.0, master_gain=1.0):
+                  audio_c=None, gain_c=1.0, pan_c=0.0, audio_d=None, gain_d=1.0, pan_d=0.0, master_gain=1.0):
         try:
             # Get first audio
             waveform_a = audio_a["waveform"]
@@ -1025,6 +1028,25 @@ class AudioMixerNode:
                 
                 # Add with gain
                 mixed += audio_c_np * gain_c
+            
+            # Add fourth audio if provided
+            if audio_d is not None:
+                waveform_d = audio_d["waveform"]
+                if hasattr(waveform_d, 'cpu'):
+                    audio_d_np = waveform_d.cpu().numpy()
+                else:
+                    audio_d_np = waveform_d
+                
+                if audio_d_np.ndim == 1:
+                    audio_d_np = audio_d_np.reshape(1, -1)
+                
+                # Match lengths with existing mixed audio
+                min_length = min(mixed.shape[1], audio_d_np.shape[1])
+                mixed = mixed[:, :min_length]
+                audio_d_np = audio_d_np[:, :min_length]
+                
+                # Add with gain
+                mixed += audio_d_np * gain_d
             
             # Apply master gain
             mixed *= master_gain
