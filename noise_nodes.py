@@ -80,15 +80,53 @@ class NoiseGeneratorNode:
     CATEGORY = "🎵 NoiseGen"
     DESCRIPTION = "Universal noise generator with 7 scientifically-accurate noise types"
     
+    @classmethod
+    def VALIDATE_INPUTS(cls, **kwargs):
+        """Validate inputs and fix legacy workflow parameter issues."""
+        # Handle legacy parameter swapping
+        channels = kwargs.get("channels")
+        stereo_mode = kwargs.get("stereo_mode") 
+        
+        # Detect and fix parameter swapping
+        if isinstance(channels, str) and channels in ["independent", "correlated", "decorrelated"]:
+            # Parameters are swapped - fix them
+            if isinstance(stereo_mode, (int, str)) and str(stereo_mode) in ["1", "2"]:
+                # Return corrected parameters
+                corrected_kwargs = kwargs.copy()
+                corrected_kwargs["channels"] = int(stereo_mode)
+                corrected_kwargs["stereo_mode"] = channels
+                return corrected_kwargs
+        
+        return True
+    
     def generate_noise(self, noise_type, duration, sample_rate, amplitude, seed, channels, 
                       stereo_mode, stereo_width, frequency=1.0, low_freq=100.0, high_freq=8000.0, octaves=4):
         try:
-            # Parameter validation and fixing
+            # Robust parameter type fixing for legacy workflows
+            # Detect and fix parameter swapping/type issues
+            
+            # Fix channels parameter
             if isinstance(channels, str):
-                channels = {"independent": 1, "correlated": 2, "decorrelated": 2}.get(channels, 1)
-            if stereo_mode not in ["independent", "correlated", "decorrelated"]:
+                if channels in ["independent", "correlated", "decorrelated"]:
+                    # This is actually stereo_mode, fix the swap
+                    original_channels = channels
+                    channels = int(stereo_mode) if isinstance(stereo_mode, (int, str)) and str(stereo_mode) in ["1", "2"] else 1
+                    stereo_mode = original_channels
+                else:
+                    # Convert string channels to int
+                    channels = int(channels) if channels in ["1", "2"] else 1
+            else:
+                # Ensure channels is valid integer
+                channels = int(channels) if channels in [1, 2] else 1
+            
+            # Fix stereo_mode parameter  
+            if not isinstance(stereo_mode, str):
+                # Convert numeric stereo_mode to string
                 stereo_mode = "independent"
-            channels = 1 if channels < 1.5 else 2
+            elif stereo_mode not in ["independent", "correlated", "decorrelated"]:
+                stereo_mode = "independent"
+            
+            # Ensure other parameters are properly typed
             low_freq, high_freq = max(1.0, float(low_freq)), max(low_freq + 1.0, float(high_freq))
             
             duration, sample_rate, amplitude, channels = validate_audio_params(duration, sample_rate, amplitude, channels)
