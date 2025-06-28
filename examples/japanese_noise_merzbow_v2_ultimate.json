@@ -1,59 +1,72 @@
 {
-  "last_node_id": 25,
-  "last_link_id": 35,
+  "last_node_id": 26,
+  "last_link_id": 27,
   "nodes": [
+    {
+      "id": 26,
+      "type": "Note",
+      "pos": [50, -200],
+      "size": {"0": 800, "1": 180},
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "title": "WORKFLOW TITLE",
+      "properties": {"text": "███╗   ███╗███████╗██████╗ ███████╗██████╗  ██████╗ ██╗    ██╗\n████╗ ████║██╔════╝██╔══██╗╚══███╔╝██╔══██╗██╔═══██╗██║    ██║\n██╔████╔██║█████╗  ██████╔╝  ███╔╝ ██████╔╝██║   ██║██║ █╗ ██║\n██║╚██╔╝██║██╔══╝  ██╔══██╗ ███╔╝  ██╔══██╗██║   ██║██║███╗██║\n██║ ╚═╝ ██║███████╗██║  ██║███████╗██████╔╝╚██████╔╝╚███╔███╔╝\n╚═╝     ╚═╝╚══════╝╚═╝  ╚═╝╚══════╝╚═════╝  ╚═════╝  ╚══╝╚══╝ \n                                                               \n██╗   ██╗██████╗       ██╗   ██╗██╗  ████████╗██╗███╗   ███╗ \n██║   ██║╚════██╗      ██║   ██║██║  ╚══██╔══╝██║████╗ ████║ \n██║   ██║ █████╔╝█████╗██║   ██║██║     ██║   ██║██╔████╔██║ \n╚██╗ ██╔╝██╔═══╝ ╚════╝██║   ██║██║     ██║   ██║██║╚██╔╝██║ \n ╚████╔╝ ███████╗      ╚██████╔╝███████╗██║   ██║██║ ╚═╝ ██║ \n  ╚═══╝  ╚══════╝       ╚═════╝ ╚══════╝╚═╝   ╚═╝╚═╝     ╚═╝ \n                                                               \n🔥 30-SECOND SONIC ANNIHILATION • ALL 10 NODES • EXTREME CONFIG 🔥"},
+      "color": "#000000",
+      "bgcolor": "#ffffff"
+    },
     {
       "id": 1,
       "type": "NoiseGenerator",
-      "pos": [50, 50],
-      "size": {"0": 315, "1": 426},
+      "pos": [50, 100],
+      "size": {"0": 315, "1": 400},
       "flags": {},
-      "order": 0,
+      "order": 1,
       "mode": 0,
       "outputs": [
         {"name": "audio", "type": "AUDIO", "links": [1], "shape": 3}
       ],
       "title": "🔥 FOUNDATION: WHITE BRUTALITY",
       "properties": {"Node name for S&R": "NoiseGenerator"},
-      "widgets_values": ["white", 30.0, 48000, 0.95, 666, 2, "independent", 2.0, 1.0, 100.0, 8000.0, 4]
+      "widgets_values": ["white", 30.0, 48000, 0.8, 666, 2, "independent", 1.5]
     },
     {
       "id": 2,
       "type": "NoiseGenerator",
-      "pos": [50, 520],
-      "size": {"0": 315, "1": 426},
+      "pos": [50, 550],
+      "size": {"0": 315, "1": 400},
       "flags": {},
-      "order": 1,
+      "order": 2,
       "mode": 0,
       "outputs": [
         {"name": "audio", "type": "AUDIO", "links": [2], "shape": 3}
       ],
       "title": "💀 FOUNDATION: BROWN DESTRUCTION",
       "properties": {"Node name for S&R": "NoiseGenerator"},
-      "widgets_values": ["brown", 30.0, 48000, 0.9, 1337, 2, "decorrelated", 1.8, 1.0, 50.0, 12000.0, 6]
+      "widgets_values": ["brown", 30.0, 48000, 0.7, 1337, 2, "decorrelated", 1.3]
     },
     {
       "id": 3,
       "type": "NoiseGenerator",
-      "pos": [50, 990],
-      "size": {"0": 315, "1": 426},
+      "pos": [50, 1000],
+      "size": {"0": 315, "1": 400},
       "flags": {},
-      "order": 2,
+      "order": 3,
       "mode": 0,
       "outputs": [
         {"name": "audio", "type": "AUDIO", "links": [3], "shape": 3}
       ],
       "title": "⚡ FOUNDATION: VIOLET ULTRASONICS",
       "properties": {"Node name for S&R": "NoiseGenerator"},
-      "widgets_values": ["violet", 30.0, 48000, 0.85, 2049, 2, "correlated", 1.6, 1.0, 200.0, 16000.0, 4]
+      "widgets_values": ["violet", 30.0, 48000, 0.6, 2049, 2, "correlated", 1.2]
     },
     {
       "id": 4,
       "type": "PerlinNoise",
-      "pos": [50, 1460],
-      "size": {"0": 315, "1": 246},
+      "pos": [50, 1450],
+      "size": {"0": 315, "1": 300},
       "flags": {},
-      "order": 3,
+      "order": 4,
       "mode": 0,
       "outputs": [
         {"name": "audio", "type": "AUDIO", "links": [4], "shape": 3}
@@ -65,10 +78,10 @@
     {
       "id": 5,
       "type": "FeedbackProcessor",
-      "pos": [400, 50],
-      "size": {"0": 315, "1": 486},
+      "pos": [420, 100],
+      "size": {"0": 315, "1": 480},
       "flags": {},
-      "order": 4,
+      "order": 5,
       "mode": 0,
       "inputs": [
         {"name": "audio", "type": "AUDIO", "link": 1}
@@ -83,10 +96,10 @@
     {
       "id": 6,
       "type": "HarshFilter",
-      "pos": [400, 580],
-      "size": {"0": 315, "1": 446},
+      "pos": [420, 620],
+      "size": {"0": 315, "1": 440},
       "flags": {},
-      "order": 5,
+      "order": 6,
       "mode": 0,
       "inputs": [
         {"name": "audio", "type": "AUDIO", "link": 2}
@@ -96,15 +109,15 @@
       ],
       "title": "🎛️ STAGE 1: FILTER DESTRUCTION",
       "properties": {"Node name for S&R": "HarshFilter"},
-      "widgets_values": ["chaos", 2000.0, 0.95, 4.0, "chaos", 2.0, 0.8, 25.0, 0.9, 1.9, 1.0, 0.7]
+      "widgets_values": ["lowpass", 1500.0, 0.7, 2.0, "tube", 1.5, 0.2, 5.0, 0.3, 1.2, 1.0, 0.2]
     },
     {
       "id": 7,
       "type": "MultiDistortion",
-      "pos": [400, 1070],
-      "size": {"0": 315, "1": 326},
+      "pos": [420, 1100],
+      "size": {"0": 315, "1": 320},
       "flags": {},
-      "order": 6,
+      "order": 7,
       "mode": 0,
       "inputs": [
         {"name": "audio", "type": "AUDIO", "link": 3}
@@ -114,15 +127,15 @@
       ],
       "title": "🎸 STAGE 1: DESTRUCTION ENGINE",
       "properties": {"Node name for S&R": "MultiDistortion"},
-      "widgets_values": ["destruction", 8.0, 0.6, 1.0, 4, 0.8, 1.5, 1.0]
+      "widgets_values": ["fuzz", 4.0, 0.6, 1.0, 2, 0.3, 1.0]
     },
     {
       "id": 8,
       "type": "SpectralProcessor",
-      "pos": [400, 1440],
-      "size": {"0": 315, "1": 386},
+      "pos": [420, 1460],
+      "size": {"0": 315, "1": 380},
       "flags": {},
-      "order": 7,
+      "order": 8,
       "mode": 0,
       "inputs": [
         {"name": "audio", "type": "AUDIO", "link": 4}
@@ -137,10 +150,10 @@
     {
       "id": 9,
       "type": "AudioMixer",
-      "pos": [750, 400],
-      "size": {"0": 315, "1": 466},
+      "pos": [790, 400],
+      "size": {"0": 315, "1": 500},
       "flags": {},
-      "order": 8,
+      "order": 9,
       "mode": 0,
       "inputs": [
         {"name": "audio_a", "type": "AUDIO", "link": 5},
@@ -153,30 +166,30 @@
       ],
       "title": "🎛️ STAGE 2: 4-WAY DESTRUCTION MIX",
       "properties": {"Node name for S&R": "AudioMixer"},
-      "widgets_values": [0.9, -0.7, 1.2, 0.3, 0.8, 0.8, 0.6, -0.5, 1.0, 0.5, 1.4]
+      "widgets_values": [0.7, -0.5, 0.8, 0.3, 0.6, 0.5, 0.5, -0.3, 1.0]
     },
     {
       "id": 10,
       "type": "BandLimitedNoise",
-      "pos": [750, 50],
-      "size": {"0": 315, "1": 226},
+      "pos": [790, 100],
+      "size": {"0": 315, "1": 250},
       "flags": {},
-      "order": 9,
+      "order": 10,
       "mode": 0,
       "outputs": [
-        {"name": "audio", "type": "AUDIO", "links": [11], "shape": 3}
+        {"name": "audio", "type": "AUDIO", "links": [11, 24], "shape": 3}
       ],
       "title": "📡 INJECT: FREQUENCY TERRORISM",
       "properties": {"Node name for S&R": "BandLimitedNoise"},
-      "widgets_values": [30.0, 30.0, 300.0, 48000, 1.2, 1984]
+      "widgets_values": [30.0, 50.0, 500.0, 48000, 0.8, 1984]
     },
     {
       "id": 11,
       "type": "ChaosNoiseMix",
-      "pos": [1100, 200],
-      "size": {"0": 315, "1": 386},
+      "pos": [1160, 250],
+      "size": {"0": 315, "1": 380},
       "flags": {},
-      "order": 10,
+      "order": 11,
       "mode": 0,
       "inputs": [
         {"name": "noise_a", "type": "AUDIO", "link": 9},
@@ -187,15 +200,15 @@
       ],
       "title": "🌪️ STAGE 2: CHAOS INJECTION",
       "properties": {"Node name for S&R": "ChaosNoiseMix"},
-      "widgets_values": ["chaos", 0.3, 1.0, 1.0, 1.8, 0.8]
+      "widgets_values": ["add", 0.3, 0.5, 0.6, 1.0]
     },
     {
       "id": 12,
       "type": "FeedbackProcessor",
-      "pos": [1100, 630],
-      "size": {"0": 315, "1": 486},
+      "pos": [1160, 680],
+      "size": {"0": 315, "1": 480},
       "flags": {},
-      "order": 11,
+      "order": 12,
       "mode": 0,
       "inputs": [
         {"name": "audio", "type": "AUDIO", "link": 12}
@@ -203,17 +216,17 @@
       "outputs": [
         {"name": "feedback_audio", "type": "AUDIO", "links": [13], "shape": 3}
       ],
-      "title": "🔄 STAGE 2: RECURSIVE MADNESS",
+      "title": "🔄 STAGE 3: RECURSIVE MADNESS",
       "properties": {"Node name for S&R": "FeedbackProcessor"},
-      "widgets_values": ["complex", 0.75, 12.0, "comb", 8000.0, 0.9, 0.8, 15.0, 0.8, "square", 1.9, 0.8]
+      "widgets_values": ["filtered", 0.5, 8.0, "highpass", 300.0, 0.4, 0.2, 1.0, 0.2, "sine", 1.0, 0.7]
     },
     {
       "id": 13,
       "type": "HarshFilter",
-      "pos": [1450, 200],
-      "size": {"0": 315, "1": 446},
+      "pos": [1530, 250],
+      "size": {"0": 315, "1": 440},
       "flags": {},
-      "order": 12,
+      "order": 13,
       "mode": 0,
       "inputs": [
         {"name": "audio", "type": "AUDIO", "link": 13}
@@ -223,15 +236,15 @@
       ],
       "title": "🎛️ STAGE 3: FILTER OBLITERATION",
       "properties": {"Node name for S&R": "HarshFilter"},
-      "widgets_values": ["morph", 1200.0, 0.98, 5.0, "digital", 3.0, 1.0, 40.0, 1.0, 2.0, 1.0, 0.9]
+      "widgets_values": ["bandpass", 800.0, 0.6, 1.5, "transistor", 1.0, 0.3, 2.0, 0.2, 1.0, 1.0, 0.3]
     },
     {
       "id": 14,
       "type": "MultiDistortion",
-      "pos": [1450, 690],
-      "size": {"0": 315, "1": 326},
+      "pos": [1530, 740],
+      "size": {"0": 315, "1": 320},
       "flags": {},
-      "order": 13,
+      "order": 14,
       "mode": 0,
       "inputs": [
         {"name": "audio", "type": "AUDIO", "link": 14}
@@ -241,15 +254,15 @@
       ],
       "title": "🎸 STAGE 3: FINAL DESTRUCTION",
       "properties": {"Node name for S&R": "MultiDistortion"},
-      "widgets_values": ["foldback", 10.0, 0.5, 1.0, 4, 1.0, 2.0, 1.0]
+      "widgets_values": ["tube", 3.0, 0.7, 1.0, 2, 0.2, 1.0]
     },
     {
       "id": 15,
       "type": "SpectralProcessor",
-      "pos": [1800, 400],
-      "size": {"0": 315, "1": 386},
+      "pos": [1900, 450],
+      "size": {"0": 315, "1": 380},
       "flags": {},
-      "order": 14,
+      "order": 15,
       "mode": 0,
       "inputs": [
         {"name": "audio", "type": "AUDIO", "link": 15}
@@ -257,36 +270,36 @@
       "outputs": [
         {"name": "processed_audio", "type": "AUDIO", "links": [16], "shape": 3}
       ],
-      "title": "🔬 STAGE 3: SPECTRAL DEMOLITION",
+      "title": "🔬 STAGE 4: SPECTRAL DEMOLITION",
       "properties": {"Node name for S&R": "SpectralProcessor"},
-      "widgets_values": ["freeze", "8192", 0.9, "blackman", 60.0, 20000.0, 2.0, 1.8, 1.0, 1.0]
+      "widgets_values": ["compress", "2048", 0.75, "hann", 100.0, 10000.0, 0.7, 1.0, 1.0, 0.0]
     },
     {
       "id": 16,
       "type": "ChaosNoiseMix",
-      "pos": [2150, 200],
-      "size": {"0": 315, "1": 386},
+      "pos": [2270, 250],
+      "size": {"0": 315, "1": 380},
       "flags": {},
-      "order": 15,
+      "order": 16,
       "mode": 0,
       "inputs": [
         {"name": "noise_a", "type": "AUDIO", "link": 16},
         {"name": "noise_b", "type": "AUDIO", "link": 10}
       ],
       "outputs": [
-        {"name": "chaos_audio", "type": "AUDIO", "links": [17], "shape": 3}
+        {"name": "chaos_audio", "type": "AUDIO", "links": [17, 25], "shape": 3}
       ],
-      "title": "🌪️ STAGE 4: FINAL CHAOS MERGE",
+      "title": "🌪️ STAGE 5: FINAL CHAOS MERGE",
       "properties": {"Node name for S&R": "ChaosNoiseMix"},
-      "widgets_values": ["ring_mod", 0.6, 1.0, 1.0, 2.0, 0.9]
+      "widgets_values": ["multiply", 0.4, 0.6, 0.5, 1.0]
     },
     {
       "id": 17,
       "type": "FeedbackProcessor",
-      "pos": [2150, 630],
-      "size": {"0": 315, "1": 486},
+      "pos": [2270, 680],
+      "size": {"0": 315, "1": 480},
       "flags": {},
-      "order": 16,
+      "order": 17,
       "mode": 0,
       "inputs": [
         {"name": "audio", "type": "AUDIO", "link": 17}
@@ -294,17 +307,17 @@
       "outputs": [
         {"name": "feedback_audio", "type": "AUDIO", "links": [18], "shape": 3}
       ],
-      "title": "🔄 STAGE 4: ULTIMATE FEEDBACK",
+      "title": "🔄 STAGE 5: ULTIMATE FEEDBACK",
       "properties": {"Node name for S&R": "FeedbackProcessor"},
-      "widgets_values": ["runaway", 0.9, 20.0, "allpass", 12000.0, 0.95, 1.0, 30.0, 1.0, "chaos", 2.0, 1.0]
+      "widgets_values": ["complex", 0.6, 10.0, "lowpass", 5000.0, 0.6, 0.3, 3.0, 0.3, "triangle", 1.2, 0.8]
     },
     {
       "id": 18,
       "type": "HarshFilter",
-      "pos": [2500, 400],
-      "size": {"0": 315, "1": 446},
+      "pos": [2640, 450],
+      "size": {"0": 315, "1": 440},
       "flags": {},
-      "order": 17,
+      "order": 18,
       "mode": 0,
       "inputs": [
         {"name": "audio", "type": "AUDIO", "link": 18}
@@ -314,18 +327,18 @@
       ],
       "title": "🎛️ FINAL: MASTER FILTER ANNIHILATION",
       "properties": {"Node name for S&R": "HarshFilter"},
-      "widgets_values": ["chaos", 500.0, 0.999, 8.0, "chaos", 4.0, 1.0, 50.0, 1.0, 2.0, 1.0, 1.0]
+      "widgets_values": ["lowpass", 2000.0, 0.8, 2.0, "digital", 1.5, 0.4, 4.0, 0.3, 1.2, 1.0, 0.5]
     },
     {
       "id": 19,
       "type": "AudioSave",
-      "pos": [2850, 400],
-      "size": {"0": 315, "1": 146},
+      "pos": [3010, 450],
+      "size": {"0": 315, "1": 150},
       "flags": {},
-      "order": 18,
+      "order": 19,
       "mode": 0,
       "inputs": [
-        {"name": "audio", "type": "AUDIO", "link": 19}
+        {"name": "audio", "type": "AUDIO", "link": 27}
       ],
       "outputs": [
         {"name": "audio", "type": "AUDIO", "links": [], "shape": 3},
@@ -338,40 +351,40 @@
     {
       "id": 20,
       "type": "NoiseGenerator",
-      "pos": [50, 1750],
-      "size": {"0": 315, "1": 426},
+      "pos": [50, 1900],
+      "size": {"0": 315, "1": 400},
       "flags": {},
-      "order": 19,
+      "order": 20,
       "mode": 0,
       "outputs": [
         {"name": "audio", "type": "AUDIO", "links": [20], "shape": 3}
       ],
       "title": "🔥 CHAOS SEED: BANDLIMITED MAYHEM",
       "properties": {"Node name for S&R": "NoiseGenerator"},
-      "widgets_values": ["bandlimited", 30.0, 48000, 1.0, 3141, 2, "decorrelated", 2.0, 3.0, 20.0, 20000.0, 8]
+      "widgets_values": ["bandlimited", 30.0, 48000, 0.6, 3141, 2, "decorrelated", 1.0, 2.0, 100.0, 8000.0, 4]
     },
     {
       "id": 21,
       "type": "BandLimitedNoise",
-      "pos": [400, 1870],
-      "size": {"0": 315, "1": 226},
+      "pos": [420, 1950],
+      "size": {"0": 315, "1": 250},
       "flags": {},
-      "order": 20,
+      "order": 21,
       "mode": 0,
       "outputs": [
         {"name": "audio", "type": "AUDIO", "links": [21], "shape": 3}
       ],
       "title": "📡 CHAOS SEED: SUB-BASS TERROR",
       "properties": {"Node name for S&R": "BandLimitedNoise"},
-      "widgets_values": [30.0, 10.0, 80.0, 48000, 1.5, 666]
+      "widgets_values": [30.0, 40.0, 200.0, 48000, 0.7, 666]
     },
     {
       "id": 22,
       "type": "ChaosNoiseMix",
-      "pos": [750, 1750],
-      "size": {"0": 315, "1": 386},
+      "pos": [790, 1950],
+      "size": {"0": 315, "1": 380},
       "flags": {},
-      "order": 21,
+      "order": 22,
       "mode": 0,
       "inputs": [
         {"name": "noise_a", "type": "AUDIO", "link": 20},
@@ -382,15 +395,15 @@
       ],
       "title": "🌪️ CHAOS SEED: XOR DECIMATION",
       "properties": {"Node name for S&R": "ChaosNoiseMix"},
-      "widgets_values": ["xor", 0.5, 1.0, 1.0, 2.0, 0.7]
+      "widgets_values": ["xor", 0.4, 0.6, 0.5, 1.0]
     },
     {
       "id": 23,
       "type": "MultiDistortion",
-      "pos": [1100, 1750],
-      "size": {"0": 315, "1": 326},
+      "pos": [1160, 1950],
+      "size": {"0": 315, "1": 320},
       "flags": {},
-      "order": 22,
+      "order": 23,
       "mode": 0,
       "inputs": [
         {"name": "audio", "type": "AUDIO", "link": 22}
@@ -400,45 +413,46 @@
       ],
       "title": "🎸 CHAOS SEED: BITCRUSH HELL",
       "properties": {"Node name for S&R": "MultiDistortion"},
-      "widgets_values": ["bitcrush", 6.0, 0.8, 1.0, 3, 0.5, 1.8, 0.8]
+      "widgets_values": ["bitcrush", 3.0, 0.8, 1.0, 2, 0.3, 1.0]
     },
     {
       "id": 24,
       "type": "AudioMixer",
-      "pos": [1450, 1450],
-      "size": {"0": 315, "1": 466},
+      "pos": [1530, 1500],
+      "size": {"0": 315, "1": 500},
       "flags": {},
-      "order": 23,
+      "order": 24,
       "mode": 0,
       "inputs": [
         {"name": "audio_a", "type": "AUDIO", "link": 23},
-        {"name": "audio_b", "type": "AUDIO", "link": 10},
-        {"name": "audio_c", "type": "AUDIO", "link": 16}
+        {"name": "audio_b", "type": "AUDIO", "link": 24},
+        {"name": "audio_c", "type": "AUDIO", "link": 25},
+        {"name": "audio_d", "type": "AUDIO", "link": 19}
       ],
       "outputs": [
-        {"name": "mixed_audio", "type": "AUDIO", "links": [24], "shape": 3}
+        {"name": "mixed_audio", "type": "AUDIO", "links": [26], "shape": 3}
       ],
       "title": "🎛️ MASTER MIX: FINAL BLEND",
       "properties": {"Node name for S&R": "AudioMixer"},
-      "widgets_values": [0.6, 0.8, 0.4, 0.2, 0.3, -0.6, 2.0]
+      "widgets_values": [0.5, 0.6, 0.3, -0.4, 0.4, 0.0, 0.6, 0.2, 1.2]
     },
     {
       "id": 25,
       "type": "SpectralProcessor",
-      "pos": [1800, 1450],
-      "size": {"0": 315, "1": 386},
+      "pos": [1900, 1500],
+      "size": {"0": 315, "1": 380},
       "flags": {},
-      "order": 24,
+      "order": 25,
       "mode": 0,
       "inputs": [
         {"name": "audio", "type": "AUDIO", "link": 24}
       ],
       "outputs": [
-        {"name": "processed_audio", "type": "AUDIO", "links": [25], "shape": 3}
+        {"name": "processed_audio", "type": "AUDIO", "links": [27], "shape": 3}
       ],
       "title": "🔬 FINAL CHAOS: SPECTRAL VOID",
       "properties": {"Node name for S&R": "SpectralProcessor"},
-      "widgets_values": ["chaos", "8192", 0.95, "kaiser", 20.0, 20000.0, 2.0, 2.0, 1.0, 1.0]
+      "widgets_values": ["enhance", "2048", 0.75, "hann", 50.0, 15000.0, 0.5, 1.0, 1.0, 0.0]
     }
   ],
   "links": [
@@ -460,68 +474,82 @@
     [16, 15, 0, 16, 0, "AUDIO"],
     [17, 16, 0, 17, 0, "AUDIO"],
     [18, 17, 0, 18, 0, "AUDIO"],
-    [19, 18, 0, 19, 0, "AUDIO"],
+    [19, 18, 0, 24, 3, "AUDIO"],
     [20, 20, 0, 22, 0, "AUDIO"],
     [21, 21, 0, 22, 1, "AUDIO"],
     [22, 22, 0, 23, 0, "AUDIO"],
     [23, 23, 0, 24, 0, "AUDIO"],
-    [24, 24, 0, 25, 0, "AUDIO"],
-    [25, 25, 0, 19, 0, "AUDIO"]
+    [24, 10, 0, 24, 1, "AUDIO"],
+    [25, 16, 0, 24, 2, "AUDIO"],
+    [26, 24, 0, 25, 0, "AUDIO"],
+    [27, 25, 0, 19, 0, "AUDIO"]
   ],
   "groups": [
     {
+      "title": "🎨 MERZBOW v2 ULTIMATE TITLE",
+      "bounding": [25, -225, 850, 200],
+      "color": "#000000",
+      "font_size": 20
+    },
+    {
       "title": "🔥 FOUNDATION LAYER: 4 CHAOS SOURCES",
-      "bounding": [25, 25, 365, 1700],
+      "bounding": [25, 75, 365, 1700],
       "color": "#ff6b6b",
-      "font_size": 24
+      "font_size": 18
     },
     {
       "title": "⚡ STAGE 1: PARALLEL PROCESSING HELL",
-      "bounding": [375, 25, 365, 1850],
+      "bounding": [395, 75, 365, 1800],
       "color": "#4ecdc4",
-      "font_size": 24
+      "font_size": 18
     },
     {
       "title": "🎛️ STAGE 2: 4-WAY MIX + CHAOS INJECTION",
-      "bounding": [725, 25, 365, 1150],
+      "bounding": [765, 75, 365, 850],
       "color": "#45b7d1",
-      "font_size": 24
+      "font_size": 18
     },
     {
       "title": "🌪️ STAGE 3: RECURSIVE DESTRUCTION",
-      "bounding": [1075, 175, 365, 950],
+      "bounding": [1135, 225, 365, 950],
       "color": "#f39c12",
-      "font_size": 24
+      "font_size": 18
     },
     {
-      "title": "💀 STAGE 4: FINAL OBLITERATION",
-      "bounding": [1425, 175, 365, 850],
+      "title": "💀 STAGE 4: FILTER + DISTORTION",
+      "bounding": [1505, 225, 365, 850],
       "color": "#e74c3c",
-      "font_size": 24
+      "font_size": 18
     },
     {
-      "title": "🔬 STAGE 5: SPECTRAL ANNIHILATION",
-      "bounding": [1775, 375, 365, 425],
+      "title": "🔬 STAGE 5: SPECTRAL PROCESSING",
+      "bounding": [1875, 425, 365, 425],
       "color": "#9b59b6",
-      "font_size": 24
+      "font_size": 18
     },
     {
       "title": "🚀 STAGE 6: ULTIMATE CHAOS",
-      "bounding": [2125, 175, 365, 950],
+      "bounding": [2245, 225, 365, 950],
       "color": "#1abc9c",
-      "font_size": 24
+      "font_size": 18
     },
     {
       "title": "💾 FINAL: MASTER OUTPUT",
-      "bounding": [2475, 375, 415, 200],
+      "bounding": [2615, 425, 365, 200],
       "color": "#2c3e50",
-      "font_size": 24
+      "font_size": 18
     },
     {
       "title": "🌊 CHAOS SEEDS: ADDITIONAL MAYHEM",
-      "bounding": [25, 1725, 1800, 450],
+      "bounding": [25, 1875, 1220, 450],
       "color": "#8e44ad",
-      "font_size": 24
+      "font_size": 18
+    },
+    {
+      "title": "🎛️ FINAL MIXING: MASTER CHAIN",
+      "bounding": [1505, 1475, 735, 425],
+      "color": "#34495e",
+      "font_size": 18
     }
   ],
   "config": {},
