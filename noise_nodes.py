@@ -573,23 +573,22 @@ class ChaosNoiseMixNode:
         """Validate that required audio inputs are provided and compatible."""
         errors = []
         
-        # Check required audio inputs
-        if 'noise_a' not in kwargs or kwargs['noise_a'] is None:
-            errors.append("noise_a: Audio input A is required")
+        # More lenient validation - only check if values are explicitly provided
+        # ComfyUI calls this during workflow loading when inputs might be None
+        noise_a = kwargs.get('noise_a')
+        noise_b = kwargs.get('noise_b')
         
-        if 'noise_b' not in kwargs or kwargs['noise_b'] is None:
-            errors.append("noise_b: Audio input B is required")
+        # Only validate if both inputs are actually provided (not None)
+        if noise_a is not None and noise_b is not None:
+            # Validate audio format if provided
+            for input_name, audio_input in [('noise_a', noise_a), ('noise_b', noise_b)]:
+                if audio_input is not None:
+                    if not isinstance(audio_input, dict):
+                        errors.append(f"{input_name}: Must be a valid audio object")
+                    elif 'waveform' not in audio_input or 'sample_rate' not in audio_input:
+                        errors.append(f"{input_name}: Audio object missing required waveform or sample_rate")
         
-        # Validate audio format if provided
-        for input_name in ['noise_a', 'noise_b', 'noise_c']:
-            audio_input = kwargs.get(input_name)
-            if audio_input is not None:
-                if not isinstance(audio_input, dict):
-                    errors.append(f"{input_name}: Must be a valid audio object")
-                elif 'waveform' not in audio_input or 'sample_rate' not in audio_input:
-                    errors.append(f"{input_name}: Audio object missing required waveform or sample_rate")
-        
-        # Validate parameter ranges
+        # Always validate parameter ranges regardless of audio inputs
         mix_ratio = kwargs.get('mix_ratio', 0.5)
         if not (0.0 <= mix_ratio <= 1.0):
             errors.append("mix_ratio: Must be between 0.0 and 1.0")
@@ -606,6 +605,17 @@ class ChaosNoiseMixNode:
                   noise_c=None, modulation=0.0):
         """Create chaotic noise mixes for extreme audio textures."""
         try:
+            # Validate inputs at runtime (more thorough than VALIDATE_INPUTS)
+            if noise_a is None:
+                raise ValueError("Audio input A (noise_a) is required but not connected")
+            if noise_b is None:
+                raise ValueError("Audio input B (noise_b) is required but not connected")
+            
+            if not isinstance(noise_a, dict) or 'waveform' not in noise_a or 'sample_rate' not in noise_a:
+                raise ValueError("Audio input A is not a valid audio object")
+            if not isinstance(noise_b, dict) or 'waveform' not in noise_b or 'sample_rate' not in noise_b:
+                raise ValueError("Audio input B is not a valid audio object")
+            
             # Extract waveforms and ensure same sample rate
             waveform_a = noise_a["waveform"]
             waveform_b = noise_b["waveform"]
@@ -651,25 +661,28 @@ class ChaosNoiseMixNode:
             # Add third noise source if provided
             if noise_c is not None:
                 try:
-                    waveform_c = noise_c["waveform"]
-                    if hasattr(waveform_c, 'cpu'):
-                        waveform_c = waveform_c.cpu().numpy()
-                    
-                    # Match dimensions
-                    if waveform_c.ndim == 1:
-                        waveform_c = waveform_c[np.newaxis, :]
-                    
-                    # Match channels and length
-                    if waveform_c.shape[0] != mixed.shape[0]:
-                        if waveform_c.shape[0] == 1 and mixed.shape[0] == 2:
-                            waveform_c = np.repeat(waveform_c, 2, axis=0)
-                        elif mixed.shape[0] == 1 and waveform_c.shape[0] == 2:
-                            mixed = np.repeat(mixed, 2, axis=0)
-                    
-                    waveform_c = waveform_c[..., :min_len]
-                    
-                    # Mix in the third source with modulation
-                    mixed = mixed * (1 - modulation) + waveform_c * modulation
+                    if not isinstance(noise_c, dict) or 'waveform' not in noise_c:
+                        print("Warning: Third audio input (noise_c) is invalid, skipping")
+                    else:
+                        waveform_c = noise_c["waveform"]
+                        if hasattr(waveform_c, 'cpu'):
+                            waveform_c = waveform_c.cpu().numpy()
+                        
+                        # Match dimensions
+                        if waveform_c.ndim == 1:
+                            waveform_c = waveform_c[np.newaxis, :]
+                        
+                        # Match channels and length
+                        if waveform_c.shape[0] != mixed.shape[0]:
+                            if waveform_c.shape[0] == 1 and mixed.shape[0] == 2:
+                                waveform_c = np.repeat(waveform_c, 2, axis=0)
+                            elif mixed.shape[0] == 1 and waveform_c.shape[0] == 2:
+                                mixed = np.repeat(mixed, 2, axis=0)
+                        
+                        waveform_c = waveform_c[..., :min_len]
+                        
+                        # Mix in the third source with modulation
+                        mixed = mixed * (1 - modulation) + waveform_c * modulation
                 except Exception as c_error:
                     print(f"Warning: Failed to mix third noise source: {c_error}")
                     # Continue without third source
@@ -707,27 +720,32 @@ class ChaosNoiseMixNode:
             return (audio_output,)
             
         except Exception as e:
-            print(f"Error in chaos noise mixing: {str(e)}")
+            print(f"❌ Error in ChaosNoiseMix: {str(e)}")
             import traceback
             traceback.print_exc()
             
             # Create robust fallback audio
             try:
-                # Use the first input's properties for fallback
-                fallback_sample_rate = noise_a.get("sample_rate", 44100)
-                fallback_waveform = noise_a.get("waveform", None)
-                
-                if fallback_waveform is not None:
-                    if hasattr(fallback_waveform, 'cpu'):
-                        fallback_audio = fallback_waveform.cpu().numpy()
-                    else:
-                        fallback_audio = fallback_waveform
+                # Use the first input's properties for fallback if available
+                if noise_a is not None and isinstance(noise_a, dict):
+                    fallback_sample_rate = noise_a.get("sample_rate", 44100)
+                    fallback_waveform = noise_a.get("waveform", None)
                     
-                    # Scale down the fallback audio
-                    if np.max(np.abs(fallback_audio)) > 0:
-                        fallback_audio = fallback_audio * 0.1 * amplitude
+                    if fallback_waveform is not None:
+                        if hasattr(fallback_waveform, 'cpu'):
+                            fallback_audio = fallback_waveform.cpu().numpy()
+                        else:
+                            fallback_audio = np.array(fallback_waveform)
+                        
+                        # Scale down the fallback audio
+                        if np.max(np.abs(fallback_audio)) > 0:
+                            fallback_audio = fallback_audio * 0.1 * amplitude
+                    else:
+                        # Generate minimal noise as last resort
+                        fallback_audio = np.random.normal(0, 0.05, (1, int(fallback_sample_rate * 1.0))).astype(np.float32) * amplitude
                 else:
-                    # Generate minimal noise as last resort
+                    # Complete fallback when no valid input
+                    fallback_sample_rate = 44100
                     fallback_audio = np.random.normal(0, 0.05, (1, int(fallback_sample_rate * 1.0))).astype(np.float32) * amplitude
                 
                 # Ensure proper format
@@ -738,7 +756,7 @@ class ChaosNoiseMixNode:
                 return (audio_output,)
                 
             except Exception as fallback_error:
-                print(f"Fallback audio creation failed: {fallback_error}")
+                print(f"❌ Fallback audio creation failed: {fallback_error}")
                 # Final emergency fallback
                 emergency_audio = np.random.normal(0, 0.01, (1, 44100)).astype(np.float32)
                 audio_output = numpy_to_comfy_audio(emergency_audio, 44100)
@@ -925,7 +943,14 @@ class AudioSaveNode:
     
     def save_audio(self, audio, filename_prefix, format):
         """Save audio to file and return path."""
+        filepath = None  # Initialize to prevent UnboundLocalError
         try:
+            # Validate inputs first
+            if audio is None:
+                raise ValueError("Audio input is required")
+            if not isinstance(audio, dict) or 'waveform' not in audio or 'sample_rate' not in audio:
+                raise ValueError("Invalid audio object - missing waveform or sample_rate")
+            
             # Get ComfyUI's output directory from folder_paths
             import folder_paths
             
@@ -944,6 +969,12 @@ class AudioSaveNode:
             waveform = audio["waveform"]
             sample_rate = audio["sample_rate"]
             
+            # Validate audio data
+            if waveform is None:
+                raise ValueError("Audio waveform is None")
+            if sample_rate is None or sample_rate <= 0:
+                raise ValueError(f"Invalid sample rate: {sample_rate}")
+            
             # Ensure proper tensor format for torchaudio.save
             if hasattr(waveform, 'cpu'):
                 waveform = waveform.cpu()
@@ -960,8 +991,20 @@ class AudioSaveNode:
             if waveform.ndim != 2:
                 raise ValueError(f"Expected 2D tensor for torchaudio.save, got {waveform.ndim}D with shape {waveform.shape}")
             
+            # Check for valid audio content
+            if waveform.shape[1] == 0:
+                raise ValueError("Audio waveform has no samples")
+            
             # Save with enhanced metadata
             torchaudio.save(filepath, waveform, sample_rate)
+            
+            # Verify file was created successfully
+            if not os.path.exists(filepath):
+                raise FileNotFoundError(f"Failed to create audio file: {filepath}")
+            
+            file_size = os.path.getsize(filepath)
+            if file_size == 0:
+                raise ValueError(f"Created audio file is empty: {filepath}")
             
             # Print detailed save information
             channels, samples = waveform.shape
@@ -969,15 +1012,20 @@ class AudioSaveNode:
             print(f"✅ Audio saved: {filename}")
             print(f"   📁 Location: ComfyUI/output/audio/")
             print(f"   📊 Format: {format.upper()}, {sample_rate}Hz, {channels}ch, {duration:.2f}s")
+            print(f"   💾 File size: {file_size} bytes")
             
             # Enhanced return with metadata
             return (audio, filepath)
             
         except Exception as e:
-            print(f"❌ Error saving audio: {str(e)}")
+            error_msg = f"Error saving audio: {str(e)}"
+            print(f"❌ {error_msg}")
             import traceback
             traceback.print_exc()
-            return (audio, f"Error: Could not save audio - {str(e)}")
+            
+            # Return safe fallback
+            fallback_path = filepath if filepath is not None else f"Error: Could not save audio - {str(e)}"
+            return (audio, fallback_path)
 
 class AudioPreviewNode:
     """Instant audio preview in ComfyUI interface.
