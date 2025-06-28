@@ -245,13 +245,16 @@ cd comfyui_noisegen
 pip install -r requirements.txt
 ```
 
-### **Method 2: ComfyUI Manager**
-Search for "NoiseGen" in ComfyUI Manager and install directly.
-
-### **Method 3: Manual Download**
+### **Method 2: Manual Download**
 1. Download ZIP from GitHub releases
 2. Extract to `ComfyUI/custom_nodes/comfyui_noisegen/`
-3. Install dependencies: `pip install numpy torch torchaudio`
+3. Install dependencies: `pip install numpy torch torchaudio soundfile matplotlib`
+
+### **Requirements**
+- **ComfyUI** (latest version)
+- **Python 3.8+**
+- **PyTorch** with audio support
+- **Optional**: VideoHelperSuite (for external audio loading)
 
 ---
 
@@ -277,19 +280,27 @@ The `examples/` folder contains comprehensive workflow demonstrations:
 - **MultiDistortion** - 12-type comprehensive distortion ✅
 - **SpectralProcessor** - FFT-based spectral manipulation ✅
 
-### **🚧 Phase 2 - Next Priority**
-- **TrueChaos** - Mathematical chaos systems (Lorenz, Chua)
-- **GranularProcessor** - Advanced granular synthesis
-- **ConvolutionReverb** - Impulse response convolution
+### **🚧 Phase 2 - Granular Synthesis & Integration**
+- **GranularProcessor** - Advanced granular synthesis ✅
+- **GranularSequencer** - Pattern-based granular control ✅
+- **MicrosoundSculptor** - Extreme granular manipulation ✅
+- **ComfyUI Manager** - Official listing and integration
+- **VideoHelperSuite** - Enhanced external audio pipeline
 
-### **🔮 Phase 3 - Analysis & Control**
+### **🔮 Phase 3 - Advanced Processing & Analysis**
+- **TrueChaos** - Mathematical chaos systems (Lorenz, Chua)
+- **ConvolutionReverb** - Impulse response convolution
 - **ModulationMatrix** - Complex parameter modulation
 - **SpectrumAnalyzer** - Real-time spectral visualization  
 - **AudioAnalyzer** - RMS, peak, spectral centroid analysis
 
-### **🌟 Phase 4 - Advanced Features**
+### **🌟 Phase 4 - Ecosystem Integration**
+- **AnimateDiff** - Audio-driven animation synchronization
+- **ControlNet** - Audio-to-visual control integration
+- **IP-Adapter** - Audio-conditioned image processing
 - **SpatialProcessor** - 3D audio positioning
-- **UtilityProcessor** - Advanced audio utilities
+- **MIDI Integration** - Musical control interfaces
+- **Live Performance** - Real-time audio processing modes
 
 ---
 
