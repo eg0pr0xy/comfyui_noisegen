@@ -2,8 +2,6 @@ include README.md
 include LICENSE
 include CHANGELOG.md
 include requirements.txt
-include install.py
-include install.bat
 recursive-include examples *.json
 recursive-include web *.html *.css *.js
 exclude test_nodes.py

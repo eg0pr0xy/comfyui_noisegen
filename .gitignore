@@ -1,1 +1,95 @@
- 
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ComfyUI specific
+output/
+temp/
+models/
+input/
+
+# Audio files (except examples)
+*.wav
+*.mp3
+*.flac
+*.ogg
+*.aiff
+!examples/*.wav
+!examples/*.mp3
+
+# Logs
+*.log
+logs/
+
+# Error tracking (local only)
+error.md
+
+# Sync scripts (local only)
+sync_to_comfyui.bat
+
+# Test outputs
+noise_analysis.png
+test_output/
+
+# Development files (local only)
+ROADMAP.md
+PHASE_2_ROADMAP.md
+CHANGELOG.md
+INTEGRATION_REPORT.md
+
+# Test files (development only)
+*test*.py
+comprehensive_test_suite.py
+integration_test.py
+quick_test.py
+quick_test_all.py
+test_all_nodes.py
+test_nodes_comprehensive.py
+
+# Development directories (local only)
+backup_workflows/
+outputs/ 

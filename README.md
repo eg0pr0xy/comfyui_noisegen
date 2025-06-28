@@ -1,4 +1,4 @@
-# 🎵 ComfyUI-NoiseGen
+# ComfyUI-NoiseGen
 
 Noise synthesis and audio processing for ComfyUI. 18 nodes across generation, processing, and analysis.
 
