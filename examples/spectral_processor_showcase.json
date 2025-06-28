@@ -142,12 +142,12 @@
       "properties": {"Node name for S&R": "PerlinNoise"},
       "widgets_values": [
         3.0,
+        2.0,
         44100,
         0.3,
         123,
         2,
         "independent",
-        2.0,
         6,
         1.0
       ]

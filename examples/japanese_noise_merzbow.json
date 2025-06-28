@@ -45,7 +45,7 @@
       ],
       "title": "LAYER 3: ORGANIC BRUTALITY",
       "properties": {"Node name for S&R": "PerlinNoise"},
-      "widgets_values": [15.0, 0.5, 8, 48000, 0.7, 420]
+      "widgets_values": [15.0, 0.5, 48000, 0.7, 420, 2, "independent", 8, 1.0]
     },
     {
       "id": 4,
