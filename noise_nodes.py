@@ -983,7 +983,7 @@ class AudioMixerNode:
     def mix_audio(self, audio_a, gain_a, pan_a, audio_b=None, gain_b=1.0, pan_b=0.0, 
                   audio_c=None, gain_c=1.0, pan_c=0.0, audio_d=None, gain_d=1.0, pan_d=0.0, master_gain=1.0):
         try:
-            # Get first audio
+            # Process input A
             waveform_a = audio_a["waveform"]
             sample_rate = audio_a["sample_rate"]
             
@@ -992,68 +992,71 @@ class AudioMixerNode:
             else:
                 audio_a_np = waveform_a
             
+            # Fix tensor shape issues
             if audio_a_np.ndim == 1:
                 audio_a_np = audio_a_np.reshape(1, -1)
+            elif audio_a_np.ndim == 3:
+                audio_a_np = audio_a_np.squeeze()
+                if audio_a_np.ndim == 1:
+                    audio_a_np = audio_a_np.reshape(1, -1)
             
-            # Apply gain A
-            mixed = audio_a_np * gain_a
+            # Ensure stereo for mixing
+            if audio_a_np.shape[0] == 1:
+                audio_a_np = np.repeat(audio_a_np, 2, axis=0)
             
-            # Add second audio if provided
-            if audio_b is not None:
-                waveform_b = audio_b["waveform"]
-                if hasattr(waveform_b, 'cpu'):
-                    audio_b_np = waveform_b.cpu().numpy()
-                else:
-                    audio_b_np = waveform_b
-                
-                if audio_b_np.ndim == 1:
-                    audio_b_np = audio_b_np.reshape(1, -1)
-                
-                # Match lengths
-                min_length = min(mixed.shape[1], audio_b_np.shape[1])
-                mixed = mixed[:, :min_length]
-                audio_b_np = audio_b_np[:, :min_length]
-                
-                # Add with gain
-                mixed += audio_b_np * gain_b
+            # Apply gain and pan to A
+            mixed = self._apply_gain_and_pan(audio_a_np, gain_a, pan_a)
             
-            # Add third audio if provided
-            if audio_c is not None:
-                waveform_c = audio_c["waveform"]
-                if hasattr(waveform_c, 'cpu'):
-                    audio_c_np = waveform_c.cpu().numpy()
-                else:
-                    audio_c_np = waveform_c
-                
-                if audio_c_np.ndim == 1:
-                    audio_c_np = audio_c_np.reshape(1, -1)
-                
-                # Match lengths with existing mixed audio
-                min_length = min(mixed.shape[1], audio_c_np.shape[1])
-                mixed = mixed[:, :min_length]
-                audio_c_np = audio_c_np[:, :min_length]
-                
-                # Add with gain
-                mixed += audio_c_np * gain_c
+            # Find the maximum length for proper buffer allocation
+            max_length = mixed.shape[1]
+            input_audios = []
             
-            # Add fourth audio if provided
-            if audio_d is not None:
-                waveform_d = audio_d["waveform"]
-                if hasattr(waveform_d, 'cpu'):
-                    audio_d_np = waveform_d.cpu().numpy()
-                else:
-                    audio_d_np = waveform_d
+            # Process additional inputs
+            for audio_input, gain, pan in [(audio_b, gain_b, pan_b), (audio_c, gain_c, pan_c), (audio_d, gain_d, pan_d)]:
+                if audio_input is not None:
+                    waveform = audio_input["waveform"]
+                    if hasattr(waveform, 'cpu'):
+                        audio_np = waveform.cpu().numpy()
+                    else:
+                        audio_np = waveform
+                    
+                    # Fix tensor shape issues
+                    if audio_np.ndim == 1:
+                        audio_np = audio_np.reshape(1, -1)
+                    elif audio_np.ndim == 3:
+                        audio_np = audio_np.squeeze()
+                        if audio_np.ndim == 1:
+                            audio_np = audio_np.reshape(1, -1)
+                    
+                    # Ensure stereo
+                    if audio_np.shape[0] == 1:
+                        audio_np = np.repeat(audio_np, 2, axis=0)
+                    
+                    max_length = max(max_length, audio_np.shape[1])
+                    input_audios.append((audio_np, gain, pan))
+            
+            # Resize mixed output to maximum length
+            if mixed.shape[1] < max_length:
+                padded_mixed = np.zeros((2, max_length))
+                padded_mixed[:, :mixed.shape[1]] = mixed
+                mixed = padded_mixed
+            
+            # Mix additional inputs
+            for audio_np, gain, pan in input_audios:
+                processed = self._apply_gain_and_pan(audio_np, gain, pan)
                 
-                if audio_d_np.ndim == 1:
-                    audio_d_np = audio_d_np.reshape(1, -1)
+                # Ensure compatible lengths by padding or truncating
+                if processed.shape[1] < max_length:
+                    # Pad shorter audio
+                    padded = np.zeros((2, max_length))
+                    padded[:, :processed.shape[1]] = processed
+                    processed = padded
+                elif processed.shape[1] > max_length:
+                    # Truncate longer audio
+                    processed = processed[:, :max_length]
                 
-                # Match lengths with existing mixed audio
-                min_length = min(mixed.shape[1], audio_d_np.shape[1])
-                mixed = mixed[:, :min_length]
-                audio_d_np = audio_d_np[:, :min_length]
-                
-                # Add with gain
-                mixed += audio_d_np * gain_d
+                # Add to mix
+                mixed += processed
             
             # Apply master gain
             mixed *= master_gain
@@ -1062,7 +1065,9 @@ class AudioMixerNode:
             max_val = np.max(np.abs(mixed))
             if max_val > 1.0:
                 mixed /= max_val
+                print(f"⚠️  Audio limited: reduced by {max_val:.2f}x")
             
+            # Convert back to tensor
             result_tensor = torch.from_numpy(mixed).float()
             output_audio = {"waveform": result_tensor, "sample_rate": sample_rate}
             
@@ -1070,7 +1075,24 @@ class AudioMixerNode:
             
         except Exception as e:
             print(f"❌ Error in audio mixing: {str(e)}")
+            # Return the first audio input on error
             return (audio_a,)
+    
+    def _apply_gain_and_pan(self, audio, gain, pan):
+        """Apply gain and pan to the audio signal."""
+        # Apply gain
+        processed = audio * gain
+        
+        # Apply pan if stereo
+        if processed.shape[0] == 2 and pan != 0:
+            # Pan range: -1 (full left) to 1 (full right)
+            pan_left = np.sqrt((1 - pan) / 2) if pan >= 0 else 1.0
+            pan_right = np.sqrt((1 + pan) / 2) if pan <= 0 else 1.0
+            
+            processed[0] *= pan_left   # Left channel
+            processed[1] *= pan_right  # Right channel
+        
+        return processed
 
 
 class ChaosNoiseMixNode:
@@ -1175,10 +1197,7 @@ class AudioSaveNode:
             "required": {
                 "audio": (AUDIO_TYPE, {"tooltip": "Audio data to save"}),
                 "filename_prefix": ("STRING", {"default": "NoiseGen_"}),
-                "format": (["wav", "flac", "mp3"], {"default": "wav"}),
-            },
-            "optional": {
-                "quality": ("INT", {"default": 320, "min": 128, "max": 320, "step": 32, "tooltip": "MP3 bitrate (kbps)"}),
+                "format": (["wav", "flac"], {"default": "wav"}),  # Removed MP3 for now since quality param only applies there
             }
         }
     
@@ -1189,7 +1208,7 @@ class AudioSaveNode:
     OUTPUT_NODE = True
     DESCRIPTION = "Enhanced audio export with preview, playback, and waveform visualization"
 
-    def save_audio(self, audio, filename_prefix, format, quality=320):
+    def save_audio(self, audio, filename_prefix, format):
         try:
             import folder_paths
             import os
@@ -1198,22 +1217,43 @@ class AudioSaveNode:
             import base64
             import io
             
-            # Get output directory
-            output_dir = folder_paths.get_output_directory()
+            # Create dedicated audio output directory (same as original)
+            if folder_paths:
+                base_output_dir = folder_paths.get_output_directory()
+                audio_dir = os.path.join(base_output_dir, "audio")
+            else:
+                audio_dir = os.path.join("outputs", "audio")
+            
+            os.makedirs(audio_dir, exist_ok=True)
             
             # Extract audio data
             waveform = audio["waveform"]
             sample_rate = audio["sample_rate"]
             
-            # Convert to numpy
+            # Convert to numpy and fix tensor shape issues
             if hasattr(waveform, 'cpu'):
                 audio_np = waveform.cpu().numpy()
             else:
                 audio_np = waveform
             
-            # Ensure 2D array (channels, samples)
+            # Fix any tensor shape issues - ensure 2D array (channels, samples)
             if audio_np.ndim == 1:
                 audio_np = audio_np.reshape(1, -1)
+            elif audio_np.ndim == 3:
+                # Handle tensors with extra dimensions like (samples, channels, 1)
+                audio_np = audio_np.squeeze()  # Remove singleton dimensions
+                if audio_np.ndim == 1:
+                    audio_np = audio_np.reshape(1, -1)
+                elif audio_np.shape[0] > audio_np.shape[1]:
+                    # If shape is (samples, channels), transpose to (channels, samples)
+                    audio_np = audio_np.T
+            elif audio_np.shape[0] > audio_np.shape[1] and audio_np.shape[1] <= 2:
+                # Transpose if likely (samples, channels) format
+                audio_np = audio_np.T
+            
+            # Ensure 2D array (channels, samples)
+            if audio_np.ndim != 2:
+                raise ValueError(f"Cannot handle audio tensor with {audio_np.ndim} dimensions")
             
             # Transpose for soundfile (samples, channels)
             audio_for_save = audio_np.T
@@ -1221,22 +1261,14 @@ class AudioSaveNode:
             # Generate unique filename with timestamp
             timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
             filename = f"{filename_prefix}{timestamp}.{format}"
-            filepath = os.path.join(output_dir, filename)
+            filepath = os.path.join(audio_dir, filename)
             
-            # Save audio file
-            if format == "mp3":
-                # For MP3, we'd need additional libraries like pydub
-                # For now, save as WAV and note MP3 support needs enhancement
-                sf.write(filepath.replace('.mp3', '.wav'), audio_for_save, sample_rate)
-                actual_filepath = filepath.replace('.mp3', '.wav')
-                print(f"💾 Note: MP3 support requires additional libraries, saved as WAV")
-            else:
-                sf.write(filepath, audio_for_save, sample_rate)
-                actual_filepath = filepath
+            # Save audio file (WAV and FLAC are lossless - no quality setting needed)
+            sf.write(filepath, audio_for_save, sample_rate)
             
             # Calculate audio metadata
             duration = audio_np.shape[1] / sample_rate
-            file_size = os.path.getsize(actual_filepath)
+            file_size = os.path.getsize(filepath)
             channels = audio_np.shape[0]
             
             # Create waveform visualization for preview
@@ -1285,13 +1317,14 @@ class AudioSaveNode:
             # Create enhanced metadata for UI
             metadata = {
                 "filename": filename,
-                "filepath": actual_filepath,
+                "filepath": filepath,
                 "duration": f"{duration:.2f}s",
                 "sample_rate": f"{sample_rate}Hz",
                 "channels": f"{channels}ch",
                 "format": format.upper(),
                 "file_size": f"{file_size/1024:.1f}KB",
                 "bitdepth": "32-bit float",
+                "compression": "Lossless" if format in ["wav", "flac"] else "Lossy",
                 "waveform_preview": waveform_image
             }
             
@@ -1300,7 +1333,7 @@ class AudioSaveNode:
                 "ui": {
                     "audio": [{
                         "filename": filename,
-                        "subfolder": "",
+                        "subfolder": "audio",  # Specify correct subfolder for UI
                         "type": "output",
                         "format": format,
                         "duration": duration,
@@ -1311,17 +1344,18 @@ class AudioSaveNode:
                         "has_preview": True,
                         "metadata": metadata
                     }],
-                    "text": [f"💾 Saved: {filename} ({duration:.1f}s, {sample_rate}Hz, {channels}ch)"]
+                    "text": [f"💾 Saved: audio/{filename} ({duration:.1f}s, {sample_rate}Hz, {channels}ch, Lossless)"]
                 },
-                "result": (audio, actual_filepath)
+                "result": (audio, filepath)
             }
             
             print(f"💾 Audio saved successfully:")
-            print(f"   📁 File: {filename}")
+            print(f"   📁 File: audio/{filename}")
             print(f"   ⏱️  Duration: {duration:.2f}s")
             print(f"   🔊 Sample Rate: {sample_rate}Hz")
             print(f"   📊 Channels: {channels}")
             print(f"   💽 Size: {file_size/1024:.1f}KB")
+            print(f"   🎵 Quality: Lossless ({format.upper()})")
             
             return ui_output
             
@@ -1332,250 +1366,6 @@ class AudioSaveNode:
                 "ui": {"text": [f"❌ Save failed: {str(e)}"]},
                 "result": (audio, "")
             }
-
-
-# =============================================================================
-# 🌟 PHASE 2: GRANULAR SYNTHESIS ENGINE - The Crown Jewel
-# =============================================================================
-
-class GranularProcessorNode:
-    """🌟 PHASE 2: Ultimate granular synthesis powerhouse for microsound control."""
-    
-    GRAIN_SOURCES = ["input", "oscillator", "noise", "sample"]
-    GRAIN_ENVELOPES = ["hann", "gaussian", "triangle", "exponential", "adsr"]
-    POSITIONING_MODES = ["sequential", "random", "reverse", "pingpong", "freeze"]
-    PITCH_MODES = ["preserve", "transpose", "random", "microtonal"]
-    
-    @classmethod
-    def INPUT_TYPES(cls):
-        return {
-            "required": {
-                "audio": ("AUDIO", {"tooltip": "Input audio for granular processing"}),
-                "grain_size": ("FLOAT", {"default": 50.0, "min": 1.0, "max": 1000.0, "step": 0.1, "tooltip": "Grain duration in milliseconds"}),
-                "grain_density": ("FLOAT", {"default": 20.0, "min": 0.1, "max": 1000.0, "step": 0.1, "tooltip": "Grains per second"}),
-                "pitch_ratio": ("FLOAT", {"default": 1.0, "min": 0.25, "max": 4.0, "step": 0.01, "tooltip": "Pitch transposition ratio"}),
-                "grain_envelope": (cls.GRAIN_ENVELOPES, {"default": "hann"}),
-                "positioning_mode": (cls.POSITIONING_MODES, {"default": "random"}),
-                "pitch_mode": (cls.PITCH_MODES, {"default": "transpose"}),
-                "grain_scatter": ("FLOAT", {"default": 0.3, "min": 0.0, "max": 1.0, "step": 0.01, "tooltip": "Random timing variation"}),
-                "amplitude": ("FLOAT", {"default": 0.8, "min": 0.0, "max": 2.0, "step": 0.01}),
-            },
-            "optional": {
-                "position_offset": ("FLOAT", {"default": 0.0, "min": -1.0, "max": 1.0, "step": 0.01, "tooltip": "Playhead position offset"}),
-                "pitch_scatter": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 1.0, "step": 0.01, "tooltip": "Random pitch variation"}),
-                "grain_overlap": ("FLOAT", {"default": 0.5, "min": 0.0, "max": 0.95, "step": 0.01, "tooltip": "Grain overlap factor"}),
-                "stereo_spread": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 1.0, "step": 0.01, "tooltip": "Stereo positioning spread"}),
-                "freeze_position": ("FLOAT", {"default": 0.5, "min": 0.0, "max": 1.0, "step": 0.01, "tooltip": "Position for freeze mode"}),
-            }
-        }
-    
-    RETURN_TYPES = ("AUDIO",)
-    RETURN_NAMES = ("granular_audio",)
-    FUNCTION = "process_granular"
-    CATEGORY = "🎵 NoiseGen/Granular"
-    DESCRIPTION = "🌟 PHASE 2: Ultimate granular synthesis powerhouse for microsound control"
-    
-    def __init__(self):
-        self.grain_buffer = None
-        self.grain_positions = []
-        self.grain_states = []
-    
-    def process_granular(self, audio, grain_size, grain_density, pitch_ratio, grain_envelope, 
-                        positioning_mode, pitch_mode, grain_scatter, amplitude,
-                        position_offset=0.0, pitch_scatter=0.0, grain_overlap=0.5, 
-                        stereo_spread=0.0, freeze_position=0.5):
-        try:
-            waveform = audio["waveform"]
-            sample_rate = audio["sample_rate"]
-            
-            if hasattr(waveform, 'cpu'):
-                audio_np = waveform.cpu().numpy()
-            else:
-                audio_np = waveform
-            
-            if audio_np.ndim == 1:
-                audio_np = audio_np.reshape(1, -1)
-            
-            # Apply granular synthesis
-            processed = self._apply_granular_synthesis(
-                audio_np, sample_rate, grain_size, grain_density, pitch_ratio,
-                grain_envelope, positioning_mode, pitch_mode, grain_scatter,
-                position_offset, pitch_scatter, grain_overlap, stereo_spread, freeze_position
-            )
-            
-            # Apply amplitude
-            processed *= amplitude
-            
-            # Safety limiting
-            max_val = np.max(np.abs(processed))
-            if max_val > 1.0:
-                processed /= max_val
-            
-            result_tensor = torch.from_numpy(processed).float()
-            output_audio = {"waveform": result_tensor, "sample_rate": sample_rate}
-            
-            return (output_audio,)
-            
-        except Exception as e:
-            print(f"❌ Error in granular processing: {str(e)}")
-            return (audio,)
-    
-    def _apply_granular_synthesis(self, audio, sample_rate, grain_size_ms, grain_density, 
-                                pitch_ratio, envelope_type, pos_mode, pitch_mode, scatter,
-                                pos_offset, pitch_scatter, overlap, stereo_spread, freeze_pos):
-        """Core granular synthesis engine."""
-        
-        channels, samples = audio.shape
-        grain_size_samples = int(grain_size_ms * sample_rate / 1000.0)
-        grain_hop = int(sample_rate / grain_density)
-        
-        # Calculate output length accounting for pitch ratio
-        output_length = int(samples / pitch_ratio) if pitch_ratio > 0 else samples
-        output = np.zeros((channels, output_length))
-        
-        # Generate grain envelope
-        envelope = self._generate_grain_envelope(grain_size_samples, envelope_type)
-        
-        # Current playhead position
-        current_pos = 0.0
-        output_pos = 0
-        
-        while output_pos < output_length - grain_size_samples:
-            # Calculate grain parameters with scatter
-            actual_grain_size = grain_size_samples
-            if scatter > 0:
-                size_variation = np.random.uniform(-scatter, scatter) * grain_size_samples * 0.3
-                actual_grain_size = max(10, int(grain_size_samples + size_variation))
-            
-            # Determine grain source position
-            if pos_mode == "sequential":
-                source_pos = current_pos + pos_offset * samples
-            elif pos_mode == "random":
-                source_pos = np.random.uniform(0, samples - actual_grain_size)
-            elif pos_mode == "reverse":
-                source_pos = samples - current_pos - actual_grain_size
-            elif pos_mode == "pingpong":
-                ping_cycle = (current_pos % (2 * samples)) / samples
-                if ping_cycle <= 1.0:
-                    source_pos = ping_cycle * samples
-                else:
-                    source_pos = (2.0 - ping_cycle) * samples
-            elif pos_mode == "freeze":
-                source_pos = freeze_pos * samples
-            else:
-                source_pos = current_pos
-            
-            source_pos = np.clip(source_pos, 0, samples - actual_grain_size)
-            source_start = int(source_pos)
-            source_end = source_start + actual_grain_size
-            
-            # Extract and process grain
-            if source_end <= samples:
-                grain = audio[:, source_start:source_end]
-                
-                # Apply pitch processing
-                if pitch_mode == "transpose" and pitch_ratio != 1.0:
-                    grain = self._pitch_shift_grain(grain, pitch_ratio, sample_rate)
-                elif pitch_mode == "random" and pitch_scatter > 0:
-                    random_ratio = 1.0 + np.random.uniform(-pitch_scatter, pitch_scatter)
-                    grain = self._pitch_shift_grain(grain, random_ratio, sample_rate)
-                
-                # Ensure grain size matches envelope
-                if grain.shape[1] != len(envelope):
-                    if grain.shape[1] > len(envelope):
-                        grain = grain[:, :len(envelope)]
-                    else:
-                        # Pad grain if needed
-                        padding = len(envelope) - grain.shape[1]
-                        grain = np.pad(grain, ((0, 0), (0, padding)), mode='constant')
-                
-                # Apply envelope
-                grain = grain * envelope[np.newaxis, :]
-                
-                # Apply stereo spread
-                if channels == 2 and stereo_spread > 0:
-                    spread_amount = np.random.uniform(-stereo_spread, stereo_spread)
-                    if spread_amount > 0:
-                        grain[0] *= (1.0 - spread_amount)  # Reduce left
-                    else:
-                        grain[1] *= (1.0 + spread_amount)  # Reduce right
-                
-                # Add grain to output with overlap
-                end_pos = min(output_pos + len(envelope), output_length)
-                actual_length = end_pos - output_pos
-                
-                if actual_length > 0:
-                    output[:, output_pos:end_pos] += grain[:, :actual_length]
-            
-            # Advance positions
-            hop_variation = 1.0
-            if scatter > 0:
-                hop_variation = 1.0 + np.random.uniform(-scatter * 0.5, scatter * 0.5)
-            
-            actual_hop = int(grain_hop * hop_variation * (1.0 - overlap))
-            current_pos += actual_hop / pitch_ratio if pitch_ratio > 0 else actual_hop
-            output_pos += actual_hop
-            
-            # Wrap position for looping modes
-            if current_pos >= samples:
-                current_pos = 0.0
-        
-        return output
-    
-    def _generate_grain_envelope(self, size, envelope_type):
-        """Generate grain envelope based on type."""
-        t = np.linspace(0, 1, size)
-        
-        if envelope_type == "hann":
-            return 0.5 * (1 - np.cos(2 * np.pi * t))
-        elif envelope_type == "gaussian":
-            sigma = 0.3
-            return np.exp(-0.5 * ((t - 0.5) / sigma) ** 2)
-        elif envelope_type == "triangle":
-            return 1.0 - np.abs(2 * t - 1)
-        elif envelope_type == "exponential":
-            return np.where(t <= 0.5, 
-                          np.exp(4 * t - 2), 
-                          np.exp(2 - 4 * t))
-        elif envelope_type == "adsr":
-            attack = int(size * 0.1)
-            decay = int(size * 0.2)
-            sustain_level = 0.7
-            sustain = int(size * 0.4)
-            release = size - attack - decay - sustain
-            
-            env = np.ones(size)
-            # Attack
-            env[:attack] = np.linspace(0, 1, attack)
-            # Decay
-            env[attack:attack+decay] = np.linspace(1, sustain_level, decay)
-            # Sustain
-            env[attack+decay:attack+decay+sustain] = sustain_level
-            # Release
-            env[attack+decay+sustain:] = np.linspace(sustain_level, 0, release)
-            return env
-        else:
-            return np.ones(size)  # Rectangular
-    
-    def _pitch_shift_grain(self, grain, ratio, sample_rate):
-        """Simple pitch shifting using interpolation."""
-        if ratio == 1.0:
-            return grain
-        
-        channels, length = grain.shape
-        new_length = int(length / ratio)
-        
-        if new_length <= 0:
-            return np.zeros((channels, 1))
-        
-        # Simple linear interpolation for pitch shifting
-        old_indices = np.linspace(0, length - 1, new_length)
-        new_grain = np.zeros((channels, new_length))
-        
-        for c in range(channels):
-            new_grain[c] = np.interp(old_indices, np.arange(length), grain[c])
-        
-        return new_grain
 
 
 class GranularSequencerNode:
@@ -1618,6 +1408,7 @@ class GranularSequencerNode:
             waveform = audio["waveform"]
             sample_rate = audio["sample_rate"]
             
+            # Convert to numpy and ensure proper shape
             if hasattr(waveform, 'cpu'):
                 audio_np = waveform.cpu().numpy()
             else:
@@ -1625,6 +1416,10 @@ class GranularSequencerNode:
             
             if audio_np.ndim == 1:
                 audio_np = audio_np.reshape(1, -1)
+            elif audio_np.ndim == 3:  # Fix tensor shape issues
+                audio_np = audio_np.squeeze()
+                if audio_np.ndim == 1:
+                    audio_np = audio_np.reshape(1, -1)
             
             # Generate sequence pattern
             pattern = self._generate_sequence_pattern(steps, euclidean_rhythm, probability)
@@ -1770,6 +1565,7 @@ class GranularSequencerNode:
             
             # Extract grain
             grain = audio[:, source_pos:source_pos + grain_size_samples]
+            original_grain_size = grain_size_samples
             
             # Apply pitch offset (simple rate change)
             if pitch_offset != 0:
@@ -1783,17 +1579,253 @@ class GranularSequencerNode:
                     grain = new_grain
                     grain_size_samples = new_length
             
-            # Apply envelope and velocity
-            envelope = np.hanning(grain_size_samples)
+            # Apply envelope and velocity - use actual grain size for envelope
+            envelope = np.hanning(grain_size_samples)  # Use actual grain size
             grain = grain * envelope[np.newaxis, :] * velocity
             
-            # Add to step output
+            # Add to step output - ensure we don't exceed bounds
             end_pos = min(step_pos + grain_size_samples, step_samples)
             actual_length = end_pos - step_pos
             if actual_length > 0:
-                output[:, step_pos:end_pos] += grain[:, :actual_length]
+                # Ensure grain is cropped to fit
+                grain_to_add = grain[:, :actual_length]
+                output[:, step_pos:end_pos] += grain_to_add
         
         return output
+
+
+class GranularProcessorNode:
+    """🌟 PHASE 2: Ultimate granular synthesis engine with professional controls."""
+    
+    GRAIN_ENVELOPES = ["hann", "gaussian", "triangle", "exponential", "adsr"]
+    POSITIONING_MODES = ["sequential", "random", "reverse", "pingpong", "freeze"]
+    PITCH_MODES = ["transpose", "random", "lfo", "envelope"]
+    
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "audio": ("AUDIO", {"tooltip": "Input audio for granular processing"}),
+                "grain_size": ("FLOAT", {"default": 100.0, "min": 1.0, "max": 1000.0, "step": 0.1, "tooltip": "Grain size in milliseconds"}),
+                "grain_density": ("FLOAT", {"default": 10.0, "min": 0.1, "max": 1000.0, "step": 0.1, "tooltip": "Grains per second"}),
+                "pitch_ratio": ("FLOAT", {"default": 1.0, "min": 0.1, "max": 4.0, "step": 0.01, "tooltip": "Pitch transposition ratio"}),
+                "grain_envelope": (cls.GRAIN_ENVELOPES, {"default": "hann"}),
+                "positioning_mode": (cls.POSITIONING_MODES, {"default": "sequential"}),
+                "pitch_mode": (cls.PITCH_MODES, {"default": "transpose"}),
+                "amplitude": ("FLOAT", {"default": 0.8, "min": 0.0, "max": 2.0, "step": 0.01}),
+            },
+            "optional": {
+                "grain_scatter": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 1.0, "step": 0.01}),
+                "position_offset": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 1.0, "step": 0.01}),
+                "pitch_scatter": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 2.0, "step": 0.01}),
+                "grain_overlap": ("FLOAT", {"default": 0.5, "min": 0.0, "max": 0.95, "step": 0.01}),
+                "stereo_spread": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 1.0, "step": 0.01}),
+                "freeze_position": ("FLOAT", {"default": 0.5, "min": 0.0, "max": 1.0, "step": 0.01}),
+            }
+        }
+    
+    RETURN_TYPES = ("AUDIO",)
+    RETURN_NAMES = ("granular_audio",)
+    FUNCTION = "process_granular"
+    CATEGORY = "🎵 NoiseGen/Granular"
+    DESCRIPTION = "🌟 PHASE 2: Ultimate granular synthesis engine with professional controls"
+    
+    def process_granular(self, audio, grain_size, grain_density, pitch_ratio, grain_envelope, 
+                        positioning_mode, pitch_mode, amplitude, grain_scatter=0.0, 
+                        position_offset=0.0, pitch_scatter=0.0, grain_overlap=0.5, 
+                        stereo_spread=0.0, freeze_position=0.5):
+        try:
+            waveform = audio["waveform"]
+            sample_rate = audio["sample_rate"]
+            
+            # Convert to numpy and ensure proper shape
+            if hasattr(waveform, 'cpu'):
+                audio_np = waveform.cpu().numpy()
+            else:
+                audio_np = waveform
+            
+            if audio_np.ndim == 1:
+                audio_np = audio_np.reshape(1, -1)
+            elif audio_np.ndim == 3:  # Fix tensor shape issues
+                audio_np = audio_np.squeeze()
+                if audio_np.ndim == 1:
+                    audio_np = audio_np.reshape(1, -1)
+            
+            # Apply granular processing
+            processed = self._apply_granular_synthesis(
+                audio_np, sample_rate, grain_size, grain_density, pitch_ratio,
+                grain_envelope, positioning_mode, pitch_mode, grain_scatter,
+                position_offset, pitch_scatter, grain_overlap, stereo_spread, freeze_position
+            )
+            
+            # Apply amplitude
+            processed *= amplitude
+            
+            # Safety limiting
+            max_val = np.max(np.abs(processed))
+            if max_val > 1.0:
+                processed /= max_val
+            
+            result_tensor = torch.from_numpy(processed).float()
+            output_audio = {"waveform": result_tensor, "sample_rate": sample_rate}
+            
+            return (output_audio,)
+            
+        except Exception as e:
+            print(f"❌ Error in granular processing: {str(e)}")
+            return (audio,)
+    
+    def _apply_granular_synthesis(self, audio, sample_rate, grain_size_ms, grain_density, 
+                                pitch_ratio, envelope_type, pos_mode, pitch_mode, scatter,
+                                pos_offset, pitch_scatter, overlap, stereo_spread, freeze_pos):
+        """Core granular synthesis engine."""
+        
+        channels, samples = audio.shape
+        grain_size_samples = int(grain_size_ms * sample_rate / 1000.0)
+        grain_hop = max(1, int(sample_rate / grain_density))
+        
+        # Calculate output length accounting for pitch ratio
+        output_length = int(samples / pitch_ratio) if pitch_ratio > 0 else samples
+        output = np.zeros((channels, output_length))
+        
+        # Current playhead position
+        current_pos = 0.0
+        output_pos = 0
+        
+        while output_pos < output_length - grain_size_samples:
+            # Calculate grain parameters with scatter
+            actual_grain_size = grain_size_samples
+            if scatter > 0:
+                size_variation = np.random.uniform(-scatter, scatter) * grain_size_samples * 0.3
+                actual_grain_size = max(10, int(grain_size_samples + size_variation))
+            
+            # Determine grain source position
+            if pos_mode == "sequential":
+                source_pos = current_pos + pos_offset * samples
+            elif pos_mode == "random":
+                source_pos = np.random.uniform(0, samples - actual_grain_size)
+            elif pos_mode == "reverse":
+                source_pos = samples - current_pos - actual_grain_size
+            elif pos_mode == "pingpong":
+                ping_cycle = (current_pos % (2 * samples)) / samples
+                if ping_cycle <= 1.0:
+                    source_pos = ping_cycle * samples
+                else:
+                    source_pos = (2.0 - ping_cycle) * samples
+            elif pos_mode == "freeze":
+                source_pos = freeze_pos * samples
+            else:
+                source_pos = current_pos
+            
+            source_pos = np.clip(source_pos, 0, samples - actual_grain_size)
+            source_start = int(source_pos)
+            source_end = source_start + actual_grain_size
+            
+            # Extract and process grain
+            if source_end <= samples:
+                grain = audio[:, source_start:source_end]
+                
+                # Apply pitch processing
+                if pitch_mode == "transpose" and pitch_ratio != 1.0:
+                    grain = self._pitch_shift_grain(grain, pitch_ratio, sample_rate)
+                elif pitch_mode == "random" and pitch_scatter > 0:
+                    random_ratio = 1.0 + np.random.uniform(-pitch_scatter, pitch_scatter)
+                    grain = self._pitch_shift_grain(grain, random_ratio, sample_rate)
+                
+                # Generate envelope for actual grain size
+                envelope = self._generate_grain_envelope(grain.shape[1], envelope_type)
+                
+                # Apply envelope
+                grain = grain * envelope[np.newaxis, :]
+                
+                # Apply stereo spread
+                if channels == 2 and stereo_spread > 0:
+                    spread_amount = np.random.uniform(-stereo_spread, stereo_spread)
+                    if spread_amount > 0:
+                        grain[0] *= (1.0 - spread_amount)  # Reduce left
+                    else:
+                        grain[1] *= (1.0 + spread_amount)  # Reduce right
+                
+                # Add grain to output with overlap
+                end_pos = min(output_pos + grain.shape[1], output_length)
+                actual_length = end_pos - output_pos
+                
+                if actual_length > 0:
+                    output[:, output_pos:end_pos] += grain[:, :actual_length]
+            
+            # Advance positions
+            hop_variation = 1.0
+            if scatter > 0:
+                hop_variation = 1.0 + np.random.uniform(-scatter * 0.5, scatter * 0.5)
+            
+            actual_hop = int(grain_hop * hop_variation * (1.0 - overlap))
+            current_pos += actual_hop / pitch_ratio if pitch_ratio > 0 else actual_hop
+            output_pos += actual_hop
+            
+            # Wrap position for looping modes
+            if current_pos >= samples:
+                current_pos = 0.0
+        
+        return output
+    
+    def _generate_grain_envelope(self, size, envelope_type):
+        """Generate grain envelope based on type."""
+        t = np.linspace(0, 1, size)
+        
+        if envelope_type == "hann":
+            return 0.5 * (1 - np.cos(2 * np.pi * t))
+        elif envelope_type == "gaussian":
+            sigma = 0.3
+            return np.exp(-0.5 * ((t - 0.5) / sigma) ** 2)
+        elif envelope_type == "triangle":
+            return 1.0 - np.abs(2 * t - 1)
+        elif envelope_type == "exponential":
+            return np.where(t <= 0.5, 
+                          np.exp(4 * t - 2), 
+                          np.exp(2 - 4 * t))
+        elif envelope_type == "adsr":
+            attack = int(size * 0.1)
+            decay = int(size * 0.2)
+            sustain_level = 0.7
+            sustain = int(size * 0.4)
+            release = size - attack - decay - sustain
+            
+            env = np.ones(size)
+            # Attack
+            if attack > 0:
+                env[:attack] = np.linspace(0, 1, attack)
+            # Decay
+            if decay > 0:
+                env[attack:attack+decay] = np.linspace(1, sustain_level, decay)
+            # Sustain
+            if sustain > 0:
+                env[attack+decay:attack+decay+sustain] = sustain_level
+            # Release
+            if release > 0:
+                env[attack+decay+sustain:] = np.linspace(sustain_level, 0, release)
+            return env
+        else:
+            return np.ones(size)  # Rectangular
+    
+    def _pitch_shift_grain(self, grain, ratio, sample_rate):
+        """Simple pitch shifting using interpolation."""
+        if ratio == 1.0:
+            return grain
+        
+        channels, length = grain.shape
+        new_length = int(length / ratio)
+        
+        if new_length <= 0:
+            return np.zeros((channels, 1))
+        
+        # Simple linear interpolation for pitch shifting
+        old_indices = np.linspace(0, length - 1, new_length)
+        new_grain = np.zeros((channels, new_length))
+        
+        for c in range(channels):
+            new_grain[c] = np.interp(old_indices, np.arange(length), grain[c])
+        
+        return new_grain
 
 
 class MicrosoundSculptorNode:
@@ -1841,6 +1873,7 @@ class MicrosoundSculptorNode:
             waveform = audio["waveform"]
             sample_rate = audio["sample_rate"]
             
+            # Convert to numpy and ensure proper shape
             if hasattr(waveform, 'cpu'):
                 audio_np = waveform.cpu().numpy()
             else:
@@ -1848,6 +1881,10 @@ class MicrosoundSculptorNode:
             
             if audio_np.ndim == 1:
                 audio_np = audio_np.reshape(1, -1)
+            elif audio_np.ndim == 3:  # Fix tensor shape issues
+                audio_np = audio_np.squeeze()
+                if audio_np.ndim == 1:
+                    audio_np = audio_np.reshape(1, -1)
             
             # Apply extreme microsound processing
             processed = self._apply_microsound_sculpting(
