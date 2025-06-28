@@ -1222,6 +1222,728 @@ class AudioSaveNode:
 
 
 # =============================================================================
+# 🌟 PHASE 2: GRANULAR SYNTHESIS ENGINE - The Crown Jewel
+# =============================================================================
+
+class GranularProcessorNode:
+    """🌟 PHASE 2: Ultimate granular synthesis powerhouse for microsound control."""
+    
+    GRAIN_SOURCES = ["input", "oscillator", "noise", "sample"]
+    GRAIN_ENVELOPES = ["hann", "gaussian", "triangle", "exponential", "adsr"]
+    POSITIONING_MODES = ["sequential", "random", "reverse", "pingpong", "freeze"]
+    PITCH_MODES = ["preserve", "transpose", "random", "microtonal"]
+    
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "audio": ("AUDIO", {"tooltip": "Input audio for granular processing"}),
+                "grain_size": ("FLOAT", {"default": 50.0, "min": 1.0, "max": 1000.0, "step": 0.1, "tooltip": "Grain duration in milliseconds"}),
+                "grain_density": ("FLOAT", {"default": 20.0, "min": 0.1, "max": 1000.0, "step": 0.1, "tooltip": "Grains per second"}),
+                "pitch_ratio": ("FLOAT", {"default": 1.0, "min": 0.25, "max": 4.0, "step": 0.01, "tooltip": "Pitch transposition ratio"}),
+                "grain_envelope": (cls.GRAIN_ENVELOPES, {"default": "hann"}),
+                "positioning_mode": (cls.POSITIONING_MODES, {"default": "random"}),
+                "pitch_mode": (cls.PITCH_MODES, {"default": "transpose"}),
+                "grain_scatter": ("FLOAT", {"default": 0.3, "min": 0.0, "max": 1.0, "step": 0.01, "tooltip": "Random timing variation"}),
+                "amplitude": ("FLOAT", {"default": 0.8, "min": 0.0, "max": 2.0, "step": 0.01}),
+            },
+            "optional": {
+                "position_offset": ("FLOAT", {"default": 0.0, "min": -1.0, "max": 1.0, "step": 0.01, "tooltip": "Playhead position offset"}),
+                "pitch_scatter": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 1.0, "step": 0.01, "tooltip": "Random pitch variation"}),
+                "grain_overlap": ("FLOAT", {"default": 0.5, "min": 0.0, "max": 0.95, "step": 0.01, "tooltip": "Grain overlap factor"}),
+                "stereo_spread": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 1.0, "step": 0.01, "tooltip": "Stereo positioning spread"}),
+                "freeze_position": ("FLOAT", {"default": 0.5, "min": 0.0, "max": 1.0, "step": 0.01, "tooltip": "Position for freeze mode"}),
+            }
+        }
+    
+    RETURN_TYPES = ("AUDIO",)
+    RETURN_NAMES = ("granular_audio",)
+    FUNCTION = "process_granular"
+    CATEGORY = "🌟 NoiseGen/Granular"
+    DESCRIPTION = "🌟 PHASE 2: Ultimate granular synthesis powerhouse for microsound control"
+    
+    def __init__(self):
+        self.grain_buffer = None
+        self.grain_positions = []
+        self.grain_states = []
+    
+    def process_granular(self, audio, grain_size, grain_density, pitch_ratio, grain_envelope, 
+                        positioning_mode, pitch_mode, grain_scatter, amplitude,
+                        position_offset=0.0, pitch_scatter=0.0, grain_overlap=0.5, 
+                        stereo_spread=0.0, freeze_position=0.5):
+        try:
+            waveform = audio["waveform"]
+            sample_rate = audio["sample_rate"]
+            
+            if hasattr(waveform, 'cpu'):
+                audio_np = waveform.cpu().numpy()
+            else:
+                audio_np = waveform
+            
+            if audio_np.ndim == 1:
+                audio_np = audio_np.reshape(1, -1)
+            
+            # Apply granular synthesis
+            processed = self._apply_granular_synthesis(
+                audio_np, sample_rate, grain_size, grain_density, pitch_ratio,
+                grain_envelope, positioning_mode, pitch_mode, grain_scatter,
+                position_offset, pitch_scatter, grain_overlap, stereo_spread, freeze_position
+            )
+            
+            # Apply amplitude
+            processed *= amplitude
+            
+            # Safety limiting
+            max_val = np.max(np.abs(processed))
+            if max_val > 1.0:
+                processed /= max_val
+            
+            result_tensor = torch.from_numpy(processed).float()
+            output_audio = {"waveform": result_tensor, "sample_rate": sample_rate}
+            
+            return (output_audio,)
+            
+        except Exception as e:
+            print(f"❌ Error in granular processing: {str(e)}")
+            return (audio,)
+    
+    def _apply_granular_synthesis(self, audio, sample_rate, grain_size_ms, grain_density, 
+                                pitch_ratio, envelope_type, pos_mode, pitch_mode, scatter,
+                                pos_offset, pitch_scatter, overlap, stereo_spread, freeze_pos):
+        """Core granular synthesis engine."""
+        
+        channels, samples = audio.shape
+        grain_size_samples = int(grain_size_ms * sample_rate / 1000.0)
+        grain_hop = int(sample_rate / grain_density)
+        
+        # Calculate output length accounting for pitch ratio
+        output_length = int(samples / pitch_ratio) if pitch_ratio > 0 else samples
+        output = np.zeros((channels, output_length))
+        
+        # Generate grain envelope
+        envelope = self._generate_grain_envelope(grain_size_samples, envelope_type)
+        
+        # Current playhead position
+        current_pos = 0.0
+        output_pos = 0
+        
+        while output_pos < output_length - grain_size_samples:
+            # Calculate grain parameters with scatter
+            actual_grain_size = grain_size_samples
+            if scatter > 0:
+                size_variation = np.random.uniform(-scatter, scatter) * grain_size_samples * 0.3
+                actual_grain_size = max(10, int(grain_size_samples + size_variation))
+            
+            # Determine grain source position
+            if pos_mode == "sequential":
+                source_pos = current_pos + pos_offset * samples
+            elif pos_mode == "random":
+                source_pos = np.random.uniform(0, samples - actual_grain_size)
+            elif pos_mode == "reverse":
+                source_pos = samples - current_pos - actual_grain_size
+            elif pos_mode == "pingpong":
+                ping_cycle = (current_pos % (2 * samples)) / samples
+                if ping_cycle <= 1.0:
+                    source_pos = ping_cycle * samples
+                else:
+                    source_pos = (2.0 - ping_cycle) * samples
+            elif pos_mode == "freeze":
+                source_pos = freeze_pos * samples
+            else:
+                source_pos = current_pos
+            
+            source_pos = np.clip(source_pos, 0, samples - actual_grain_size)
+            source_start = int(source_pos)
+            source_end = source_start + actual_grain_size
+            
+            # Extract and process grain
+            if source_end <= samples:
+                grain = audio[:, source_start:source_end]
+                
+                # Apply pitch processing
+                if pitch_mode == "transpose" and pitch_ratio != 1.0:
+                    grain = self._pitch_shift_grain(grain, pitch_ratio, sample_rate)
+                elif pitch_mode == "random" and pitch_scatter > 0:
+                    random_ratio = 1.0 + np.random.uniform(-pitch_scatter, pitch_scatter)
+                    grain = self._pitch_shift_grain(grain, random_ratio, sample_rate)
+                
+                # Ensure grain size matches envelope
+                if grain.shape[1] != len(envelope):
+                    if grain.shape[1] > len(envelope):
+                        grain = grain[:, :len(envelope)]
+                    else:
+                        # Pad grain if needed
+                        padding = len(envelope) - grain.shape[1]
+                        grain = np.pad(grain, ((0, 0), (0, padding)), mode='constant')
+                
+                # Apply envelope
+                grain = grain * envelope[np.newaxis, :]
+                
+                # Apply stereo spread
+                if channels == 2 and stereo_spread > 0:
+                    spread_amount = np.random.uniform(-stereo_spread, stereo_spread)
+                    if spread_amount > 0:
+                        grain[0] *= (1.0 - spread_amount)  # Reduce left
+                    else:
+                        grain[1] *= (1.0 + spread_amount)  # Reduce right
+                
+                # Add grain to output with overlap
+                end_pos = min(output_pos + len(envelope), output_length)
+                actual_length = end_pos - output_pos
+                
+                if actual_length > 0:
+                    output[:, output_pos:end_pos] += grain[:, :actual_length]
+            
+            # Advance positions
+            hop_variation = 1.0
+            if scatter > 0:
+                hop_variation = 1.0 + np.random.uniform(-scatter * 0.5, scatter * 0.5)
+            
+            actual_hop = int(grain_hop * hop_variation * (1.0 - overlap))
+            current_pos += actual_hop / pitch_ratio if pitch_ratio > 0 else actual_hop
+            output_pos += actual_hop
+            
+            # Wrap position for looping modes
+            if current_pos >= samples:
+                current_pos = 0.0
+        
+        return output
+    
+    def _generate_grain_envelope(self, size, envelope_type):
+        """Generate grain envelope based on type."""
+        t = np.linspace(0, 1, size)
+        
+        if envelope_type == "hann":
+            return 0.5 * (1 - np.cos(2 * np.pi * t))
+        elif envelope_type == "gaussian":
+            sigma = 0.3
+            return np.exp(-0.5 * ((t - 0.5) / sigma) ** 2)
+        elif envelope_type == "triangle":
+            return 1.0 - np.abs(2 * t - 1)
+        elif envelope_type == "exponential":
+            return np.where(t <= 0.5, 
+                          np.exp(4 * t - 2), 
+                          np.exp(2 - 4 * t))
+        elif envelope_type == "adsr":
+            attack = int(size * 0.1)
+            decay = int(size * 0.2)
+            sustain_level = 0.7
+            sustain = int(size * 0.4)
+            release = size - attack - decay - sustain
+            
+            env = np.ones(size)
+            # Attack
+            env[:attack] = np.linspace(0, 1, attack)
+            # Decay
+            env[attack:attack+decay] = np.linspace(1, sustain_level, decay)
+            # Sustain
+            env[attack+decay:attack+decay+sustain] = sustain_level
+            # Release
+            env[attack+decay+sustain:] = np.linspace(sustain_level, 0, release)
+            return env
+        else:
+            return np.ones(size)  # Rectangular
+    
+    def _pitch_shift_grain(self, grain, ratio, sample_rate):
+        """Simple pitch shifting using interpolation."""
+        if ratio == 1.0:
+            return grain
+        
+        channels, length = grain.shape
+        new_length = int(length / ratio)
+        
+        if new_length <= 0:
+            return np.zeros((channels, 1))
+        
+        # Simple linear interpolation for pitch shifting
+        old_indices = np.linspace(0, length - 1, new_length)
+        new_grain = np.zeros((channels, new_length))
+        
+        for c in range(channels):
+            new_grain[c] = np.interp(old_indices, np.arange(length), grain[c])
+        
+        return new_grain
+
+
+class GranularSequencerNode:
+    """🎵 PHASE 2: Pattern-based granular control with step sequencing."""
+    
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "audio": ("AUDIO", {"tooltip": "Input audio for sequenced granular processing"}),
+                "steps": ("INT", {"default": 8, "min": 1, "max": 64, "tooltip": "Number of sequence steps"}),
+                "step_duration": ("FLOAT", {"default": 0.125, "min": 0.01, "max": 4.0, "step": 0.001, "tooltip": "Duration per step in seconds"}),
+                "base_grain_size": ("FLOAT", {"default": 100.0, "min": 10.0, "max": 500.0, "step": 1.0}),
+                "base_density": ("FLOAT", {"default": 10.0, "min": 1.0, "max": 100.0, "step": 0.1}),
+                "pattern_variation": ("FLOAT", {"default": 0.5, "min": 0.0, "max": 1.0, "step": 0.01, "tooltip": "Pattern randomization amount"}),
+                "swing": ("FLOAT", {"default": 0.0, "min": -0.5, "max": 0.5, "step": 0.01, "tooltip": "Groove timing offset"}),
+                "amplitude": ("FLOAT", {"default": 0.8, "min": 0.0, "max": 2.0, "step": 0.01}),
+            },
+            "optional": {
+                "probability": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.01, "tooltip": "Global trigger probability"}),
+                "velocity_variation": ("FLOAT", {"default": 0.2, "min": 0.0, "max": 1.0, "step": 0.01}),
+                "euclidean_rhythm": ("INT", {"default": 0, "min": 0, "max": 32, "tooltip": "Euclidean rhythm pattern (0 = off)"}),
+            }
+        }
+    
+    RETURN_TYPES = ("AUDIO",)
+    RETURN_NAMES = ("sequenced_audio",)
+    FUNCTION = "process_sequenced_granular"
+    CATEGORY = "🌟 NoiseGen/Granular"
+    DESCRIPTION = "🎵 PHASE 2: Pattern-based granular control with step sequencing"
+    
+    def __init__(self):
+        self.current_step = 0
+        self.step_patterns = {}
+    
+    def process_sequenced_granular(self, audio, steps, step_duration, base_grain_size, base_density,
+                                 pattern_variation, swing, amplitude, probability=1.0, 
+                                 velocity_variation=0.2, euclidean_rhythm=0):
+        try:
+            waveform = audio["waveform"]
+            sample_rate = audio["sample_rate"]
+            
+            if hasattr(waveform, 'cpu'):
+                audio_np = waveform.cpu().numpy()
+            else:
+                audio_np = waveform
+            
+            if audio_np.ndim == 1:
+                audio_np = audio_np.reshape(1, -1)
+            
+            # Generate sequence pattern
+            pattern = self._generate_sequence_pattern(steps, euclidean_rhythm, probability)
+            
+            # Apply sequenced granular processing
+            processed = self._apply_sequenced_granular(
+                audio_np, sample_rate, pattern, step_duration, base_grain_size, 
+                base_density, pattern_variation, swing, velocity_variation
+            )
+            
+            # Apply amplitude
+            processed *= amplitude
+            
+            # Safety limiting
+            max_val = np.max(np.abs(processed))
+            if max_val > 1.0:
+                processed /= max_val
+            
+            result_tensor = torch.from_numpy(processed).float()
+            output_audio = {"waveform": result_tensor, "sample_rate": sample_rate}
+            
+            return (output_audio,)
+            
+        except Exception as e:
+            print(f"❌ Error in sequenced granular: {str(e)}")
+            return (audio,)
+    
+    def _generate_sequence_pattern(self, steps, euclidean_rhythm, probability):
+        """Generate sequence pattern with optional euclidean rhythm."""
+        pattern = []
+        
+        if euclidean_rhythm > 0:
+            # Generate euclidean rhythm
+            pattern = self._generate_euclidean_pattern(steps, euclidean_rhythm)
+        else:
+            # Generate probability-based pattern
+            for i in range(steps):
+                active = np.random.random() < probability
+                velocity = np.random.uniform(0.5, 1.0) if active else 0.0
+                pattern.append({
+                    'active': active,
+                    'velocity': velocity,
+                    'grain_size_mult': np.random.uniform(0.5, 2.0),
+                    'density_mult': np.random.uniform(0.5, 2.0),
+                    'pitch_offset': np.random.uniform(-0.5, 0.5)
+                })
+        
+        return pattern
+    
+    def _generate_euclidean_pattern(self, steps, hits):
+        """Generate euclidean rhythm pattern."""
+        pattern = []
+        bucket = 0
+        
+        for i in range(steps):
+            bucket += hits
+            if bucket >= steps:
+                bucket -= steps
+                active = True
+                velocity = np.random.uniform(0.7, 1.0)
+            else:
+                active = False
+                velocity = 0.0
+            
+            pattern.append({
+                'active': active,
+                'velocity': velocity,
+                'grain_size_mult': np.random.uniform(0.8, 1.2),
+                'density_mult': np.random.uniform(0.8, 1.2),
+                'pitch_offset': np.random.uniform(-0.2, 0.2)
+            })
+        
+        return pattern
+    
+    def _apply_sequenced_granular(self, audio, sample_rate, pattern, step_duration,
+                                base_grain_size, base_density, pattern_variation, 
+                                swing, velocity_variation):
+        """Apply sequenced granular processing."""
+        channels, samples = audio.shape
+        
+        # Calculate total duration and create output buffer
+        total_duration = len(pattern) * step_duration
+        output_samples = int(total_duration * sample_rate)
+        output = np.zeros((channels, output_samples))
+        
+        # Process each step
+        for step_idx, step_data in enumerate(pattern):
+            if not step_data['active']:
+                continue
+            
+            # Calculate step timing with swing
+            step_start_time = step_idx * step_duration
+            if step_idx % 2 == 1:  # Apply swing to odd steps
+                step_start_time += swing * step_duration
+            
+            step_start_sample = int(step_start_time * sample_rate)
+            step_end_sample = int((step_start_time + step_duration) * sample_rate)
+            
+            if step_start_sample >= output_samples:
+                break
+            
+            # Calculate step parameters with variation
+            step_grain_size = base_grain_size * step_data['grain_size_mult']
+            step_density = base_density * step_data['density_mult']
+            step_velocity = step_data['velocity']
+            
+            # Add velocity variation
+            if velocity_variation > 0:
+                velocity_mod = 1.0 + np.random.uniform(-velocity_variation, velocity_variation)
+                step_velocity *= velocity_mod
+            
+            # Generate grains for this step
+            step_output = self._generate_step_grains(
+                audio, sample_rate, step_grain_size, step_density, 
+                step_duration, step_velocity, step_data['pitch_offset']
+            )
+            
+            # Add to output buffer
+            step_length = min(len(step_output[0]), step_end_sample - step_start_sample)
+            if step_length > 0:
+                output[:, step_start_sample:step_start_sample + step_length] += step_output[:, :step_length]
+        
+        return output
+    
+    def _generate_step_grains(self, audio, sample_rate, grain_size, density, 
+                            step_duration, velocity, pitch_offset):
+        """Generate grains for a single step."""
+        channels, samples = audio.shape
+        grain_size_samples = int(grain_size * sample_rate / 1000.0)
+        step_samples = int(step_duration * sample_rate)
+        
+        output = np.zeros((channels, step_samples))
+        
+        # Calculate number of grains for this step
+        num_grains = int(density * step_duration)
+        
+        for grain_idx in range(num_grains):
+            # Random grain position in source
+            source_pos = np.random.randint(0, max(1, samples - grain_size_samples))
+            
+            # Random grain position in step
+            step_pos = np.random.randint(0, max(1, step_samples - grain_size_samples))
+            
+            # Extract grain
+            grain = audio[:, source_pos:source_pos + grain_size_samples]
+            
+            # Apply pitch offset (simple rate change)
+            if pitch_offset != 0:
+                pitch_ratio = 2.0 ** pitch_offset
+                new_length = int(grain_size_samples * pitch_ratio)
+                if new_length > 0:
+                    old_indices = np.linspace(0, grain_size_samples - 1, new_length)
+                    new_grain = np.zeros((channels, new_length))
+                    for c in range(channels):
+                        new_grain[c] = np.interp(old_indices, np.arange(grain_size_samples), grain[c])
+                    grain = new_grain
+                    grain_size_samples = new_length
+            
+            # Apply envelope and velocity
+            envelope = np.hanning(grain_size_samples)
+            grain = grain * envelope[np.newaxis, :] * velocity
+            
+            # Add to step output
+            end_pos = min(step_pos + grain_size_samples, step_samples)
+            actual_length = end_pos - step_pos
+            if actual_length > 0:
+                output[:, step_pos:end_pos] += grain[:, :actual_length]
+        
+        return output
+
+
+class MicrosoundSculptorNode:
+    """⚡ PHASE 2: Extreme granular manipulation for harsh noise and microsound art."""
+    
+    DESTRUCTION_MODES = ["bitcrush", "saturation", "chaos", "ring_mod", "frequency_shift"]
+    SCULPTING_MODES = ["grain_filter", "grain_morph", "grain_feedback", "spectral_destroy"]
+    
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "audio": ("AUDIO", {"tooltip": "Input audio for extreme microsound processing"}),
+                "destruction_mode": (cls.DESTRUCTION_MODES, {"default": "chaos"}),
+                "destruction_intensity": ("FLOAT", {"default": 0.5, "min": 0.0, "max": 1.0, "step": 0.01}),
+                "sculpting_mode": (cls.SCULPTING_MODES, {"default": "grain_morph"}),
+                "sculpting_intensity": ("FLOAT", {"default": 0.3, "min": 0.0, "max": 1.0, "step": 0.01}),
+                "grain_size": ("FLOAT", {"default": 25.0, "min": 1.0, "max": 200.0, "step": 0.1}),
+                "chaos_rate": ("FLOAT", {"default": 10.0, "min": 0.1, "max": 100.0, "step": 0.1}),
+                "feedback_amount": ("FLOAT", {"default": 0.3, "min": 0.0, "max": 0.9, "step": 0.01}),
+                "amplitude": ("FLOAT", {"default": 0.8, "min": 0.0, "max": 2.0, "step": 0.01}),
+            },
+            "optional": {
+                "spectral_chaos": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 1.0, "step": 0.01}),
+                "grain_randomization": ("FLOAT", {"default": 0.5, "min": 0.0, "max": 1.0, "step": 0.01}),
+                "microsound_density": ("FLOAT", {"default": 50.0, "min": 1.0, "max": 1000.0, "step": 1.0}),
+            }
+        }
+    
+    RETURN_TYPES = ("AUDIO",)
+    RETURN_NAMES = ("microsound_audio",)
+    FUNCTION = "process_microsound"
+    CATEGORY = "🌟 NoiseGen/Granular"
+    DESCRIPTION = "⚡ PHASE 2: Extreme granular manipulation for harsh noise and microsound art"
+    
+    def __init__(self):
+        self.feedback_buffer = None
+        self.chaos_state = np.random.RandomState(42)
+    
+    def process_microsound(self, audio, destruction_mode, destruction_intensity, 
+                         sculpting_mode, sculpting_intensity, grain_size, chaos_rate,
+                         feedback_amount, amplitude, spectral_chaos=0.0, 
+                         grain_randomization=0.5, microsound_density=50.0):
+        try:
+            waveform = audio["waveform"]
+            sample_rate = audio["sample_rate"]
+            
+            if hasattr(waveform, 'cpu'):
+                audio_np = waveform.cpu().numpy()
+            else:
+                audio_np = waveform
+            
+            if audio_np.ndim == 1:
+                audio_np = audio_np.reshape(1, -1)
+            
+            # Apply extreme microsound processing
+            processed = self._apply_microsound_sculpting(
+                audio_np, sample_rate, destruction_mode, destruction_intensity,
+                sculpting_mode, sculpting_intensity, grain_size, chaos_rate,
+                feedback_amount, spectral_chaos, grain_randomization, microsound_density
+            )
+            
+            # Apply amplitude
+            processed *= amplitude
+            
+            # Safety limiting with some chaos
+            max_val = np.max(np.abs(processed))
+            if max_val > 1.0:
+                # Add slight chaos to limiting
+                chaos_factor = 1.0 + destruction_intensity * 0.1 * self.chaos_state.uniform(-1, 1)
+                processed = np.tanh(processed * chaos_factor)
+            
+            result_tensor = torch.from_numpy(processed).float()
+            output_audio = {"waveform": result_tensor, "sample_rate": sample_rate}
+            
+            return (output_audio,)
+            
+        except Exception as e:
+            print(f"❌ Error in microsound sculpting: {str(e)}")
+            return (audio,)
+    
+    def _apply_microsound_sculpting(self, audio, sample_rate, destruction_mode, destruction_intensity,
+                                  sculpting_mode, sculpting_intensity, grain_size_ms, chaos_rate,
+                                  feedback_amount, spectral_chaos, grain_randomization, density):
+        """Apply extreme microsound sculpting techniques."""
+        
+        channels, samples = audio.shape
+        grain_size_samples = int(grain_size_ms * sample_rate / 1000.0)
+        
+        # Initialize feedback buffer
+        if self.feedback_buffer is None or self.feedback_buffer.shape != audio.shape:
+            self.feedback_buffer = np.zeros_like(audio)
+        
+        output = np.zeros_like(audio)
+        
+        # Calculate grain hop size based on density
+        grain_hop = max(1, int(sample_rate / density))
+        
+        # Process in grains
+        for grain_start in range(0, samples - grain_size_samples, grain_hop):
+            grain_end = grain_start + grain_size_samples
+            
+            # Extract grain
+            grain = audio[:, grain_start:grain_end].copy()
+            
+            # Add feedback
+            if feedback_amount > 0:
+                feedback_grain = self.feedback_buffer[:, grain_start:grain_end]
+                grain = grain * (1 - feedback_amount) + feedback_grain * feedback_amount
+            
+            # Apply destruction processing
+            grain = self._apply_grain_destruction(grain, destruction_mode, destruction_intensity, 
+                                                sample_rate, chaos_rate)
+            
+            # Apply sculpting processing
+            grain = self._apply_grain_sculpting(grain, sculpting_mode, sculpting_intensity, 
+                                              sample_rate, spectral_chaos, grain_randomization)
+            
+            # Add grain to output with random positioning for chaos
+            if grain_randomization > 0:
+                pos_chaos = int(grain_randomization * grain_hop * self.chaos_state.uniform(-1, 1))
+                actual_start = np.clip(grain_start + pos_chaos, 0, samples - grain_size_samples)
+                actual_end = actual_start + grain_size_samples
+            else:
+                actual_start = grain_start
+                actual_end = grain_end
+            
+            # Apply grain envelope for smooth blending
+            envelope = np.hanning(grain_size_samples)
+            grain *= envelope[np.newaxis, :]
+            
+            # Add to output
+            output[:, actual_start:actual_end] += grain
+            
+            # Update feedback buffer
+            self.feedback_buffer[:, grain_start:grain_end] = grain * 0.7
+        
+        return output
+    
+    def _apply_grain_destruction(self, grain, mode, intensity, sample_rate, chaos_rate):
+        """Apply destructive processing to individual grains."""
+        
+        if intensity <= 0:
+            return grain
+        
+        if mode == "bitcrush":
+            # Reduce bit depth
+            bits = int(16 * (1 - intensity) + 1)
+            scale = 2 ** (bits - 1)
+            grain = np.round(grain * scale) / scale
+            
+        elif mode == "saturation":
+            # Heavy saturation/clipping
+            drive = 1 + intensity * 10
+            grain = np.tanh(grain * drive) / drive
+            
+        elif mode == "chaos":
+            # Chaotic modulation
+            chaos_freq = chaos_rate * intensity
+            chaos_phase = self.chaos_state.uniform(0, 2 * np.pi, grain.shape)
+            chaos_mod = 1 + intensity * 0.5 * np.sin(chaos_phase + 
+                                                    np.arange(grain.shape[1])[np.newaxis, :] * 
+                                                    chaos_freq / sample_rate * 2 * np.pi)
+            grain *= chaos_mod
+            
+        elif mode == "ring_mod":
+            # Ring modulation with chaos frequency
+            mod_freq = 100 + intensity * 2000 * self.chaos_state.uniform(0.5, 2.0)
+            mod_signal = np.sin(np.arange(grain.shape[1]) * mod_freq / sample_rate * 2 * np.pi)
+            grain *= (1 - intensity + intensity * mod_signal[np.newaxis, :])
+            
+        elif mode == "frequency_shift":
+            # Simple frequency shifting through modulation
+            shift_freq = intensity * 500 * self.chaos_state.uniform(-1, 1)
+            shift_signal = np.exp(1j * np.arange(grain.shape[1]) * shift_freq / sample_rate * 2 * np.pi)
+            # Apply frequency shift (simplified)
+            grain *= np.real(shift_signal[np.newaxis, :])
+        
+        return grain
+    
+    def _apply_grain_sculpting(self, grain, mode, intensity, sample_rate, spectral_chaos, randomization):
+        """Apply advanced sculpting to grains."""
+        
+        if intensity <= 0:
+            return grain
+        
+        if mode == "grain_filter":
+            # Random filtering per grain
+            cutoff = 200 + randomization * 8000 * self.chaos_state.uniform(0, 1)
+            resonance = intensity * 0.8
+            
+            # Simple IIR filter
+            omega = 2 * np.pi * cutoff / sample_rate
+            sin_omega = np.sin(omega)
+            cos_omega = np.cos(omega)
+            alpha = sin_omega / (2 * (1 / resonance))
+            
+            b0 = (1 - cos_omega) / 2
+            b1 = 1 - cos_omega
+            b2 = (1 - cos_omega) / 2
+            a0 = 1 + alpha
+            a1 = -2 * cos_omega
+            a2 = 1 - alpha
+            
+            # Normalize
+            b0 /= a0
+            b1 /= a0
+            b2 /= a0
+            a1 /= a0
+            a2 /= a0
+            
+            # Apply filter
+            for c in range(grain.shape[0]):
+                # Simple filtering implementation
+                filtered = np.zeros_like(grain[c])
+                x1 = x2 = y1 = y2 = 0.0
+                
+                for i in range(len(grain[c])):
+                    x0 = grain[c, i]
+                    y0 = b0 * x0 + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2
+                    filtered[i] = y0
+                    
+                    x2, x1 = x1, x0
+                    y2, y1 = y1, y0
+                
+                grain[c] = grain[c] * (1 - intensity) + filtered * intensity
+        
+        elif mode == "grain_morph":
+            # Morphing/warping grains
+            warp_amount = intensity * randomization
+            if warp_amount > 0:
+                warp_factor = 1 + warp_amount * self.chaos_state.uniform(-0.5, 0.5, grain.shape[1])
+                
+                # Time warping
+                old_indices = np.cumsum(warp_factor)
+                old_indices = old_indices / old_indices[-1] * (grain.shape[1] - 1)
+                
+                for c in range(grain.shape[0]):
+                    grain[c] = np.interp(np.arange(grain.shape[1]), old_indices, grain[c])
+        
+        elif mode == "grain_feedback":
+            # Self-modulating grains
+            delay_samples = max(1, int(grain.shape[1] * 0.1))
+            fb_amount = intensity * 0.8
+            
+            for i in range(delay_samples, grain.shape[1]):
+                grain[:, i] += grain[:, i - delay_samples] * fb_amount
+        
+        elif mode == "spectral_destroy":
+            # Spectral destruction
+            if spectral_chaos > 0:
+                # Simple spectral chaos by randomizing phase
+                fft_grain = np.fft.fft(grain, axis=1)
+                phase_chaos = spectral_chaos * self.chaos_state.uniform(-np.pi, np.pi, fft_grain.shape)
+                magnitude = np.abs(fft_grain)
+                new_phase = np.angle(fft_grain) + phase_chaos
+                fft_grain = magnitude * np.exp(1j * new_phase)
+                grain = np.real(np.fft.ifft(fft_grain, axis=1))
+        
+        return grain
+
+
+# =============================================================================
 # NODE MAPPINGS FOR COMFYUI
 # =============================================================================
 
@@ -1242,6 +1964,11 @@ NODE_CLASS_MAPPINGS = {
     # 🎛️ MIXERS
     "AudioMixer": AudioMixerNode,
     "ChaosNoiseMix": ChaosNoiseMixNode,
+    
+    # 🌟 PHASE 2: GRANULAR SYNTHESIS
+    "GranularProcessor": GranularProcessorNode,
+    "GranularSequencer": GranularSequencerNode,
+    "MicrosoundSculptor": MicrosoundSculptorNode,
     
     # 🔧 UTILITIES
     "AudioSave": AudioSaveNode,
@@ -1264,6 +1991,11 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     # 🎛️ MIXERS
     "AudioMixer": "🎛️ Audio Mixer",
     "ChaosNoiseMix": "⚡ Chaos Noise Mix",
+    
+    # 🌟 PHASE 2: GRANULAR SYNTHESIS
+    "GranularProcessor": "🌟 Granular Processor",
+    "GranularSequencer": "🎵 Granular Sequencer", 
+    "MicrosoundSculptor": "⚡ Microsound Sculptor",
     
     # 🔧 UTILITIES
     "AudioSave": "💾 Audio Save",
