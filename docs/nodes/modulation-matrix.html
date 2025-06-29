@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MODULATION MATRIX - NOISEGEN</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- EXTERNAL CSS ARCHITECTURE -->
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/sidebar.css">  
+    <link rel="stylesheet" href="../css/themes.css">
+    <link rel="stylesheet" href="../css/animations.css">
+</head>
+<body class="theme-processor">
+    <div class="container">
+        <div class="main-content">
+            <header class="header">
+                <a href="../index.html" class="back-link">← INDEX</a>
+                <div class="node-category">PROCESSOR</div>
+                <h1 class="node-title">MODULATION MATRIX</h1>
+                <div class="node-description">8x8 modulation routing matrix for complex parameter automation and interconnected processing</div>
+            </header>
+
+            <div class="node-visual">
+                <div class="matrix-display">
+                    <div class="matrix-header">8×8 MODULATION MATRIX</div>
+                    
+                    <div class="modulation-grid">
+                        <div class="mod-source">
+                            <div class="source-label">LFO1</div>
+                            <div class="source-wave"></div>
+                        </div>
+                        <div class="mod-source">
+                            <div class="source-label">LFO2</div>
+                            <div class="source-wave"></div>
+                        </div>
+                        <div class="mod-source">
+                            <div class="source-label">ENV</div>
+                            <div class="source-wave"></div>
+                        </div>
+                        <div class="mod-source">
+                            <div class="source-label">CHAOS</div>
+                            <div class="source-wave"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="routing-matrix">
+                        <div class="matrix-row">
+                            <div class="matrix-cell active"></div>
+                            <div class="matrix-cell"></div>
+                            <div class="matrix-cell"></div>
+                            <div class="matrix-cell active"></div>
+                        </div>
+                        <div class="matrix-row">
+                            <div class="matrix-cell"></div>
+                            <div class="matrix-cell active"></div>
+                            <div class="matrix-cell"></div>
+                            <div class="matrix-cell"></div>
+                        </div>
+                        <div class="matrix-row">
+                            <div class="matrix-cell"></div>
+                            <div class="matrix-cell"></div>
+                            <div class="matrix-cell active"></div>
+                            <div class="matrix-cell"></div>
+                        </div>
+                        <div class="matrix-row">
+                            <div class="matrix-cell active"></div>
+                            <div class="matrix-cell"></div>
+                            <div class="matrix-cell"></div>
+                            <div class="matrix-cell active"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="signal-flows">
+                        <div class="signal-line signal-1"></div>
+                        <div class="signal-line signal-2"></div>
+                        <div class="signal-line signal-3"></div>
+                        <div class="signal-line signal-4"></div>
+                    </div>
+                    
+                    <div class="destination-targets">
+                        <div class="dest-target">
+                            <div class="target-label">FILTER</div>
+                            <div class="target-meter"></div>
+                        </div>
+                        <div class="dest-target">
+                            <div class="target-label">PITCH</div>
+                            <div class="target-meter"></div>
+                        </div>
+                        <div class="dest-target">
+                            <div class="target-label">AMP</div>
+                            <div class="target-meter"></div>
+                        </div>
+                        <div class="dest-target">
+                            <div class="target-label">MIX</div>
+                            <div class="target-meter"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">TECHNICAL SPECIFICATIONS</h2>
+                </div>
+                <div class="section-content">
+                    <div class="specs-grid">
+                        <div class="spec-item">
+                            <div class="spec-label">MATRIX SIZE</div>
+                            <div class="spec-value">8 Sources × 8 Destinations</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">MODULATION SOURCES</div>
+                            <div class="spec-value">LFO, Envelope, Chaos, Audio</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">ROUTING MODES</div>
+                            <div class="spec-value">12 connection types</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">CONTROL RANGE</div>
+                            <div class="spec-value">±100% bipolar modulation</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">UPDATE RATE</div>
+                            <div class="spec-value">Audio rate (96kHz max)</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">PRECISION</div>
+                            <div class="spec-value">32-bit floating point</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">MODULATION MATRIX LAYOUT</h2>
+                </div>
+                <div class="section-content">
+                    <div class="matrix-grid">
+                        <div class="matrix-cell header">SOURCE/DEST</div>
+                        <div class="matrix-cell header">FILTER</div>
+                        <div class="matrix-cell header">AMP</div>
+                        <div class="matrix-cell header">PITCH</div>
+                        <div class="matrix-cell header">LFO</div>
+                        <div class="matrix-cell header">DELAY</div>
+                        <div class="matrix-cell header">CHAOS</div>
+                        <div class="matrix-cell header">MIX</div>
+                        
+                        <div class="matrix-cell header">LFO 1</div>
+                        <div class="matrix-cell active">87%</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell">0%</div>
+                        
+                        <div class="matrix-cell header">LFO 2</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell active">45%</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell">0%</div>
+                        
+                        <div class="matrix-cell header">ENV 1</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell active">92%</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell">0%</div>
+                        
+                        <div class="matrix-cell header">CHAOS</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell active">63%</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell">0%</div>
+                        
+                        <div class="matrix-cell header">AUDIO L</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell active">78%</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell">0%</div>
+                        
+                        <div class="matrix-cell header">AUDIO R</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell active">34%</div>
+                        <div class="matrix-cell">0%</div>
+                        
+                        <div class="matrix-cell header">RANDOM</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell active">12%</div>
+                        
+                        <div class="matrix-cell header">MANUAL</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell">0%</div>
+                        <div class="matrix-cell">0%</div>
+                    </div>
+                    <p style="text-align: center; color: #888; font-size: 14px; margin-top: 20px;">
+                        Example matrix showing active modulation routings (highlighted cells)
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">ROUTING MODES</h2>
+                </div>
+                <div class="section-content">
+                    <div class="routing-modes">
+                        <div class="mode-item">
+                            <div class="mode-name">LINEAR</div>
+                            <div class="mode-desc">Direct 1:1 mapping with adjustable scaling and offset for precise control</div>
+                        </div>
+                        <div class="mode-item">
+                            <div class="mode-name">EXPONENTIAL</div>
+                            <div class="mode-desc">Exponential curves for natural-feeling modulation responses</div>
+                        </div>
+                        <div class="mode-item">
+                            <div class="mode-name">QUADRATIC</div>
+                            <div class="mode-desc">Smooth quadratic curves for gentle modulation transitions</div>
+                        </div>
+                        <div class="mode-item">
+                            <div class="mode-name">SINE SHAPER</div>
+                            <div class="mode-desc">Sine wave shaping for smooth, musical modulation curves</div>
+                        </div>
+                        <div class="mode-item">
+                            <div class="mode-name">QUANTIZED</div>
+                            <div class="mode-desc">Step-quantized modulation for rhythmic and melodic effects</div>
+                        </div>
+                        <div class="mode-item">
+                            <div class="mode-name">RECTIFIED</div>
+                            <div class="mode-desc">Full-wave rectification creates double-frequency modulation</div>
+                        </div>
+                        <div class="mode-item">
+                            <div class="mode-name">SAMPLE HOLD</div>
+                            <div class="mode-desc">Sample and hold creates stepped random modulation patterns</div>
+                        </div>
+                        <div class="mode-item">
+                            <div class="mode-name">SLEW LIMIT</div>
+                            <div class="mode-desc">Rate limiting creates smooth transitions between values</div>
+                        </div>
+                        <div class="mode-item">
+                            <div class="mode-name">INVERT</div>
+                            <div class="mode-desc">Phase inversion for opposite modulation behaviors</div>
+                        </div>
+                        <div class="mode-item">
+                            <div class="mode-name">MULTIPLY</div>
+                            <div class="mode-desc">Multiplicative routing for complex cross-modulation effects</div>
+                        </div>
+                        <div class="mode-item">
+                            <div class="mode-name">RING MOD</div>
+                            <div class="mode-desc">Ring modulation between sources for metallic textures</div>
+                        </div>
+                        <div class="mode-item">
+                            <div class="mode-name">LOGIC</div>
+                            <div class="mode-desc">Boolean logic operations for rhythmic gating patterns</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">ADVANCED FEATURES</h2>
+                </div>
+                <div class="section-content">
+                    <div class="features-list">
+                        <div class="feature-item">
+                            <div class="feature-icon">🔀</div>
+                            <div class="feature-text">64 simultaneous modulation connections with independent scaling</div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">⚡</div>
+                            <div class="feature-text">Audio-rate modulation for extreme processing and sound design</div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">🎛️</div>
+                            <div class="feature-text">Real-time matrix editing with visual feedback and monitoring</div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">🔄</div>
+                            <div class="feature-text">Cross-modulation support for complex interdependent behaviors</div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">📊</div>
+                            <div class="feature-text">Visual modulation meters show real-time activity levels</div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">💾</div>
+                            <div class="feature-text">Matrix presets for instant recall of complex routing setups</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">USAGE EXAMPLES</h2>
+                </div>
+                <div class="section-content">
+                    <div class="example">
+                        <div class="example-title">EVOLVING FILTER SWEEP</div>
+                        <div class="example-desc">Use multiple LFOs to create complex, evolving filter movements</div>
+                        <div class="param-list">
+                            <div class="param">
+                                <span class="param-name">LFO1 → FILTER</span>
+                                <span class="param-value">87%</span>
+                            </div>
+                            <div class="param">
+                                <span class="param-name">LFO2 → LFO1 RATE</span>
+                                <span class="param-value">45%</span>
+                            </div>
+                            <div class="param">
+                                <span class="param-name">CHAOS → LFO1 DEPTH</span>
+                                <span class="param-value">23%</span>
+                            </div>
+                            <div class="param">
+                                <span class="param-name">ROUTING MODE</span>
+                                <span class="param-value">Exponential</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="example">
+                        <div class="example-title">RHYTHMIC AMPLITUDE GATING</div>
+                        <div class="example-desc">Create complex rhythmic patterns using logic gates and envelopes</div>
+                        <div class="param-list">
+                            <div class="param">
+                                <span class="param-name">ENV1 → AMPLITUDE</span>
+                                <span class="param-value">92%</span>
+                            </div>
+                            <div class="param">
+                                <span class="param-name">LFO3 → ENV1 GATE</span>
+                                <span class="param-value">100%</span>
+                            </div>
+                            <div class="param">
+                                <span class="param-name">RANDOM → LFO3 RATE</span>
+                                <span class="param-value">34%</span>
+                            </div>
+                            <div class="param">
+                                <span class="param-name">ROUTING MODE</span>
+                                <span class="param-value">Quantized</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="example">
+                        <div class="example-title">CHAOTIC PITCH MODULATION</div>
+                        <div class="example-desc">Use chaos systems for unpredictable pitch and timing variations</div>
+                        <div class="param-list">
+                            <div class="param">
+                                <span class="param-name">CHAOS → PITCH</span>
+                                <span class="param-value">63%</span>
+                            </div>
+                            <div class="param">
+                                <span class="param-name">AUDIO L → CHAOS RATE</span>
+                                <span class="param-value">78%</span>
+                            </div>
+                            <div class="param">
+                                <span class="param-name">LFO4 → CHAOS DEPTH</span>
+                                <span class="param-value">56%</span>
+                            </div>
+                            <div class="param">
+                                <span class="param-name">ROUTING MODE</span>
+                                <span class="param-value">Slew Limited</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="example">
+                        <div class="example-title">CROSS-MODULATION WEB</div>
+                        <div class="example-desc">Create interconnected modulation networks for complex evolving textures</div>
+                        <div class="param-list">
+                            <div class="param">
+                                <span class="param-name">LFO1 → LFO2 RATE</span>
+                                <span class="param-value">67%</span>
+                            </div>
+                            <div class="param">
+                                <span class="param-name">LFO2 → LFO1 DEPTH</span>
+                                <span class="param-value">43%</span>
+                            </div>
+                            <div class="param">
+                                <span class="param-name">ENV1 → BOTH LFOS</span>
+                                <span class="param-value">29%</span>
+                            </div>
+                            <div class="param">
+                                <span class="param-name">ROUTING MODE</span>
+                                <span class="param-value">Ring Modulation</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">MODULATION MASTERY</h2>
+                </div>
+                <div class="section-content">
+                    <div class="tips-grid">
+                        <div class="tip">
+                            <div class="tip-number">01</div>
+                            <div class="tip-text">Start with simple 1-to-1 connections before building complex routing webs</div>
+                        </div>
+                        <div class="tip">
+                            <div class="tip-number">02</div>
+                            <div class="tip-text">Use visual meters to monitor modulation activity and prevent overmodulation</div>
+                        </div>
+                        <div class="tip">
+                            <div class="tip-number">03</div>
+                            <div class="tip-text">Exponential curves work best for filter and amplitude modulation</div>
+                        </div>
+                        <div class="tip">
+                            <div class="tip-number">04</div>
+                            <div class="tip-text">Cross-modulate LFO rates and depths for organic, evolving movement</div>
+                        </div>
+                        <div class="tip">
+                            <div class="tip-number">05</div>
+                            <div class="tip-text">Use quantized routing for rhythmic and melodic step sequences</div>
+                        </div>
+                        <div class="tip">
+                            <div class="tip-number">06</div>
+                            <div class="tip-text">Audio-rate modulation creates extreme timbral changes and distortion</div>
+                        </div>
+                        <div class="tip">
+                            <div class="tip-number">07</div>
+                            <div class="tip-text">Save matrix presets for different song sections or performance setups</div>
+                        </div>
+                        <div class="tip">
+                            <div class="tip-number">08</div>
+                            <div class="tip-text">Use slew limiting to smooth abrupt modulation changes</div>
+                        </div>
+                        <div class="tip">
+                            <div class="tip-number">09</div>
+                            <div class="tip-text">Ring modulation between sources creates metallic and bell-like tones</div>
+                        </div>
+                        <div class="tip">
+                            <div class="tip-number">10</div>
+                            <div class="tip-text">Logic operations enable complex rhythmic gating and trigger patterns</div>
+                        </div>
+                        <div class="tip">
+                            <div class="tip-number">11</div>
+                            <div class="tip-text">Use chaos sources for unpredictable but musically interesting modulation</div>
+                        </div>
+                        <div class="tip">
+                            <div class="tip-number">12</div>
+                            <div class="tip-text">Monitor CPU usage - complex matrices can be processor-intensive</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">NODE SCREENSHOT</div>
+                <div class="node-screenshot">
+                    <img src="../images/nodes/modulation_matrix.jpg" alt="Modulation Matrix Node" style="width: 100%; height: auto; border-radius: 8px;">
+                </div>
+            </div>
+
+            <div class="quick-specs">
+                <h3>QUICK SPECS</h3>
+                <div class="quick-spec">
+                    <span class="spec-label">MATRIX SIZE</span>
+                    <span class="spec-value">8x8</span>
+                </div>
+                <div class="quick-spec">
+                    <span class="spec-label">SOURCES</span>
+                    <span class="spec-value">8 Types</span>
+                </div>
+                <div class="quick-spec">
+                    <span class="spec-label">TARGETS</span>
+                    <span class="spec-value">8 Params</span>
+                </div>
+                <div class="quick-spec">
+                    <span class="spec-label">UPDATE RATE</span>
+                    <span class="spec-value">1-1000Hz</span>
+                </div>
+                <div class="quick-spec">
+                    <span class="spec-label">ROUTING</span>
+                    <span class="spec-value">Complex</span>
+                </div>
+                <div class="quick-spec">
+                    <span class="spec-label">CATEGORY</span>
+                    <span class="spec-value">Processor</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

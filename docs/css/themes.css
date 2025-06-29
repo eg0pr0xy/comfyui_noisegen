@@ -1,0 +1,300 @@
+/* ================================
+   COMFYUI NOISE - COLOR THEMES
+   Category-specific color variables
+   ================================ */
+
+/* GEIST TYPOGRAPHY THEME SYSTEM */
+
+/* GENERATOR THEME - TEAL/CYAN */
+.theme-generator {
+    --accent-color: var(--color-generator-primary);
+    --secondary-color: var(--color-generator-secondary);
+    --bg-pattern: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 2px,
+        rgba(0,255,0,0.1) 2px,
+        rgba(0,255,0,0.1) 4px
+    );
+}
+
+.theme-generator .header {
+    border-color: var(--color-generator-primary);
+}
+
+.theme-generator .header::before {
+    background: var(--bg-pattern);
+}
+
+.theme-generator .node-title {
+    font-family: var(--font-primary);
+    font-weight: var(--font-weight-black);
+    text-shadow: var(--shadow-text) var(--color-generator-primary);
+}
+
+.theme-generator .node-category {
+    background: var(--color-generator-primary);
+    color: var(--color-black);
+    font-family: var(--font-primary);
+    font-weight: var(--font-weight-extrabold);
+}
+
+.theme-generator .back-btn:hover,
+.theme-generator .back-link:hover {
+    background: var(--color-generator-primary);
+}
+
+.theme-generator .spec-title {
+    background: var(--color-generator-primary);
+    font-family: var(--font-primary);
+    font-weight: var(--font-weight-extrabold);
+}
+
+.theme-generator .param-name {
+    color: var(--color-generator-primary);
+    font-family: var(--font-primary);
+    font-weight: var(--font-weight-bold);
+}
+
+.theme-generator .example-title {
+    color: var(--color-generator-primary);
+    font-family: var(--font-primary);
+    font-weight: var(--font-weight-extrabold);
+}
+
+.theme-generator .workflow {
+    border-color: var(--color-generator-primary);
+    color: var(--color-generator-primary);
+    font-family: var(--font-mono);
+    font-weight: var(--font-weight-medium);
+}
+
+/* PROCESSOR THEME - RED/PINK/PURPLE */
+.theme-processor {
+    --accent-color: var(--color-processor-primary);
+    --secondary-color: var(--color-processor-secondary);
+    --bg-pattern: repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 4px,
+        rgba(255,0,64,0.1) 4px,
+        rgba(255,0,64,0.1) 8px
+    );
+}
+
+.theme-processor .header {
+    border-color: var(--color-processor-primary);
+}
+
+.theme-processor .header::before {
+    background: var(--bg-pattern);
+}
+
+.theme-processor .node-title {
+    font-family: var(--font-primary);
+    font-weight: var(--font-weight-black);
+    text-shadow: var(--shadow-text) var(--color-processor-primary);
+}
+
+.theme-processor .node-category {
+    background: var(--color-processor-primary);
+    color: var(--color-white);
+    font-family: var(--font-primary);
+    font-weight: var(--font-weight-extrabold);
+}
+
+.theme-processor .back-btn:hover,
+.theme-processor .back-link:hover {
+    background: var(--color-processor-primary);
+}
+
+.theme-processor .spec-title {
+    background: var(--color-processor-primary);
+    font-family: var(--font-primary);
+    font-weight: var(--font-weight-extrabold);
+}
+
+.theme-processor .param-name {
+    color: var(--color-processor-primary);
+    font-family: var(--font-primary);
+    font-weight: var(--font-weight-bold);
+}
+
+.theme-processor .example-title {
+    color: var(--color-processor-primary);
+    font-family: var(--font-primary);
+    font-weight: var(--font-weight-extrabold);
+}
+
+.theme-processor .workflow {
+    border-color: var(--color-processor-primary);
+    color: var(--color-processor-primary);
+    font-family: var(--font-mono);
+    font-weight: var(--font-weight-medium);
+}
+
+/* UTILITY THEME - ORANGE/GREEN */
+.theme-utility {
+    --accent-color: var(--color-utility-primary);
+    --secondary-color: var(--color-utility-secondary);
+    --bg-pattern: repeating-linear-gradient(
+        135deg,
+        transparent,
+        transparent 3px,
+        rgba(255,140,0,0.1) 3px,
+        rgba(255,140,0,0.1) 6px
+    );
+}
+
+.theme-utility .header {
+    border-color: var(--color-utility-primary);
+}
+
+.theme-utility .header::before {
+    background: var(--bg-pattern);
+}
+
+.theme-utility .node-title {
+    font-family: var(--font-primary);
+    font-weight: var(--font-weight-black);
+    text-shadow: var(--shadow-text) var(--color-utility-primary);
+}
+
+.theme-utility .node-category {
+    background: var(--color-utility-primary);
+    color: var(--color-black);
+    font-family: var(--font-primary);
+    font-weight: var(--font-weight-extrabold);
+}
+
+.theme-utility .back-btn:hover,
+.theme-utility .back-link:hover {
+    background: var(--color-utility-primary);
+}
+
+.theme-utility .spec-title {
+    background: var(--color-utility-primary);
+    font-family: var(--font-primary);
+    font-weight: var(--font-weight-extrabold);
+}
+
+.theme-utility .param-name {
+    color: var(--color-utility-primary);
+    font-family: var(--font-primary);
+    font-weight: var(--font-weight-bold);
+}
+
+.theme-utility .example-title {
+    color: var(--color-utility-primary);
+    font-family: var(--font-primary);
+    font-weight: var(--font-weight-extrabold);
+}
+
+.theme-utility .workflow {
+    border-color: var(--color-utility-primary);
+    color: var(--color-utility-primary);
+    font-family: var(--font-mono);
+    font-weight: var(--font-weight-medium);
+}
+
+/* UNIVERSAL GEIST IMPROVEMENTS */
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-primary);
+    font-weight: var(--font-weight-bold);
+    line-height: 1.2;
+}
+
+.tips-title,
+.section-title,
+.examples-title {
+    font-family: var(--font-primary);
+    font-weight: var(--font-weight-black);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.tip {
+    font-family: var(--font-primary);
+    font-weight: var(--font-weight-light);
+    line-height: 1.5;
+}
+
+.feature h4,
+.analysis-type h4,
+.mode-item .mode-name,
+.tool-item .tool-name {
+    font-family: var(--font-primary);
+    font-weight: var(--font-weight-bold);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.feature p,
+.analysis-type p,
+.mode-item .mode-desc,
+.tool-item .tool-desc {
+    font-family: var(--font-primary);
+    font-weight: var(--font-weight-light);
+    line-height: 1.5;
+}
+
+/* MONOSPACE ELEMENTS WITH GEIST MONO */
+.settings,
+.param-list,
+.readout,
+.quick-spec,
+code {
+    font-family: var(--font-mono);
+}
+
+.settings th {
+    font-family: var(--font-mono);
+    font-weight: var(--font-weight-bold);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.settings td {
+    font-family: var(--font-mono);
+    font-weight: var(--font-weight-normal);
+}
+
+/* ENHANCED READABILITY WITH GEIST */
+p, .param-desc, .param-description {
+    line-height: 1.6;
+    font-weight: var(--font-weight-light);
+}
+
+strong, b {
+    font-weight: var(--font-weight-semibold);
+}
+
+em, i {
+    font-style: italic;
+    font-weight: var(--font-weight-light);
+}
+
+/* NODE TITLE SHADOWS */
+.theme-generator .node-title {
+    text-shadow: 4px 4px 0px #00ffff;
+}
+
+.theme-processor .node-title {
+    text-shadow: 4px 4px 0px #ff0080;
+}
+
+.theme-processor-purple .node-title {
+    text-shadow: 4px 4px 0px #8000ff;
+}
+
+.theme-processor-red .node-title {
+    text-shadow: 4px 4px 0px #ff4400;
+}
+
+.theme-processor-green .node-title {
+    text-shadow: 4px 4px 0px #00ff88;
+}
+
+.theme-utility .node-title {
+    text-shadow: 4px 4px 0px #ffa726;
+} 
