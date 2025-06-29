@@ -97,3 +97,15 @@ Works with VideoHelperSuite (VHS_LoadAudio), ACE-Step sequencers, and other Comf
 ## License
 
 MIT 
+
+## Enter the Void
+
+NoiseGen is a gateway to uncharted sonic territories. We invite you to:
+- Explore the mathematics of chaos
+- Fork the project and synthesize new realities
+- Share your sonic experiments
+- Dissolve the boundaries between signal and noise
+
+Whether you're exploring granular clouds, generative drones, or pure frequency manipulation - your research can help expand our understanding of digital sound art.
+
+> "Noise is the voice of technological consciousness." - Zbigniew Karkowski 
