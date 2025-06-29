@@ -1,1 +1,0 @@
-{"name":"noisegen-web-docs","version":"1.0.0","description":"Web documentation for NoiseGen ComfyUI plugin","scripts":{"build:css":"echo CSS build process ready","serve":"cd web && python -m http.server 8000","dev":"npm run serve"},"keywords":["comfyui","noise","audio","documentation"],"author":"NoiseGen Team","license":"MIT"}
