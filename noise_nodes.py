@@ -12,8 +12,16 @@ import os
 import numpy as np
 import torch
 import torchaudio
+import torchaudio.functional as F
 import scipy.signal
 import scipy.integrate
+import time
+import warnings
+from scipy import signal
+from scipy.signal import butter, lfilter, fftconvolve
+import soundfile as sf
+
+warnings.filterwarnings("ignore")
 
 # =============================================================================
 # DEPENDENCIES & IMPORTS
@@ -1325,30 +1333,23 @@ class AudioSaveNode:
                 "waveform_preview": waveform_image
             }
             
-            # Enhanced UI output with playback controls
+            # Enhanced UI output with proper ComfyUI audio player integration
             ui_output = {
                 "ui": {
                     "audio": [{
                         "filename": filename,
-                        "subfolder": "audio",  # Specify correct subfolder for UI
+                        "subfolder": "audio",
                         "type": "output",
-                        "format": format,
-                        "duration": duration,
-                        "sample_rate": sample_rate,
-                        "channels": channels,
-                        "waveform_preview": waveform_image,
-                        # Add preview controls
-                        "has_preview": True,
-                        "metadata": metadata
-                    }],
-                    "text": [f"💾 Saved: audio/{filename} ({duration:.1f}s, {sample_rate}Hz, {channels}ch, Lossless)"]
+                        "format": format
+                    }]
                 },
                 "result": (audio, filepath)
             }
             
+            # Also add text output for console info
             print(f"💾 Audio saved successfully:")
             print(f"   📁 File: audio/{filename}")
-            print(f"   ⏱️  Duration: {duration:.2f}s")
+            print(f"   ⏱️  Duration: {duration:.2f}s") 
             print(f"   🔊 Sample Rate: {sample_rate}Hz")
             print(f"   📊 Channels: {channels}")
             print(f"   💽 Size: {file_size/1024:.1f}KB")
@@ -3865,7 +3866,9 @@ class ConvolutionReverbNode:
         self.impulse_responses = {}
         self.convolution_buffer = None
         self.modulation_phase = 0.0
-        
+        self.max_cache_size = 10  # Limit IR cache to prevent memory issues
+        self.cache_access_times = {}  # Track access for LRU cleanup
+    
     def process_convolution_reverb(self, audio, reverb_type, convolution_mode, wet_dry_mix, reverb_time, 
                                  pre_delay, amplitude, ir_length=4.0, early_reflections=0.3, 
                                  late_reflections=0.7, room_size=0.5, damping=0.3, diffusion=0.6,
@@ -3942,6 +3945,8 @@ class ConvolutionReverbNode:
         cache_key = f"{reverb_type}_{sample_rate}_{ir_length}_{reverb_time}_{room_size}_{damping}_{diffusion}_{reverse}"
         
         if cache_key in self.impulse_responses:
+            # Update access time for LRU cache management
+            self.cache_access_times[cache_key] = time.time()
             return self.impulse_responses[cache_key]
         
         ir_samples = int(ir_length * sample_rate)
@@ -3986,6 +3991,7 @@ class ConvolutionReverbNode:
         
         # Cache the impulse response
         self.impulse_responses[cache_key] = impulse_response
+        self.cache_access_times[cache_key] = time.time()  # Track access time
         
         return impulse_response
     
@@ -4038,7 +4044,7 @@ class ConvolutionReverbNode:
         impulse_response = np.zeros((2, ir_samples))
         
         # Room dimensions affect early reflection pattern
-        wall_delays = [0.005, 0.012, 0.018, 0.025] * room_size  # seconds
+        wall_delays = np.array([0.005, 0.012, 0.018, 0.025]) * room_size  # seconds
         
         for i, delay in enumerate(wall_delays):
             delay_samples = int(delay * sample_rate)
@@ -4243,7 +4249,7 @@ class ConvolutionReverbNode:
     
     def _apply_convolution(self, audio, impulse_response, sample_rate, conv_mode, 
                          mod_rate, mod_depth, freeze):
-        """Apply convolution with the impulse response."""
+        """Apply convolution with the impulse response using proper FFT convolution."""
         
         channels = audio.shape[0]
         ir_channels = impulse_response.shape[0]
@@ -4256,7 +4262,13 @@ class ConvolutionReverbNode:
             # Stereo IR to mono audio
             impulse_response = np.mean(impulse_response, axis=0, keepdims=True)
         
-        convolved_audio = np.zeros((channels, audio.shape[1] + impulse_response.shape[1] - 1))
+        # Clean cache if too large (memory management)
+        if len(self.impulse_responses) > self.max_cache_size:
+            # Remove oldest cached IR
+            oldest_key = min(self.cache_access_times.keys(), 
+                           key=lambda k: self.cache_access_times[k])
+            del self.impulse_responses[oldest_key]
+            del self.cache_access_times[oldest_key]
         
         # Apply modulation to impulse response
         if mod_rate > 0 and mod_depth > 0:
@@ -4268,21 +4280,99 @@ class ConvolutionReverbNode:
         if freeze:
             modulated_ir = self._apply_freeze_effect(modulated_ir)
         
+        convolved_audio = np.zeros((channels, audio.shape[1] + modulated_ir.shape[1] - 1))
+        
         # Perform convolution based on mode
         if conv_mode == "fft":
-            # FFT-based convolution (most efficient for long IRs)
+            # Proper FFT-based convolution (most efficient for long IRs)
             for channel in range(channels):
-                convolved_audio[channel] = np.convolve(audio[channel], modulated_ir[channel], mode='full')
+                convolved_audio[channel] = fftconvolve(audio[channel], modulated_ir[channel], mode='full')
+        
+        elif conv_mode == "overlap_add":
+            # Overlap-add convolution for very long IRs
+            block_size = 8192  # Process in blocks
+            for channel in range(channels):
+                convolved_audio[channel] = self._overlap_add_convolution(
+                    audio[channel], modulated_ir[channel], block_size)
+        
+        elif conv_mode == "uniform_partitioned":
+            # Uniform partitioned convolution for extremely long IRs
+            partition_size = 4096
+            for channel in range(channels):
+                convolved_audio[channel] = self._partitioned_convolution(
+                    audio[channel], modulated_ir[channel], partition_size)
+        
+        elif conv_mode == "adaptive":
+            # Adaptive convolution - choose method based on IR length
+            ir_length = modulated_ir.shape[1]
+            if ir_length < 1024:
+                # Use direct convolution for short IRs
+                for channel in range(channels):
+                    convolved_audio[channel] = np.convolve(audio[channel], modulated_ir[channel], mode='full')
+            else:
+                # Use FFT convolution for longer IRs
+                for channel in range(channels):
+                    convolved_audio[channel] = fftconvolve(audio[channel], modulated_ir[channel], mode='full')
         else:
-            # Direct convolution (simplified)
+            # Direct convolution (fallback)
             for channel in range(channels):
                 convolved_audio[channel] = np.convolve(audio[channel], modulated_ir[channel], mode='full')
         
-        # Trim to original length plus some reverb tail
-        output_length = audio.shape[1] + min(impulse_response.shape[1], int(2 * sample_rate))
-        convolved_audio = convolved_audio[:, :output_length]
+        # Trim to reasonable length to prevent excessive memory usage
+        max_output_length = audio.shape[1] + min(modulated_ir.shape[1], int(5 * sample_rate))
+        convolved_audio = convolved_audio[:, :max_output_length]
         
         return convolved_audio
+    
+    def _overlap_add_convolution(self, signal, impulse, block_size):
+        """Overlap-add convolution for long impulse responses."""
+        signal_length = len(signal)
+        impulse_length = len(impulse)
+        output_length = signal_length + impulse_length - 1
+        
+        # Zero-pad signal to block boundary
+        padded_signal = np.zeros(signal_length + block_size)
+        padded_signal[:signal_length] = signal
+        
+        output = np.zeros(output_length)
+        
+        # Process in overlapping blocks
+        for i in range(0, signal_length, block_size):
+            block_end = min(i + block_size, signal_length)
+            block = padded_signal[i:block_end + impulse_length - 1]
+            
+            # Convolve block with impulse response
+            block_output = fftconvolve(block, impulse, mode='full')
+            
+            # Add to output with overlap
+            end_idx = min(i + len(block_output), output_length)
+            output[i:end_idx] += block_output[:end_idx - i]
+        
+        return output
+    
+    def _partitioned_convolution(self, signal, impulse, partition_size):
+        """Uniform partitioned convolution for very long impulse responses."""
+        signal_length = len(signal)
+        impulse_length = len(impulse)
+        
+        # Partition the impulse response
+        num_partitions = (impulse_length + partition_size - 1) // partition_size
+        output = np.zeros(signal_length + impulse_length - 1)
+        
+        for p in range(num_partitions):
+            start_idx = p * partition_size
+            end_idx = min(start_idx + partition_size, impulse_length)
+            impulse_partition = impulse[start_idx:end_idx]
+            
+            # Convolve signal with this partition
+            partition_output = fftconvolve(signal, impulse_partition, mode='full')
+            
+            # Add to output at correct position
+            output_start = start_idx
+            output_end = output_start + len(partition_output)
+            output[output_start:output_end] += partition_output
+        
+        return output
     
     def _apply_modulation_to_ir(self, impulse_response, sample_rate, mod_rate, mod_depth):
         """Apply modulation to impulse response for chorus-like effect."""
