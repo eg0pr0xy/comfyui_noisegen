@@ -1,6 +1,6 @@
 # ComfyUI-NoiseGen
 
-<img src="noisegen_logo.png" alt="NoiseGen Logo" width="128" height="128" align="right"/>
+<img src="noisegen_logo_hq.png" alt="NoiseGen Logo" width="256" height="256" align="right"/>
 
 Noise synthesis and audio processing for ComfyUI. 18 nodes across generation, processing, and analysis.
 
