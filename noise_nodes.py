@@ -91,7 +91,7 @@ class NoiseGeneratorNode:
     
     @classmethod
     def ICON_PATH(cls):
-        return os.path.join(os.path.dirname(os.path.realpath(__file__)), "web", "images", "icons", "icon_noise_generator.ico")
+        return os.path.join(os.path.dirname(os.path.realpath(__file__)), "icon_noise_generator.ico")
     
     @classmethod
     def VALIDATE_INPUTS(cls, **kwargs):
