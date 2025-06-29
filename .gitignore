@@ -92,4 +92,9 @@ test_nodes_comprehensive.py
 
 # Development directories (local only)
 backup_workflows/
-outputs/ 
+outputs/
+
+# Node backups and development files
+web/nodes/backup/
+dev/
+**/backup/ 
