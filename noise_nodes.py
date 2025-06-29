@@ -86,6 +86,14 @@ class NoiseGeneratorNode:
     DESCRIPTION = "Universal noise generator with 7 scientifically-accurate noise types"
     
     @classmethod
+    def IS_CHANGED(cls):
+        return float("NaN")  # Ensures unique output per run
+    
+    @classmethod
+    def ICON_PATH(cls):
+        return os.path.join(os.path.dirname(os.path.realpath(__file__)), "web", "images", "icons", "icon_noise_generator.ico")
+    
+    @classmethod
     def VALIDATE_INPUTS(cls, **kwargs):
         """Validate inputs for basic type checking."""
         # ComfyUI VALIDATE_INPUTS should only return True or error strings
