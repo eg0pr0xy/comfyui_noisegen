@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GRANULAR PROCESSOR</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial Black', Arial, sans-serif;
+            background: #000;
+            color: #fff;
+            line-height: 1.2;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0;
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 40px;
+        }
+
+        .main-content {
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background: #111;
+            border-left: 4px solid #8000ff;
+            position: sticky;
+            top: 0;
+            height: fit-content;
+            max-height: 100vh;
+            overflow-y: auto;
+        }
+
+        .header {
+            background: linear-gradient(90deg, #000 0%, #111 50%, #000 100%);
+            padding: 40px 20px;
+            border-bottom: 4px solid #8000ff;
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                60deg,
+                transparent,
+                transparent 4px,
+                rgba(128,0,255,0.1) 4px,
+                rgba(128,0,255,0.1) 8px
+            );
+            pointer-events: none;
+        }
+
+        .back-btn {
+            display: inline-block;
+            background: #fff;
+            color: #000;
+            padding: 12px 24px;
+            text-decoration: none;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 100%, 12px 100%);
+            transition: all 0.2s ease;
+            margin-bottom: 30px;
+        }
+
+        .back-btn:hover {
+            background: #8000ff;
+            transform: translateX(-4px);
+        }
+
+        .node-title {
+            font-size: clamp(3rem, 8vw, 8rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            color: #fff;
+            margin-bottom: 20px;
+            text-shadow: 4px 4px 0px #8000ff;
+        }
+
+        .node-category {
+            background: #8000ff;
+            color: #fff;
+            padding: 8px 20px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 100%, 8px 100%);
+            margin-bottom: 30px;
+        }
+
+        .node-desc {
+            font-size: 18px;
+            color: #ccc;
+            max-width: 800px;
+            margin-bottom: 40px;
+            font-weight: normal;
+        }
+
+        .node-visual {
+            background: #111;
+            border: 2px solid #333;
+            height: 300px;
+            margin: 40px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* ENHANCED GRANULAR CLOUD ANIMATION */
+        .grain-pattern {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: repeat(20, 1fr);
+            grid-template-rows: repeat(10, 1fr);
+            gap: 2px;
+            padding: 20px;
+        }
+
+        .grain {
+            background: #8000ff;
+            border-radius: 50%;
+            animation: grainPulse 3s ease-in-out infinite;
+        }
+
+        .grain:nth-child(3n) { 
+            animation-delay: 0.2s;
+            background: #a000ff;
+        }
+        .grain:nth-child(5n) { 
+            animation-delay: 0.5s;
+            background: #ff0080;
+        }
+        .grain:nth-child(7n) { 
+            animation-delay: 0.8s;
+            background: #6000ff;
+        }
+        .grain:nth-child(11n) { 
+            animation-delay: 1.1s;
+            background: #c000ff;
+        }
+        .grain:nth-child(13n) { 
+            animation-delay: 1.4s;
+            background: #8040ff;
+        }
+
+        .density-overlay {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 100px;
+            height: 80px;
+            border: 1px solid #8000ff;
+            border-radius: 8px;
+            background: rgba(128,0,255,0.05);
+            display: flex;
+            align-items: end;
+            justify-content: space-around;
+            padding: 8px;
+        }
+
+        .density-bar {
+            width: 8px;
+            background: #8000ff;
+            border-radius: 4px 4px 0 0;
+            animation: densityFlicker 2.5s ease-in-out infinite;
+        }
+
+        .density-bar:nth-child(1) { height: 20px; animation-delay: 0s; }
+        .density-bar:nth-child(2) { height: 35px; animation-delay: 0.3s; }
+        .density-bar:nth-child(3) { height: 50px; animation-delay: 0.6s; }
+        .density-bar:nth-child(4) { height: 40px; animation-delay: 0.9s; }
+        .density-bar:nth-child(5) { height: 25px; animation-delay: 1.2s; }
+
+        .grain-envelope {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            width: 120px;
+            height: 60px;
+            border: 1px solid #8000ff;
+            background: rgba(128,0,255,0.1);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .envelope-curve {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent 0%,
+                rgba(128,0,255,0.3) 20%,
+                rgba(128,0,255,0.8) 50%,
+                rgba(128,0,255,0.3) 80%,
+                transparent 100%
+            );
+            animation: envelopeSweep 4s ease-in-out infinite;
+        }
+
+        .scatter-effect {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(
+                circle at 30% 40%,
+                rgba(128,0,255,0.05) 0%,
+                transparent 50%
+            ),
+            radial-gradient(
+                circle at 70% 60%,
+                rgba(160,0,255,0.05) 0%,
+                transparent 50%
+            ),
+            radial-gradient(
+                circle at 50% 30%,
+                rgba(255,0,128,0.05) 0%,
+                transparent 50%
+            );
+            animation: scatterShift 8s ease-in-out infinite;
+        }
+
+        @keyframes grainPulse {
+            0%, 100% {
+                opacity: 0.1;
+                transform: scale(0.5);
+            }
+            50% {
+                opacity: 0.8;
+                transform: scale(1.2);
+            }
+        }
+
+        @keyframes densityFlicker {
+            0%, 100% { transform: scaleY(0.6); opacity: 0.5; }
+            50% { transform: scaleY(1.3); opacity: 1; }
+        }
+
+        @keyframes envelopeSweep {
+            0%, 100% { transform: translateX(-50px); }
+            50% { transform: translateX(50px); }
+        }
+
+        @keyframes scatterShift {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            33% { transform: rotate(120deg) scale(1.1); }
+            66% { transform: rotate(240deg) scale(0.9); }
+        }
+
+        .specs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            margin: 60px 20px;
+        }
+
+        .spec-section {
+            background: #111;
+            border: 1px solid #333;
+            position: relative;
+        }
+
+        .spec-section:nth-child(1) {
+            border-right: none;
+        }
+
+        .spec-title {
+            background: #8000ff;
+            color: #fff;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #333;
+        }
+
+        .param {
+            padding: 20px;
+            border-bottom: 1px solid #222;
+            transition: all 0.2s ease;
+        }
+
+        .param:hover {
+            background: rgba(128,0,255,0.05);
+            border-left: 4px solid #8000ff;
+        }
+
+        .param:last-child {
+            border-bottom: none;
+        }
+
+        .param-name {
+            color: #8000ff;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            font-size: 16px;
+            letter-spacing: 1px;
+        }
+
+        .param-type {
+            background: #333;
+            color: #fff;
+            padding: 4px 12px;
+            font-size: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 8px;
+            clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 100%, 6px 100%);
+        }
+
+        .param-range {
+            color: #fff;
+            font-weight: 700;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .param-desc {
+            color: #aaa;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2px;
+            margin: 60px 20px;
+            background: #8000ff;
+            padding: 2px;
+        }
+
+        .feature {
+            background: #111;
+            padding: 30px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .feature:hover {
+            background: #000;
+            transform: scale(1.02);
+        }
+
+        .feature h4 {
+            color: #8000ff;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            font-size: 18px;
+            letter-spacing: 1px;
+        }
+
+        .feature p {
+            color: #ccc;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .examples {
+            background: #111;
+            margin: 60px 20px;
+            border: 2px solid #333;
+        }
+
+        .examples-title {
+            background: #fff;
+            color: #000;
+            padding: 30px;
+            font-size: 36px;
+            font-weight: 900;
+            text-transform: uppercase;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        .example {
+            border-bottom: 1px solid #222;
+            padding: 40px;
+        }
+
+        .example:last-child {
+            border-bottom: none;
+        }
+
+        .example-title {
+            color: #8000ff;
+            font-size: 24px;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+
+        .workflow {
+            background: #000;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #8000ff;
+            font-family: 'Courier New', monospace;
+            color: #8000ff;
+            font-size: 16px;
+            overflow-x: auto;
+        }
+
+        .workflow-node {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .settings {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: #000;
+        }
+
+        .settings th {
+            background: #333;
+            color: #fff;
+            padding: 15px;
+            text-align: left;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+
+        .settings td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #222;
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        .settings tr:hover {
+            background: rgba(128,0,255,0.05);
+        }
+
+        .tips {
+            background: #000;
+            margin: 60px 20px;
+            border: 2px solid #8000ff;
+            position: relative;
+            counter-reset: tip-counter;
+        }
+
+        .tips-title {
+            background: #8000ff;
+            color: #fff;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .tip {
+            padding: 20px;
+            border-bottom: 1px solid #111;
+            font-size: 16px;
+            color: #ccc;
+            position: relative;
+            padding-left: 60px;
+        }
+
+        .tip:last-child {
+            border-bottom: none;
+        }
+
+        .tip::before {
+            content: counter(tip-counter, decimal-leading-zero);
+            counter-increment: tip-counter;
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            color: #8000ff;
+            font-weight: 900;
+            font-size: 18px;
+            background: #111;
+            padding: 8px 12px;
+            clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 100%, 6px 100%);
+        }
+
+        .footer {
+            background: #111;
+            padding: 60px 20px;
+            text-align: center;
+            border-top: 2px solid #8000ff;
+            margin-top: 80px;
+        }
+
+        .footer h3 {
+            color: #8000ff;
+            font-size: 28px;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+
+        .footer p {
+            color: #ccc;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+        /* SIDEBAR STYLES */
+        .sidebar-section {
+            padding: 30px;
+            border-bottom: 1px solid #333;
+        }
+
+        .sidebar-section:last-child {
+            border-bottom: none;
+        }
+
+        .sidebar-title {
+            background: #8000ff;
+            color: #fff;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: -30px -30px 20px -30px;
+            clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 100%, 8px 100%);
+        }
+
+        .node-screenshot {
+            width: 100%;
+            height: 400px;
+            background: #222;
+            border: 2px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+
+        .screenshot-placeholder {
+            color: #8000ff;
+            font-size: 16px;
+            font-weight: 900;
+            text-transform: uppercase;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        .quick-spec {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #222;
+        }
+
+        .quick-spec:last-child {
+            border-bottom: none;
+        }
+
+        .quick-spec-label {
+            color: #8000ff;
+            font-size: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .quick-spec-value {
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            text-align: right;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                margin: 0 10px;
+            }
+            
+            .sidebar {
+                order: -1;
+                position: relative;
+                border-left: none;
+                border-top: 4px solid #8000ff;
+                border-bottom: 4px solid #8000ff;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 0;
+            }
+            
+            .node-screenshot {
+                height: 250px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .specs {
+                grid-template-columns: 1fr;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .node-title {
+                font-size: 3rem;
+            }
+            
+            .sidebar {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-content">
+            <div class="header">
+                <a href="../index.html" class="back-btn">← BACK</a>
+                <div class="node-category">PROCESSOR</div>
+                <h1 class="node-title">GRANULAR<br>PROCESSOR</h1>
+                <div class="node-desc">
+                    Advanced granular synthesis processor breaking audio into microscopic grains.
+                    Real-time manipulation of grain size, density, pitch, and spatial positioning.
+                </div>
+            </div>
+
+        <div class="node-visual">
+            <div class="grain-pattern">
+                <div class="grain"></div>
+                <div class="grain"></div>
+                <div class="grain"></div>
+                <div class="grain"></div>
+                <div class="grain"></div>
+                <div class="grain"></div>
+                <div class="grain"></div>
+                <div class="grain"></div>
+                <div class="grain"></div>
+                <div class="grain"></div>
+                <div class="grain"></div>
+                <div class="grain"></div>
+                <div class="grain"></div>
+                <div class="grain"></div>
+                <div class="grain"></div>
+                <div class="grain"></div>
+                <div class="grain"></div>
+                <div class="grain"></div>
+                <div class="grain"></div>
+                <div class="grain"></div>
+            </div>
+            <div class="scatter-effect"></div>
+            
+            <div class="density-overlay">
+                <div class="density-bar"></div>
+                <div class="density-bar"></div>
+                <div class="density-bar"></div>
+                <div class="density-bar"></div>
+                <div class="density-bar"></div>
+            </div>
+            
+            <div class="grain-envelope">
+                <div class="envelope-curve"></div>
+            </div>
+        </div>
+
+        <div class="specs">
+            <div class="spec-section">
+                <div class="spec-title">INPUTS</div>
+                
+                <div class="param">
+                    <div class="param-name">audio</div>
+                    <div class="param-type">AUDIO</div>
+                    <div class="param-range">Any ComfyUI audio format</div>
+                    <div class="param-desc">Input audio for granular processing.</div>
+                </div>
+
+                <div class="param">
+                    <div class="param-name">grain_size</div>
+                    <div class="param-type">FLOAT</div>
+                    <div class="param-range">1.0 - 1000.0 ms</div>
+                    <div class="param-desc">Individual grain duration. Smaller = more granular.</div>
+                </div>
+
+                <div class="param">
+                    <div class="param-name">grain_density</div>
+                    <div class="param-type">FLOAT</div>
+                    <div class="param-range">0.1 - 100.0 grains/sec</div>
+                    <div class="param-desc">Rate of grain generation. Higher = denser texture.</div>
+                </div>
+
+                <div class="param">
+                    <div class="param-name">pitch_shift</div>
+                    <div class="param-type">FLOAT</div>
+                    <div class="param-range">-24.0 - 24.0 semitones</div>
+                    <div class="param-desc">Pitch transposition of grains.</div>
+                </div>
+
+                <div class="param">
+                    <div class="param-name">time_stretch</div>
+                    <div class="param-type">FLOAT</div>
+                    <div class="param-range">0.1 - 10.0</div>
+                    <div class="param-desc">Time stretching factor. 1.0 = normal speed.</div>
+                </div>
+
+                <div class="param">
+                    <div class="param-name">randomness</div>
+                    <div class="param-type">FLOAT</div>
+                    <div class="param-range">0.0 - 1.0</div>
+                    <div class="param-desc">Random variation in grain parameters.</div>
+                </div>
+            </div>
+
+            <div class="spec-section">
+                <div class="spec-title">OUTPUTS</div>
+                
+                <div class="param">
+                    <div class="param-name">audio</div>
+                    <div class="param-type">AUDIO</div>
+                    <div class="param-range">Same format as input</div>
+                    <div class="param-desc">Granular processed audio output.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature">
+                <h4>MICROSOUND CONTROL</h4>
+                <p>Precise control over individual grain parameters including size, envelope, and positioning for detailed texture creation.</p>
+            </div>
+            <div class="feature">
+                <h4>REAL-TIME PROCESSING</h4>
+                <p>Live granular processing with minimal latency. Perfect for performance and real-time audio manipulation.</p>
+            </div>
+            <div class="feature">
+                <h4>PITCH PRESERVATION</h4>
+                <p>Independent pitch and time manipulation. Stretch time without affecting pitch or vice versa.</p>
+            </div>
+            <div class="feature">
+                <h4>STOCHASTIC VARIATION</h4>
+                <p>Randomness controls add organic variation to grain parameters, preventing mechanical repetition.</p>
+            </div>
+        </div>
+
+        <div class="examples">
+            <div class="examples-title">GRANULAR APPLICATIONS</div>
+            
+            <div class="example">
+                <div class="example-title">TEXTURE MULTIPLICATION</div>
+                <div class="workflow">
+                    <span class="workflow-node">NOISE GENERATOR</span> → 
+                    <span class="workflow-node">GRANULAR PROCESSOR</span> → 
+                    <span class="workflow-node">CONVOLUTION REVERB</span>
+                </div>
+                <table class="settings">
+                    <tr><th>PARAM</th><th>VALUE</th><th>PURPOSE</th></tr>
+                    <tr><td>grain_size</td><td>50.0</td><td>Small grains for detail</td></tr>
+                    <tr><td>grain_density</td><td>20.0</td><td>Dense grain cloud</td></tr>
+                    <tr><td>randomness</td><td>0.7</td><td>Organic variation</td></tr>
+                </table>
+            </div>
+
+            <div class="example">
+                <div class="example-title">TIME DILATION</div>
+                <div class="workflow">
+                    <span class="workflow-node">PERLIN NOISE</span> → 
+                    <span class="workflow-node">GRANULAR PROCESSOR</span> → 
+                    <span class="workflow-node">SPECTRAL PROCESSOR</span>
+                </div>
+                <table class="settings">
+                    <tr><th>PARAM</th><th>VALUE</th><th>PURPOSE</th></tr>
+                    <tr><td>time_stretch</td><td>0.2</td><td>Extreme time stretching</td></tr>
+                    <tr><td>grain_size</td><td>200.0</td><td>Larger grains for smooth stretch</td></tr>
+                    <tr><td>pitch_shift</td><td>0.0</td><td>Preserve original pitch</td></tr>
+                </table>
+            </div>
+
+            <div class="example">
+                <div class="example-title">PITCH SWARM</div>
+                <div class="workflow">
+                    <span class="workflow-node">TRUE CHAOS</span> → 
+                    <span class="workflow-node">GRANULAR PROCESSOR</span> → 
+                    <span class="workflow-node">HARSH FILTER</span>
+                </div>
+                <table class="settings">
+                    <tr><th>PARAM</th><th>VALUE</th><th>PURPOSE</th></tr>
+                    <tr><td>pitch_shift</td><td>12.0</td><td>Octave transposition</td></tr>
+                    <tr><td>grain_density</td><td>50.0</td><td>Very dense texture</td></tr>
+                    <tr><td>randomness</td><td>0.9</td><td>Maximum variation</td></tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="tips">
+            <div class="tips-title">GRANULAR MASTERY</div>
+            <div class="tip">Small grain sizes (1-50ms) create detailed, textural sounds</div>
+            <div class="tip">Large grain sizes (200-1000ms) preserve more of the original character</div>
+            <div class="tip">High grain density creates thick, cloud-like textures</div>
+            <div class="tip">Randomness prevents mechanical repetition in granular processing</div>
+            <div class="tip">Negative pitch shifts create sub-bass harmonic content</div>
+            <div class="tip">Time stretching below 0.5 creates slow-motion effects</div>
+            <div class="tip">Combine with reverb for expansive granular atmospheres</div>
+            <div class="tip">Use chaos sources for unpredictable granular textures</div>
+            <div class="tip">Grain density above 30 creates very dense sonic clouds</div>
+            <div class="tip">Independent pitch/time control enables impossible transformations</div>
+        </div>
+
+        <div class="footer">
+            <h3>GRANULAR PROCESSOR</h3>
+            <p>Microsound manipulation for advanced texture creation and audio transformation</p>
+            <a href="../index.html" class="back-btn">EXPLORE MORE NODES</a>
+        </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">NODE SCREENSHOT</div>
+                <div class="node-screenshot">
+                    <div class="screenshot-placeholder">
+                        9:16 NODE IMAGE<br>
+                        PLACEHOLDER
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-title">QUICK SPECS</div>
+                <div class="quick-spec">
+                    <div class="quick-spec-label">TYPE</div>
+                    <div class="quick-spec-value">PROCESSOR</div>
+                </div>
+                <div class="quick-spec">
+                    <div class="quick-spec-label">GRAIN SIZE</div>
+                    <div class="quick-spec-value">1 - 1000ms</div>
+                </div>
+                <div class="quick-spec">
+                    <div class="quick-spec-label">DENSITY</div>
+                    <div class="quick-spec-value">0.1 - 100/sec</div>
+                </div>
+                <div class="quick-spec">
+                    <div class="quick-spec-label">PITCH SHIFT</div>
+                    <div class="quick-spec-value">±24 semitones</div>
+                </div>
+                <div class="quick-spec">
+                    <div class="quick-spec-label">TIME STRETCH</div>
+                    <div class="quick-spec-value">0.1 - 10.0x</div>
+                </div>
+                <div class="quick-spec">
+                    <div class="quick-spec-label">RANDOMNESS</div>
+                    <div class="quick-spec-value">0.0 - 1.0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

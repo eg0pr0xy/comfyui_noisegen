@@ -2,434 +2,53 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>TRUE CHAOS</title>
+    <title>TRUE CHAOS - NOISEGEN</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Arial Black', Arial, sans-serif;
-            background: #000;
-            color: #fff;
-            line-height: 1.2;
-            overflow-x: hidden;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0;
-        }
-
-        .header {
-            background: linear-gradient(90deg, #000 0%, #111 50%, #000 100%);
-            padding: 40px 20px;
-            border-bottom: 4px solid #ff4400;
-            position: relative;
-        }
-
-        .header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(
-                15deg,
-                transparent,
-                transparent 3px,
-                rgba(255,68,0,0.1) 3px,
-                rgba(255,68,0,0.1) 6px
-            );
-            pointer-events: none;
-        }
-
-        .back-btn {
-            display: inline-block;
-            background: #fff;
-            color: #000;
-            padding: 12px 24px;
-            text-decoration: none;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 100%, 12px 100%);
-            transition: all 0.2s ease;
-            margin-bottom: 30px;
-        }
-
-        .back-btn:hover {
-            background: #ff4400;
-            transform: translateX(-4px);
-        }
-
-        .node-title {
-            font-size: clamp(3rem, 8vw, 8rem);
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: -2px;
-            color: #fff;
-            margin-bottom: 20px;
-            text-shadow: 4px 4px 0px #ff4400;
-        }
-
-        .node-category {
-            background: #ff4400;
-            color: #000;
-            padding: 8px 20px;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            display: inline-block;
-            clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 100%, 8px 100%);
-            margin-bottom: 30px;
-        }
-
-        .node-desc {
-            font-size: 18px;
-            color: #ccc;
-            max-width: 800px;
-            margin-bottom: 40px;
-            font-weight: normal;
-        }
-
-        .node-visual {
-            background: #111;
-            border: 2px solid #333;
-            margin: 40px 20px;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-            min-height: 200px;
-        }
-
-        .node-visual img {
-            max-width: 100%;
-            max-height: 400px;
-            height: auto;
-            width: auto;
-            object-fit: contain;
-            border-radius: 4px;
-            box-shadow: 0 4px 8px rgba(255,68,0,0.3);
-        }
-
-        .visual-text {
-            color: #ff4400;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            z-index: 1;
-            text-align: center;
-        }
-
-        .specs {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0;
-            margin: 60px 20px;
-        }
-
-        .spec-section {
-            background: #111;
-            border: 1px solid #333;
-            position: relative;
-        }
-
-        .spec-section:nth-child(1) {
-            border-right: none;
-        }
-
-        .spec-title {
-            background: #ff4400;
-            color: #000;
-            padding: 20px;
-            font-size: 24px;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border-bottom: 1px solid #333;
-        }
-
-        .param {
-            padding: 20px;
-            border-bottom: 1px solid #222;
-            transition: all 0.2s ease;
-        }
-
-        .param:hover {
-            background: rgba(255,68,0,0.05);
-            border-left: 4px solid #ff4400;
-        }
-
-        .param:last-child {
-            border-bottom: none;
-        }
-
-        .param-name {
-            color: #ff4400;
-            font-weight: 900;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-            font-size: 16px;
-            letter-spacing: 1px;
-        }
-
-        .param-type {
-            background: #333;
-            color: #fff;
-            padding: 4px 12px;
-            font-size: 12px;
-            font-weight: 900;
-            text-transform: uppercase;
-            display: inline-block;
-            margin-bottom: 8px;
-            clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 100%, 6px 100%);
-        }
-
-        .param-range {
-            color: #fff;
-            font-weight: 700;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        .param-desc {
-            color: #aaa;
-            font-size: 14px;
-            line-height: 1.4;
-        }
-
-        .chaos-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2px;
-            margin: 60px 20px;
-            background: #ff4400;
-            padding: 2px;
-        }
-
-        .chaos-system {
-            background: #111;
-            padding: 30px;
-            transition: all 0.2s ease;
-            position: relative;
-        }
-
-        .chaos-system:hover {
-            background: #000;
-            transform: scale(1.02);
-        }
-
-        .chaos-system h4 {
-            color: #ff4400;
-            font-weight: 900;
-            text-transform: uppercase;
-            margin-bottom: 15px;
-            font-size: 18px;
-            letter-spacing: 1px;
-        }
-
-        .chaos-system p {
-            color: #ccc;
-            font-size: 14px;
-            line-height: 1.4;
-            margin-bottom: 15px;
-        }
-
-        .chaos-equation {
-            background: rgba(255,68,0,0.1);
-            padding: 10px;
-            color: #ff4400;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .examples {
-            background: #111;
-            margin: 60px 20px;
-            border: 2px solid #333;
-        }
-
-        .examples-title {
-            background: #fff;
-            color: #000;
-            padding: 30px;
-            font-size: 36px;
-            font-weight: 900;
-            text-transform: uppercase;
-            text-align: center;
-            letter-spacing: 2px;
-        }
-
-        .example {
-            border-bottom: 1px solid #222;
-            padding: 40px;
-        }
-
-        .example:last-child {
-            border-bottom: none;
-        }
-
-        .example-title {
-            color: #ff4400;
-            font-size: 24px;
-            font-weight: 900;
-            text-transform: uppercase;
-            margin-bottom: 20px;
-            letter-spacing: 1px;
-        }
-
-        .workflow {
-            background: #000;
-            padding: 20px;
-            margin: 20px 0;
-            border-left: 4px solid #ff4400;
-            font-family: 'Courier New', monospace;
-            color: #ff4400;
-            font-size: 16px;
-            overflow-x: auto;
-        }
-
-        .workflow-node {
-            color: #fff;
-            font-weight: bold;
-        }
-
-        .settings {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            background: #000;
-        }
-
-        .settings th {
-            background: #333;
-            color: #fff;
-            padding: 15px;
-            text-align: left;
-            font-weight: 900;
-            text-transform: uppercase;
-            font-size: 12px;
-            letter-spacing: 1px;
-        }
-
-        .settings td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #222;
-            color: #ccc;
-            font-size: 14px;
-        }
-
-        .settings tr:hover {
-            background: rgba(255,68,0,0.05);
-        }
-
-        .tips {
-            background: #000;
-            margin: 60px 20px;
-            border: 2px solid #ff4400;
-            position: relative;
-            counter-reset: tip-counter;
-        }
-
-        .tips-title {
-            background: #ff4400;
-            color: #000;
-            padding: 20px;
-            font-size: 24px;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .tip {
-            padding: 20px;
-            border-bottom: 1px solid #111;
-            font-size: 16px;
-            color: #ccc;
-            position: relative;
-            padding-left: 60px;
-        }
-
-        .tip:last-child {
-            border-bottom: none;
-        }
-
-        .tip::before {
-            content: counter(tip-counter, decimal-leading-zero);
-            counter-increment: tip-counter;
-            position: absolute;
-            left: 20px;
-            top: 20px;
-            color: #ff4400;
-            font-weight: 900;
-            font-size: 18px;
-            background: #111;
-            padding: 8px 12px;
-            clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 100%, 6px 100%);
-        }
-
-        .footer {
-            background: #111;
-            padding: 60px 20px;
-            text-align: center;
-            border-top: 2px solid #ff4400;
-            margin-top: 80px;
-        }
-
-        .footer h3 {
-            color: #ff4400;
-            font-size: 28px;
-            font-weight: 900;
-            text-transform: uppercase;
-            margin-bottom: 20px;
-            letter-spacing: 2px;
-        }
-
-        .footer p {
-            color: #ccc;
-            font-size: 16px;
-            margin-bottom: 30px;
-        }
-
-        @media (max-width: 768px) {
-            .specs {
-                grid-template-columns: 1fr;
-            }
-            
-            .chaos-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .node-title {
-                font-size: 3rem;
-            }
-        }
-    </style>
+    
+    <!-- EXTERNAL CSS ARCHITECTURE -->
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/sidebar.css">  
+    <link rel="stylesheet" href="../css/themes.css">
+    <link rel="stylesheet" href="../css/animations.css">
 </head>
-<body>
+<body class="theme-generator">
     <div class="container">
-        <div class="header">
-            <a href="../index.html" class="back-btn">← BACK</a>
-            <div class="node-category">GENERATOR</div>
-            <h1 class="node-title">TRUE<br>CHAOS</h1>
-            <div class="node-desc">
-                Mathematical chaos system generator creating unpredictable, non-repeating audio patterns.
-                Based on Lorenz, Chua, Rössler and other famous strange attractors.
+        <div class="main-content">
+            <div class="header">
+                <a href="../index.html" class="back-btn">← BACK</a>
+                <div class="node-category">GENERATOR</div>
+                <h1 class="node-title">TRUE<br>CHAOS</h1>
+                <div class="node-desc">
+                    Mathematical chaos system generator creating unpredictable, non-repeating audio patterns.
+                    Based on Lorenz, Chua, Rössler and other famous strange attractors.
+                </div>
             </div>
-        </div>
 
         <div class="node-visual">
-            <img src="../images/nodes/true_chaos.jpg" alt="True Chaos Node Interface">
+            <div class="attractor-space"></div>
+            
+            <div class="chaos-equations">
+                dx/dt = σ(y - x)<br>
+                dy/dt = x(ρ - z) - y<br>
+                dz/dt = xy - βz
+            </div>
+            
+            <div class="lorenz-attractor">
+                <div class="trajectory"></div>
+                <div class="trajectory"></div>
+                <div class="trajectory"></div>
+                <div class="trajectory"></div>
+            </div>
+            
+            <div class="phase-space"></div>
+            
+            <div class="chaos-parameters">
+                <div class="param-indicator"></div>
+                <div class="param-indicator"></div>
+                <div class="param-indicator"></div>
+                <div class="param-indicator"></div>
+                <div class="param-indicator"></div>
+            </div>
         </div>
 
         <div class="specs">
@@ -596,6 +215,44 @@
             <h3>TRUE CHAOS</h3>
             <p>Mathematical chaos systems for truly unpredictable audio generation</p>
             <a href="../index.html" class="back-btn">EXPLORE MORE NODES</a>
+        </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">NODE SCREENSHOT</div>
+                <div class="node-screenshot">
+                    <img src="../images/nodes/true_chaos.jpg" alt="True Chaos Node" style="width: 100%; height: auto; border-radius: 8px;">
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-title">QUICK SPECS</div>
+                <div class="quick-spec">
+                    <div class="quick-spec-label">TYPE</div>
+                    <div class="quick-spec-value">GENERATOR</div>
+                </div>
+                <div class="quick-spec">
+                    <div class="quick-spec-label">SYSTEMS</div>
+                    <div class="quick-spec-value">6 ATTRACTORS</div>
+                </div>
+                <div class="quick-spec">
+                    <div class="quick-spec-label">TIME SCALE</div>
+                    <div class="quick-spec-value">0.001 - 100</div>
+                </div>
+                <div class="quick-spec">
+                    <div class="quick-spec-label">INTENSITY</div>
+                    <div class="quick-spec-value">0.0 - 1.0</div>
+                </div>
+                <div class="quick-spec">
+                    <div class="quick-spec-label">AMPLITUDE</div>
+                    <div class="quick-spec-value">0.0 - 2.0</div>
+                </div>
+                <div class="quick-spec">
+                    <div class="quick-spec-label">DURATION</div>
+                    <div class="quick-spec-value">0.1 - 300s</div>
+                </div>
+            </div>
         </div>
     </div>
 </body>

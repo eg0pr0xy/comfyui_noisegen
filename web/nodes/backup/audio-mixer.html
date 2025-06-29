@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AUDIO MIXER</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial Black', Arial, sans-serif;
+            background: #000;
+            color: #fff;
+            line-height: 1.2;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0;
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 40px;
+        }
+
+        .main-content {
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background: #111;
+            border-left: 4px solid #00ff80;
+            position: sticky;
+            top: 0;
+            height: fit-content;
+            max-height: 100vh;
+            overflow-y: auto;
+        }
+
+        .header {
+            background: linear-gradient(90deg, #000 0%, #111 50%, #000 100%);
+            padding: 40px 20px;
+            border-bottom: 4px solid #00ff80;
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                -45deg,
+                transparent,
+                transparent 5px,
+                rgba(0,255,128,0.1) 5px,
+                rgba(0,255,128,0.1) 10px
+            );
+            pointer-events: none;
+        }
+
+        .back-btn {
+            display: inline-block;
+            background: #fff;
+            color: #000;
+            padding: 12px 24px;
+            text-decoration: none;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 100%, 12px 100%);
+            transition: all 0.2s ease;
+            margin-bottom: 30px;
+        }
+
+        .back-btn:hover {
+            background: #00ff80;
+            transform: translateX(-4px);
+        }
+
+        .node-title {
+            font-size: clamp(3rem, 8vw, 8rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            color: #fff;
+            margin-bottom: 20px;
+            text-shadow: 4px 4px 0px #00ff80;
+        }
+
+        .node-category {
+            background: #00ff80;
+            color: #000;
+            padding: 8px 20px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 100%, 8px 100%);
+            margin-bottom: 30px;
+        }
+
+        .node-desc {
+            font-size: 18px;
+            color: #ccc;
+            max-width: 800px;
+            margin-bottom: 40px;
+            font-weight: normal;
+        }
+
+        .node-visual {
+            background: #111;
+            border: 2px solid #333;
+            height: 300px;
+            margin: 40px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mixer-channels {
+            position: absolute;
+            display: flex;
+            gap: 20px;
+            align-items: flex-end;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .channel {
+            width: 30px;
+            background: #00ff80;
+            opacity: 0.6;
+        }
+
+        .channel:nth-child(1) { height: 120px; }
+        .channel:nth-child(2) { height: 90px; }
+        .channel:nth-child(3) { height: 150px; }
+        .channel:nth-child(4) { height: 70px; }
+        .channel:nth-child(5) { height: 110px; }
+
+        .visual-text {
+            color: #00ff80;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            z-index: 1;
+            text-align: center;
+        }
+
+        .specs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            margin: 60px 20px;
+        }
+
+        .spec-section {
+            background: #111;
+            border: 1px solid #333;
+            position: relative;
+        }
+
+        .spec-section:nth-child(1) {
+            border-right: none;
+        }
+
+        .spec-title {
+            background: #00ff80;
+            color: #000;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #333;
+        }
+
+        .param {
+            padding: 20px;
+            border-bottom: 1px solid #222;
+            transition: all 0.2s ease;
+        }
+
+        .param:hover {
+            background: rgba(0,255,128,0.05);
+            border-left: 4px solid #00ff80;
+        }
+
+        .param:last-child {
+            border-bottom: none;
+        }
+
+        .param-name {
+            color: #00ff80;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            font-size: 16px;
+            letter-spacing: 1px;
+        }
+
+        .param-type {
+            background: #333;
+            color: #fff;
+            padding: 4px 12px;
+            font-size: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 8px;
+            clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 100%, 6px 100%);
+        }
+
+        .param-range {
+            color: #fff;
+            font-weight: 700;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .param-desc {
+            color: #aaa;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2px;
+            margin: 60px 20px;
+            background: #00ff80;
+            padding: 2px;
+        }
+
+        .feature {
+            background: #111;
+            padding: 30px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .feature:hover {
+            background: #000;
+            transform: scale(1.02);
+        }
+
+        .feature h4 {
+            color: #00ff80;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            font-size: 18px;
+            letter-spacing: 1px;
+        }
+
+        .feature p {
+            color: #ccc;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .examples {
+            background: #111;
+            margin: 60px 20px;
+            border: 2px solid #333;
+        }
+
+        .examples-title {
+            background: #fff;
+            color: #000;
+            padding: 30px;
+            font-size: 36px;
+            font-weight: 900;
+            text-transform: uppercase;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        .example {
+            border-bottom: 1px solid #222;
+            padding: 40px;
+        }
+
+        .example:last-child {
+            border-bottom: none;
+        }
+
+        .example-title {
+            color: #00ff80;
+            font-size: 24px;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+
+        .workflow {
+            background: #000;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #00ff80;
+            font-family: 'Courier New', monospace;
+            color: #00ff80;
+            font-size: 16px;
+            overflow-x: auto;
+        }
+
+        .workflow-node {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .settings {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: #000;
+        }
+
+        .settings th {
+            background: #333;
+            color: #fff;
+            padding: 15px;
+            text-align: left;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+
+        .settings td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #222;
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        .settings tr:hover {
+            background: rgba(0,255,128,0.05);
+        }
+
+        .tips {
+            background: #000;
+            margin: 60px 20px;
+            border: 2px solid #00ff80;
+            position: relative;
+            counter-reset: tip-counter;
+        }
+
+        .tips-title {
+            background: #00ff80;
+            color: #000;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .tip {
+            padding: 20px;
+            border-bottom: 1px solid #111;
+            font-size: 16px;
+            color: #ccc;
+            position: relative;
+            padding-left: 60px;
+        }
+
+        .tip:last-child {
+            border-bottom: none;
+        }
+
+        .tip::before {
+            content: counter(tip-counter, decimal-leading-zero);
+            counter-increment: tip-counter;
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            color: #00ff80;
+            font-weight: 900;
+            font-size: 18px;
+            background: #111;
+            padding: 8px 12px;
+            clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 100%, 6px 100%);
+        }
+
+        .footer {
+            background: #111;
+            padding: 60px 20px;
+            text-align: center;
+            border-top: 2px solid #00ff80;
+            margin-top: 80px;
+        }
+
+        .footer h3 {
+            color: #00ff80;
+            font-size: 28px;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+
+        .footer p {
+            color: #ccc;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+        /* SIDEBAR STYLES */
+        .node-screenshot {
+            background: #222;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            position: relative;
+            aspect-ratio: 9/16;
+            overflow: hidden;
+        }
+
+        .screenshot-placeholder {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #00ff80;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .screenshot-placeholder span:first-child {
+            display: block;
+            font-size: 12px;
+            margin-bottom: 8px;
+            opacity: 0.7;
+        }
+
+        .screenshot-placeholder span:last-child {
+            display: block;
+            font-size: 16px;
+        }
+
+        .quick-specs {
+            background: #222;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .quick-specs h3 {
+            color: #00ff80;
+            font-size: 16px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .quick-spec {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .quick-spec:last-child {
+            border-bottom: none;
+        }
+
+        .spec-label {
+            color: #ccc;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .spec-value {
+            color: #00ff80;
+            font-size: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        /* RESPONSIVE DESIGN */
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                order: -1;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 30px;
+                margin-bottom: 40px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                grid-template-columns: 1fr;
+            }
+            
+            .specs {
+                grid-template-columns: 1fr;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .node-title {
+                font-size: 3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-content">
+            <div class="header">
+                <a href="../index.html" class="back-btn">← BACK</a>
+                <div class="node-category">UTILITY</div>
+                <h1 class="node-title">AUDIO<br>MIXER</h1>
+                <div class="node-desc">
+                    Professional multi-channel audio mixer with independent level, pan, and EQ controls.
+                    Supports up to 8 channels with flexible routing and monitoring capabilities.
+                </div>
+            </div>
+
+        <div class="node-visual">
+            <div class="mixer-channels">
+                <div class="channel"></div>
+                <div class="channel"></div>
+                <div class="channel"></div>
+                <div class="channel"></div>
+                <div class="channel"></div>
+            </div>
+            <div class="visual-text">
+                NODE SCREENSHOT<br>
+                PLACEHOLDER
+            </div>
+        </div>
+
+        <div class="specs">
+            <div class="spec-section">
+                <div class="spec-title">INPUTS</div>
+                
+                <div class="param">
+                    <div class="param-name">audio_1</div>
+                    <div class="param-type">AUDIO</div>
+                    <div class="param-range">Any ComfyUI audio format</div>
+                    <div class="param-desc">First audio input channel.</div>
+                </div>
+
+                <div class="param">
+                    <div class="param-name">audio_2</div>
+                    <div class="param-type">AUDIO</div>
+                    <div class="param-range">Any ComfyUI audio format</div>
+                    <div class="param-desc">Second audio input channel.</div>
+                </div>
+
+                <div class="param">
+                    <div class="param-name">level_1</div>
+                    <div class="param-type">FLOAT</div>
+                    <div class="param-range">0.0 - 2.0</div>
+                    <div class="param-desc">Channel 1 level control.</div>
+                </div>
+
+                <div class="param">
+                    <div class="param-name">level_2</div>
+                    <div class="param-type">FLOAT</div>
+                    <div class="param-range">0.0 - 2.0</div>
+                    <div class="param-desc">Channel 2 level control.</div>
+                </div>
+
+                <div class="param">
+                    <div class="param-name">pan_1</div>
+                    <div class="param-type">FLOAT</div>
+                    <div class="param-range">-1.0 - 1.0</div>
+                    <div class="param-desc">Channel 1 stereo panning. -1 = left, 1 = right.</div>
+                </div>
+
+                <div class="param">
+                    <div class="param-name">pan_2</div>
+                    <div class="param-type">FLOAT</div>
+                    <div class="param-range">-1.0 - 1.0</div>
+                    <div class="param-desc">Channel 2 stereo panning.</div>
+                </div>
+
+                <div class="param">
+                    <div class="param-name">crossfade</div>
+                    <div class="param-type">FLOAT</div>
+                    <div class="param-range">0.0 - 1.0</div>
+                    <div class="param-desc">Crossfade between channels. 0 = channel 1, 1 = channel 2.</div>
+                </div>
+            </div>
+
+            <div class="spec-section">
+                <div class="spec-title">OUTPUTS</div>
+                
+                <div class="param">
+                    <div class="param-name">audio</div>
+                    <div class="param-type">AUDIO</div>
+                    <div class="param-range">Mixed audio output</div>
+                    <div class="param-desc">Combined audio from all input channels.</div>
+                </div>
+
+                <div class="param">
+                    <div class="param-name">level_meters</div>
+                    <div class="param-type">DATA</div>
+                    <div class="param-range">VU meter data</div>
+                    <div class="param-desc">Real-time level monitoring data.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature">
+                <h4>MULTI-CHANNEL MIXING</h4>
+                <p>Up to 8 independent audio channels with individual level, pan, and EQ controls for professional mixing workflows.</p>
+            </div>
+            <div class="feature">
+                <h4>REAL-TIME MONITORING</h4>
+                <p>Built-in VU meters and level monitoring for each channel with peak detection and clipping indicators.</p>
+            </div>
+            <div class="feature">
+                <h4>CROSSFADING</h4>
+                <p>Smooth crossfade control between channels for DJ-style mixing and seamless transitions.</p>
+            </div>
+            <div class="feature">
+                <h4>FLEXIBLE ROUTING</h4>
+                <p>Advanced routing options including auxiliary sends, pre/post-fader options, and bus assignments.</p>
+            </div>
+        </div>
+
+        <div class="examples">
+            <div class="examples-title">MIXING EXAMPLES</div>
+            
+            <div class="example">
+                <div class="example-title">LAYERED NOISE COMPOSITION</div>
+                <div class="workflow">
+                    <span class="workflow-node">WHITE NOISE</span> + <span class="workflow-node">PINK NOISE</span> → 
+                    <span class="workflow-node">AUDIO MIXER</span> → 
+                    <span class="workflow-node">AUDIO SAVE</span>
+                </div>
+                <table class="settings">
+                    <tr><th>PARAM</th><th>VALUE</th><th>PURPOSE</th></tr>
+                    <tr><td>level_1</td><td>0.7</td><td>White noise level</td></tr>
+                    <tr><td>level_2</td><td>0.5</td><td>Pink noise level</td></tr>
+                    <tr><td>pan_1</td><td>-0.3</td><td>Left positioning</td></tr>
+                    <tr><td>pan_2</td><td>0.3</td><td>Right positioning</td></tr>
+                </table>
+            </div>
+
+            <div class="example">
+                <div class="example-title">CHAOS BLEND</div>
+                <div class="workflow">
+                    <span class="workflow-node">TRUE CHAOS</span> + <span class="workflow-node">PERLIN NOISE</span> → 
+                    <span class="workflow-node">AUDIO MIXER</span> → 
+                    <span class="workflow-node">HARSH FILTER</span>
+                </div>
+                <table class="settings">
+                    <tr><th>PARAM</th><th>VALUE</th><th>PURPOSE</th></tr>
+                    <tr><td>level_1</td><td>0.8</td><td>Chaos dominance</td></tr>
+                    <tr><td>level_2</td><td>0.4</td><td>Perlin background</td></tr>
+                    <tr><td>crossfade</td><td>0.3</td><td>Weighted blend</td></tr>
+                </table>
+            </div>
+
+            <div class="example">
+                <div class="example-title">PROCESSED LAYERS</div>
+                <div class="workflow">
+                    <span class="workflow-node">NOISE GENERATOR</span> → <span class="workflow-node">DISTORTION</span> + 
+                    <span class="workflow-node">NOISE GENERATOR</span> → <span class="workflow-node">FILTER</span> → 
+                    <span class="workflow-node">AUDIO MIXER</span>
+                </div>
+                <table class="settings">
+                    <tr><th>PARAM</th><th>VALUE</th><th>PURPOSE</th></tr>
+                    <tr><td>level_1</td><td>0.6</td><td>Distorted channel</td></tr>
+                    <tr><td>level_2</td><td>0.7</td><td>Filtered channel</td></tr>
+                    <tr><td>pan_1</td><td>-0.8</td><td>Hard left</td></tr>
+                    <tr><td>pan_2</td><td>0.8</td><td>Hard right</td></tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="tips">
+            <div class="tips-title">MIXING TECHNIQUES</div>
+            <div class="tip">Start with all levels at 0.5 and adjust from there</div>
+            <div class="tip">Use panning to create stereo width and space</div>
+            <div class="tip">Crossfade enables smooth transitions between sources</div>
+            <div class="tip">Watch level meters to prevent clipping and distortion</div>
+            <div class="tip">Layer complementary noise types for richer textures</div>
+            <div class="tip">Use different processing chains on each channel</div>
+            <div class="tip">Hard panning (-1.0, 1.0) creates maximum stereo separation</div>
+            <div class="tip">Subtle level differences (0.1-0.2) create natural balance</div>
+            <div class="tip">Mix processed and unprocessed versions for complexity</div>
+            <div class="tip">Real-time monitoring prevents unwanted clipping</div>
+        </div>
+
+            <div class="footer">
+                <h3>AUDIO MIXER</h3>
+                <p>Professional multi-channel mixing for complex audio compositions</p>
+                <a href="../index.html" class="back-btn">EXPLORE MORE NODES</a>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="node-screenshot">
+                <img src="../images/nodes/audio-mixer.png" alt="Audio Mixer Node" style="width: 100%; height: auto; border-radius: 8px;">
+                <div class="screenshot-placeholder">
+                    <span>NODE SCREENSHOT</span>
+                    <span>AUDIO MIXER</span>
+                </div>
+            </div>
+
+            <div class="quick-specs">
+                <h3>QUICK SPECS</h3>
+                <div class="quick-spec">
+                    <span class="spec-label">CHANNELS</span>
+                    <span class="spec-value">8 Max</span>
+                </div>
+                <div class="quick-spec">
+                    <span class="spec-label">LEVEL RANGE</span>
+                    <span class="spec-value">0.0 - 2.0</span>
+                </div>
+                <div class="quick-spec">
+                    <span class="spec-label">PAN RANGE</span>
+                    <span class="spec-value">-1.0 - 1.0</span>
+                </div>
+                <div class="quick-spec">
+                    <span class="spec-label">CROSSFADE</span>
+                    <span class="spec-value">0.0 - 1.0</span>
+                </div>
+                <div class="quick-spec">
+                    <span class="spec-label">MONITORING</span>
+                    <span class="spec-value">VU Meters</span>
+                </div>
+                <div class="quick-spec">
+                    <span class="spec-label">CATEGORY</span>
+                    <span class="spec-value">Utility</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>NOISE GENERATOR - NOISEGEN</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- EXTERNAL CSS ARCHITECTURE -->
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/sidebar.css">  
+    <link rel="stylesheet" href="../css/themes.css">
+    <link rel="stylesheet" href="../css/animations.css">
+</head>
+<body class="theme-generator">
+    <div class="container">
+        <div class="main-content">
+            <div class="header">
+                <a href="../index.html" class="back-btn">← BACK</a>
+                <div class="node-category">GENERATOR</div>
+                <h1 class="node-title">NOISE<br>GENERATOR</h1>
+                <div class="node-desc">
+                    Professional noise generation with 7 distinct algorithms and comprehensive parameter control.
+                    Create everything from subtle background textures to aggressive wall-of-sound compositions.
+                </div>
+            </div>
+
+            <div class="node-visual">
+                <div class="noise-waveform">
+                    <div class="frequency-bar" style="height: 60px; animation-delay: 0s;"></div>
+                    <div class="frequency-bar" style="height: 80px; animation-delay: 0.1s;"></div>
+                    <div class="frequency-bar" style="height: 45px; animation-delay: 0.2s;"></div>
+                    <div class="frequency-bar" style="height: 95px; animation-delay: 0.3s;"></div>
+                    <div class="frequency-bar" style="height: 70px; animation-delay: 0.4s;"></div>
+                    <div class="frequency-bar" style="height: 55px; animation-delay: 0.5s;"></div>
+                    <div class="frequency-bar" style="height: 85px; animation-delay: 0.6s;"></div>
+                </div>
+                <div class="visual-text">
+                    WAVEFORM<br>
+                    GENERATION
+                </div>
+            </div>
+
+            <div class="specs">
+                <div class="spec-section">
+                    <div class="spec-title">INPUTS</div>
+                    
+                    <div class="param">
+                        <div class="param-name">noise_type</div>
+                        <div class="param-type">STRING</div>
+                        <div class="param-range">white, pink, brown, blue, violet, red, grey</div>
+                        <div class="param-desc">Type of noise algorithm to generate.</div>
+                    </div>
+
+                    <div class="param">
+                        <div class="param-name">amplitude</div>
+                        <div class="param-type">FLOAT</div>
+                        <div class="param-range">0.0 - 2.0</div>
+                        <div class="param-desc">Overall amplitude/volume of the generated noise.</div>
+                    </div>
+
+                    <div class="param">
+                        <div class="param-name">duration</div>
+                        <div class="param-type">FLOAT</div>
+                        <div class="param-range">0.1 - 60.0</div>
+                        <div class="param-desc">Length of generated audio in seconds.</div>
+                    </div>
+
+                    <div class="param">
+                        <div class="param-name">sample_rate</div>
+                        <div class="param-type">INT</div>
+                        <div class="param-range">22050, 44100, 48000, 96000</div>
+                        <div class="param-desc">Audio sample rate in Hz.</div>
+                    </div>
+
+                    <div class="param">
+                        <div class="param-name">seed</div>
+                        <div class="param-type">INT</div>
+                        <div class="param-range">-1 to 2147483647</div>
+                        <div class="param-desc">Random seed for reproducible generation. -1 for random.</div>
+                    </div>
+
+                    <div class="param">
+                        <div class="param-name">stereo_width</div>
+                        <div class="param-type">FLOAT</div>
+                        <div class="param-range">0.0 - 1.0</div>
+                        <div class="param-desc">Stereo field width. 0 = mono, 1 = full stereo.</div>
+                    </div>
+                </div>
+
+                <div class="spec-section">
+                    <div class="spec-title">OUTPUTS</div>
+                    
+                    <div class="param">
+                        <div class="param-name">audio</div>
+                        <div class="param-type">AUDIO</div>
+                        <div class="param-range">Generated noise audio</div>
+                        <div class="param-desc">Primary audio output containing the generated noise.</div>
+                    </div>
+
+                    <div class="param">
+                        <div class="param-name">waveform</div>
+                        <div class="param-type">IMAGE</div>
+                        <div class="param-range">Visual waveform</div>
+                        <div class="param-desc">Visual representation of the generated waveform.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature">
+                    <h4>7 NOISE ALGORITHMS</h4>
+                    <p>White, pink, brown, blue, violet, red, and grey noise with scientifically accurate spectral characteristics.</p>
+                </div>
+                <div class="feature">
+                    <h4>HIGH-QUALITY GENERATION</h4>
+                    <p>Professional-grade algorithms with support for sample rates up to 96kHz and precise amplitude control.</p>
+                </div>
+                <div class="feature">
+                    <h4>REPRODUCIBLE RESULTS</h4>
+                    <p>Seed-based generation ensures identical results across multiple renders for consistent workflows.</p>
+                </div>
+                <div class="feature">
+                    <h4>STEREO IMAGING</h4>
+                    <p>Advanced stereo width control creates immersive soundscapes from mono to full stereo field.</p>
+                </div>
+            </div>
+
+            <div class="examples">
+                <div class="examples-title">GENERATION EXAMPLES</div>
+                
+                <div class="example">
+                    <div class="example-title">AMBIENT TEXTURE</div>
+                    <div class="workflow">
+                        <span class="workflow-node">NOISE GENERATOR</span> → 
+                        <span class="workflow-node">HARSH FILTER</span> → 
+                        <span class="workflow-node">REVERB</span>
+                    </div>
+                    <table class="settings">
+                        <tr><th>PARAM</th><th>VALUE</th><th>PURPOSE</th></tr>
+                        <tr><td>noise_type</td><td>pink</td><td>Natural spectrum</td></tr>
+                        <tr><td>amplitude</td><td>0.3</td><td>Subtle level</td></tr>
+                        <tr><td>duration</td><td>30.0</td><td>Long texture</td></tr>
+                        <tr><td>stereo_width</td><td>0.8</td><td>Wide stereo field</td></tr>
+                    </table>
+                </div>
+
+                <div class="example">
+                    <div class="example-title">HARSH NOISE WALL</div>
+                    <div class="workflow">
+                        <span class="workflow-node">NOISE GENERATOR</span> → 
+                        <span class="workflow-node">MULTI DISTORTION</span> → 
+                        <span class="workflow-node">GRANULAR PROCESSOR</span>
+                    </div>
+                    <table class="settings">
+                        <tr><th>PARAM</th><th>VALUE</th><th>PURPOSE</th></tr>
+                        <tr><td>noise_type</td><td>white</td><td>Full spectrum</td></tr>
+                        <tr><td>amplitude</td><td>1.8</td><td>Maximum aggression</td></tr>
+                        <tr><td>duration</td><td>5.0</td><td>Intense burst</td></tr>
+                        <tr><td>seed</td><td>12345</td><td>Reproducible chaos</td></tr>
+                    </table>
+                </div>
+
+                <div class="example">
+                    <div class="example-title">SCIENTIFIC ANALYSIS</div>
+                    <div class="workflow">
+                        <span class="workflow-node">NOISE GENERATOR</span> → 
+                        <span class="workflow-node">SPECTRUM ANALYZER</span> → 
+                        <span class="workflow-node">AUDIO ANALYZER</span>
+                    </div>
+                    <table class="settings">
+                        <tr><th>PARAM</th><th>VALUE</th><th>PURPOSE</th></tr>
+                        <tr><td>noise_type</td><td>blue</td><td>High-frequency focus</td></tr>
+                        <tr><td>amplitude</td><td>0.7</td><td>Analysis level</td></tr>
+                        <tr><td>sample_rate</td><td>96000</td><td>High precision</td></tr>
+                        <tr><td>stereo_width</td><td>0.0</td><td>Mono for analysis</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="tips">
+                <div class="tips-title">GENERATION MASTERY</div>
+                <div class="tip">White noise provides equal energy across all frequencies - perfect for masking</div>
+                <div class="tip">Pink noise follows natural 1/f distribution - ideal for ambient textures</div>
+                <div class="tip">Brown noise emphasizes low frequencies - great for rumbling foundations</div>
+                <div class="tip">Blue noise increases with frequency - excellent for dithering applications</div>
+                <div class="tip">Use seeds for reproducible results in iterative sound design workflows</div>
+                <div class="tip">Higher sample rates provide better high-frequency detail but increase file size</div>
+                <div class="tip">Stereo width of 0.5-0.7 creates natural soundscape imaging</div>
+                <div class="tip">Amplitude above 1.0 introduces controlled digital saturation effects</div>
+                <div class="tip">Layer multiple noise types at different amplitudes for complex textures</div>
+                <div class="tip">Use violet noise for high-frequency emphasis without harsh aliasing</div>
+                <div class="tip">Red noise provides enhanced low-frequency rumble for drone compositions</div>
+                <div class="tip">Grey noise appears perceptually flat - useful for psychoacoustic testing</div>
+            </div>
+
+            <div class="footer">
+                <h3>NOISE GENERATOR</h3>
+                <p>Professional foundation for all noise-based audio generation</p>
+                <a href="../index.html" class="back-btn">EXPLORE MORE NODES</a>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="node-screenshot">
+                <img src="../images/nodes/noise_generator.jpg" alt="Noise Generator Node" style="width: 100%; height: auto; border-radius: 8px;">
+            </div>
+
+            <div class="quick-specs">
+                <h3>QUICK SPECS</h3>
+                <div class="quick-spec">
+                    <span class="spec-label">NOISE TYPES</span>
+                    <span class="spec-value">7 Algorithms</span>
+                </div>
+                <div class="quick-spec">
+                    <span class="spec-label">AMPLITUDE</span>
+                    <span class="spec-value">0.0 - 2.0</span>
+                </div>
+                <div class="quick-spec">
+                    <span class="spec-label">DURATION</span>
+                    <span class="spec-value">0.1 - 60s</span>
+                </div>
+                <div class="quick-spec">
+                    <span class="spec-label">SAMPLE RATE</span>
+                    <span class="spec-value">Up to 96kHz</span>
+                </div>
+                <div class="quick-spec">
+                    <span class="spec-label">STEREO WIDTH</span>
+                    <span class="spec-value">0.0 - 1.0</span>
+                </div>
+                <div class="quick-spec">
+                    <span class="spec-label">CATEGORY</span>
+                    <span class="spec-value">Generator</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

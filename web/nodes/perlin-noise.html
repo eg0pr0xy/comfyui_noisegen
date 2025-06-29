@@ -2,439 +2,44 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>PERLIN NOISE</title>
+    <title>PERLIN NOISE - NOISEGEN</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Arial Black', Arial, sans-serif;
-            background: #000;
-            color: #fff;
-            line-height: 1.2;
-            overflow-x: hidden;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0;
-        }
-
-        .header {
-            background: linear-gradient(90deg, #000 0%, #111 50%, #000 100%);
-            padding: 40px 20px;
-            border-bottom: 4px solid #00ffff;
-            position: relative;
-        }
-
-        .header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(
-                135deg,
-                transparent,
-                transparent 3px,
-                rgba(0,255,255,0.1) 3px,
-                rgba(0,255,255,0.1) 6px
-            );
-            pointer-events: none;
-        }
-
-        .back-btn {
-            display: inline-block;
-            background: #fff;
-            color: #000;
-            padding: 12px 24px;
-            text-decoration: none;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 100%, 12px 100%);
-            transition: all 0.2s ease;
-            margin-bottom: 30px;
-        }
-
-        .back-btn:hover {
-            background: #00ffff;
-            transform: translateX(-4px);
-        }
-
-        .node-title {
-            font-size: clamp(3rem, 8vw, 8rem);
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: -2px;
-            color: #fff;
-            margin-bottom: 20px;
-            text-shadow: 4px 4px 0px #00ffff;
-        }
-
-        .node-category {
-            background: #00ffff;
-            color: #000;
-            padding: 8px 20px;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            display: inline-block;
-            clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 100%, 8px 100%);
-            margin-bottom: 30px;
-        }
-
-        .node-desc {
-            font-size: 18px;
-            color: #ccc;
-            max-width: 800px;
-            margin-bottom: 40px;
-            font-weight: normal;
-        }
-
-        .node-visual {
-            background: #111;
-            border: 2px solid #333;
-            height: 300px;
-            margin: 40px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .node-visual::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 150px;
-            height: 150px;
-            border: 3px solid #00ffff;
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        .node-visual::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 100px;
-            height: 100px;
-            border: 2px solid #00ffff;
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        .visual-text {
-            color: #00ffff;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            z-index: 1;
-            text-align: center;
-        }
-
-        .specs {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0;
-            margin: 60px 20px;
-        }
-
-        .spec-section {
-            background: #111;
-            border: 1px solid #333;
-            position: relative;
-        }
-
-        .spec-section:nth-child(1) {
-            border-right: none;
-        }
-
-        .spec-title {
-            background: #00ffff;
-            color: #000;
-            padding: 20px;
-            font-size: 24px;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border-bottom: 1px solid #333;
-        }
-
-        .param {
-            padding: 20px;
-            border-bottom: 1px solid #222;
-            transition: all 0.2s ease;
-        }
-
-        .param:hover {
-            background: rgba(0,255,255,0.05);
-            border-left: 4px solid #00ffff;
-        }
-
-        .param:last-child {
-            border-bottom: none;
-        }
-
-        .param-name {
-            color: #00ffff;
-            font-weight: 900;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-            font-size: 16px;
-            letter-spacing: 1px;
-        }
-
-        .param-type {
-            background: #333;
-            color: #fff;
-            padding: 4px 12px;
-            font-size: 12px;
-            font-weight: 900;
-            text-transform: uppercase;
-            display: inline-block;
-            margin-bottom: 8px;
-            clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 100%, 6px 100%);
-        }
-
-        .param-range {
-            color: #fff;
-            font-weight: 700;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        .param-desc {
-            color: #aaa;
-            font-size: 14px;
-            line-height: 1.4;
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2px;
-            margin: 60px 20px;
-            background: #00ffff;
-            padding: 2px;
-        }
-
-        .feature {
-            background: #111;
-            padding: 30px;
-            transition: all 0.2s ease;
-            position: relative;
-        }
-
-        .feature:hover {
-            background: #000;
-            transform: scale(1.02);
-        }
-
-        .feature h4 {
-            color: #00ffff;
-            font-weight: 900;
-            text-transform: uppercase;
-            margin-bottom: 15px;
-            font-size: 18px;
-            letter-spacing: 1px;
-        }
-
-        .feature p {
-            color: #ccc;
-            font-size: 14px;
-            line-height: 1.4;
-        }
-
-        .examples {
-            background: #111;
-            margin: 60px 20px;
-            border: 2px solid #333;
-        }
-
-        .examples-title {
-            background: #fff;
-            color: #000;
-            padding: 30px;
-            font-size: 36px;
-            font-weight: 900;
-            text-transform: uppercase;
-            text-align: center;
-            letter-spacing: 2px;
-        }
-
-        .example {
-            border-bottom: 1px solid #222;
-            padding: 40px;
-        }
-
-        .example:last-child {
-            border-bottom: none;
-        }
-
-        .example-title {
-            color: #00ffff;
-            font-size: 24px;
-            font-weight: 900;
-            text-transform: uppercase;
-            margin-bottom: 20px;
-            letter-spacing: 1px;
-        }
-
-        .workflow {
-            background: #000;
-            padding: 20px;
-            margin: 20px 0;
-            border-left: 4px solid #00ffff;
-            font-family: 'Courier New', monospace;
-            color: #00ffff;
-            font-size: 16px;
-            overflow-x: auto;
-        }
-
-        .workflow-node {
-            color: #fff;
-            font-weight: bold;
-        }
-
-        .settings {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            background: #000;
-        }
-
-        .settings th {
-            background: #333;
-            color: #fff;
-            padding: 15px;
-            text-align: left;
-            font-weight: 900;
-            text-transform: uppercase;
-            font-size: 12px;
-            letter-spacing: 1px;
-        }
-
-        .settings td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #222;
-            color: #ccc;
-            font-size: 14px;
-        }
-
-        .settings tr:hover {
-            background: rgba(0,255,255,0.05);
-        }
-
-        .tips {
-            background: #000;
-            margin: 60px 20px;
-            border: 2px solid #00ffff;
-            position: relative;
-            counter-reset: tip-counter;
-        }
-
-        .tips-title {
-            background: #00ffff;
-            color: #000;
-            padding: 20px;
-            font-size: 24px;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .tip {
-            padding: 20px;
-            border-bottom: 1px solid #111;
-            font-size: 16px;
-            color: #ccc;
-            position: relative;
-            padding-left: 60px;
-        }
-
-        .tip:last-child {
-            border-bottom: none;
-        }
-
-        .tip::before {
-            content: counter(tip-counter, decimal-leading-zero);
-            counter-increment: tip-counter;
-            position: absolute;
-            left: 20px;
-            top: 20px;
-            color: #00ffff;
-            font-weight: 900;
-            font-size: 18px;
-            background: #111;
-            padding: 8px 12px;
-            clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 100%, 6px 100%);
-        }
-
-        .footer {
-            background: #111;
-            padding: 60px 20px;
-            text-align: center;
-            border-top: 2px solid #00ffff;
-            margin-top: 80px;
-        }
-
-        .footer h3 {
-            color: #00ffff;
-            font-size: 28px;
-            font-weight: 900;
-            text-transform: uppercase;
-            margin-bottom: 20px;
-            letter-spacing: 2px;
-        }
-
-        .footer p {
-            color: #ccc;
-            font-size: 16px;
-            margin-bottom: 30px;
-        }
-
-        @media (max-width: 768px) {
-            .specs {
-                grid-template-columns: 1fr;
-            }
-            
-            .features-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .node-title {
-                font-size: 3rem;
-            }
-        }
-    </style>
+    
+    <!-- EXTERNAL CSS ARCHITECTURE -->
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/sidebar.css">  
+    <link rel="stylesheet" href="../css/themes.css">
+    <link rel="stylesheet" href="../css/animations.css">
 </head>
-<body>
+<body class="theme-generator">
     <div class="container">
-        <div class="header">
-            <a href="../index.html" class="back-btn">← BACK</a>
-            <div class="node-category">GENERATOR</div>
-            <h1 class="node-title">PERLIN<br>NOISE</h1>
-            <div class="node-desc">
-                Advanced Perlin noise generator for organic, natural-sounding textures. 
-                Creates smooth, coherent variations using fractal algorithms with controllable octaves and persistence.
+        <div class="main-content">
+            <div class="header">
+                <a href="../index.html" class="back-btn">← BACK</a>
+                <div class="node-category">GENERATOR</div>
+                <h1 class="node-title">PERLIN<br>NOISE</h1>
+                <div class="node-desc">
+                    Advanced Perlin noise generator for organic, natural-sounding textures. 
+                    Creates smooth, coherent variations using fractal algorithms with controllable octaves and persistence.
+                </div>
             </div>
-        </div>
 
         <div class="node-visual">
-            <div class="visual-text">
-                NODE SCREENSHOT<br>
-                PLACEHOLDER
+            <div class="noise-field"></div>
+            
+            <div class="organic-layer"></div>
+            <div class="organic-layer"></div>
+            <div class="organic-layer"></div>
+            
+            <div class="fractal-center"></div>
+            
+            <div class="perlin-octaves">
+                <div class="octave"></div>
+                <div class="octave"></div>
+                <div class="octave"></div>
+                <div class="octave"></div>
+                <div class="octave"></div>
+                <div class="octave"></div>
             </div>
         </div>
 
@@ -581,6 +186,44 @@
             <h3>PERLIN NOISE</h3>
             <p>Organic texture generator for natural-sounding ambient environments</p>
             <a href="../index.html" class="back-btn">EXPLORE MORE NODES</a>
+        </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">NODE SCREENSHOT</div>
+                <div class="node-screenshot">
+                    <img src="../images/nodes/perlin_noise.jpg" alt="Perlin Noise Node" style="width: 100%; height: auto; border-radius: 8px;">
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-title">QUICK SPECS</div>
+                <div class="quick-spec">
+                    <div class="quick-spec-label">TYPE</div>
+                    <div class="quick-spec-value">GENERATOR</div>
+                </div>
+                <div class="quick-spec">
+                    <div class="quick-spec-label">FREQUENCY</div>
+                    <div class="quick-spec-value">0.1 - 100 Hz</div>
+                </div>
+                <div class="quick-spec">
+                    <div class="quick-spec-label">OCTAVES</div>
+                    <div class="quick-spec-value">1 - 8</div>
+                </div>
+                <div class="quick-spec">
+                    <div class="quick-spec-label">PERSISTENCE</div>
+                    <div class="quick-spec-value">0.1 - 2.0</div>
+                </div>
+                <div class="quick-spec">
+                    <div class="quick-spec-label">AMPLITUDE</div>
+                    <div class="quick-spec-value">0.0 - 2.0</div>
+                </div>
+                <div class="quick-spec">
+                    <div class="quick-spec-label">DURATION</div>
+                    <div class="quick-spec-value">0.1 - 300s</div>
+                </div>
+            </div>
         </div>
     </div>
 </body>

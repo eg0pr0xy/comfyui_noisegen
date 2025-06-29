@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PERLIN NOISE</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial Black', Arial, sans-serif;
+            background: #000;
+            color: #fff;
+            line-height: 1.2;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0;
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 40px;
+        }
+
+        .main-content {
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background: #111;
+            border-left: 4px solid #00ffff;
+            position: sticky;
+            top: 0;
+            height: fit-content;
+            max-height: 100vh;
+            overflow-y: auto;
+        }
+
+        .header {
+            background: linear-gradient(90deg, #000 0%, #111 50%, #000 100%);
+            padding: 40px 20px;
+            border-bottom: 4px solid #00ffff;
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                135deg,
+                transparent,
+                transparent 3px,
+                rgba(0,255,255,0.1) 3px,
+                rgba(0,255,255,0.1) 6px
+            );
+            pointer-events: none;
+        }
+
+        .back-btn {
+            display: inline-block;
+            background: #fff;
+            color: #000;
+            padding: 12px 24px;
+            text-decoration: none;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 100%, 12px 100%);
+            transition: all 0.2s ease;
+            margin-bottom: 30px;
+        }
+
+        .back-btn:hover {
+            background: #00ffff;
+            transform: translateX(-4px);
+        }
+
+        .node-title {
+            font-size: clamp(3rem, 8vw, 8rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            color: #fff;
+            margin-bottom: 20px;
+            text-shadow: 4px 4px 0px #00ffff;
+        }
+
+        .node-category {
+            background: #00ffff;
+            color: #000;
+            padding: 8px 20px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 100%, 8px 100%);
+            margin-bottom: 30px;
+        }
+
+        .node-desc {
+            font-size: 18px;
+            color: #ccc;
+            max-width: 800px;
+            margin-bottom: 40px;
+            font-weight: normal;
+        }
+
+        /* ORGANIC PERLIN FLOW ANIMATION */
+        .node-visual {
+            background: #111;
+            border: 2px solid #333;
+            height: 300px;
+            margin: 40px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .organic-layer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at 50% 50%, transparent 30%, #00ffff 60%, transparent 90%);
+            animation: organicFlow 8s ease-in-out infinite;
+        }
+
+        .organic-layer:nth-child(1) {
+            animation-delay: 0s;
+            opacity: 0.4;
+            transform: scale(0.8);
+        }
+
+        .organic-layer:nth-child(2) {
+            animation-delay: 2.5s;
+            opacity: 0.3;
+            transform: scale(1.2);
+        }
+
+        .organic-layer:nth-child(3) {
+            animation-delay: 5s;
+            opacity: 0.2;
+            transform: scale(1.5);
+        }
+
+        .noise-field {
+            position: absolute;
+            width: 120%;
+            height: 120%;
+            top: -10%;
+            left: -10%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 3px,
+                rgba(0,255,255,0.1) 3px,
+                rgba(0,255,255,0.1) 6px
+            );
+            animation: fieldFlow 15s linear infinite;
+        }
+
+        .perlin-octaves {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 6px;
+        }
+
+        .octave {
+            width: 8px;
+            background: #00ffff;
+            border-radius: 4px;
+            animation: octavePulse 2.5s ease-in-out infinite;
+        }
+
+        .octave:nth-child(1) { height: 30px; animation-delay: 0s; }
+        .octave:nth-child(2) { height: 50px; animation-delay: 0.3s; }
+        .octave:nth-child(3) { height: 70px; animation-delay: 0.6s; }
+        .octave:nth-child(4) { height: 85px; animation-delay: 0.9s; }
+        .octave:nth-child(5) { height: 65px; animation-delay: 1.2s; }
+        .octave:nth-child(6) { height: 45px; animation-delay: 1.5s; }
+
+        .fractal-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 80px;
+            height: 80px;
+            border: 2px solid #00ffff;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: fractalPulse 4s ease-in-out infinite;
+        }
+
+        .fractal-center::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 40px;
+            height: 40px;
+            border: 1px solid #00ffff;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: fractalPulse 4s ease-in-out infinite 1.5s;
+        }
+
+        @keyframes organicFlow {
+            0%, 100% {
+                clip-path: ellipse(40% 50% at 50% 50%);
+                transform: scale(var(--scale, 1)) rotate(0deg);
+            }
+            25% {
+                clip-path: ellipse(60% 30% at 60% 40%);
+                transform: scale(var(--scale, 1)) rotate(90deg);
+            }
+            50% {
+                clip-path: ellipse(30% 60% at 40% 60%);
+                transform: scale(var(--scale, 1)) rotate(180deg);
+            }
+            75% {
+                clip-path: ellipse(50% 40% at 50% 50%);
+                transform: scale(var(--scale, 1)) rotate(270deg);
+            }
+        }
+
+        @keyframes fieldFlow {
+            from { transform: translateX(-50px) translateY(-50px) rotate(0deg); }
+            to { transform: translateX(50px) translateY(50px) rotate(360deg); }
+        }
+
+        @keyframes octavePulse {
+            0%, 100% { transform: scaleY(0.6); opacity: 0.5; }
+            50% { transform: scaleY(1.3); opacity: 1; }
+        }
+
+        @keyframes fractalPulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+            50% { transform: translate(-50%, -50%) scale(1.4); opacity: 0.4; }
+        }
+
+        .specs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            margin: 60px 20px;
+        }
+
+        .spec-section {
+            background: #111;
+            border: 1px solid #333;
+            position: relative;
+        }
+
+        .spec-section:nth-child(1) {
+            border-right: none;
+        }
+
+        .spec-title {
+            background: #00ffff;
+            color: #000;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #333;
+        }
+
+        .param {
+            padding: 20px;
+            border-bottom: 1px solid #222;
+            transition: all 0.2s ease;
+        }
+
+        .param:hover {
+            background: rgba(0,255,255,0.05);
+            border-left: 4px solid #00ffff;
+        }
+
+        .param:last-child {
+            border-bottom: none;
+        }
+
+        .param-name {
+            color: #00ffff;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            font-size: 16px;
+            letter-spacing: 1px;
+        }
+
+        .param-type {
+            background: #333;
+            color: #fff;
+            padding: 4px 12px;
+            font-size: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 8px;
+            clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 100%, 6px 100%);
+        }
+
+        .param-range {
+            color: #fff;
+            font-weight: 700;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .param-desc {
+            color: #aaa;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2px;
+            margin: 60px 20px;
+            background: #00ffff;
+            padding: 2px;
+        }
+
+        .feature {
+            background: #111;
+            padding: 30px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .feature:hover {
+            background: #000;
+            transform: scale(1.02);
+        }
+
+        .feature h4 {
+            color: #00ffff;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            font-size: 18px;
+            letter-spacing: 1px;
+        }
+
+        .feature p {
+            color: #ccc;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .examples {
+            background: #111;
+            margin: 60px 20px;
+            border: 2px solid #333;
+        }
+
+        .examples-title {
+            background: #fff;
+            color: #000;
+            padding: 30px;
+            font-size: 36px;
+            font-weight: 900;
+            text-transform: uppercase;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        .example {
+            border-bottom: 1px solid #222;
+            padding: 40px;
+        }
+
+        .example:last-child {
+            border-bottom: none;
+        }
+
+        .example-title {
+            color: #00ffff;
+            font-size: 24px;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+
+        .workflow {
+            background: #000;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #00ffff;
+            font-family: 'Courier New', monospace;
+            color: #00ffff;
+            font-size: 16px;
+            overflow-x: auto;
+        }
+
+        .workflow-node {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .settings {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: #000;
+        }
+
+        .settings th {
+            background: #333;
+            color: #fff;
+            padding: 15px;
+            text-align: left;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+
+        .settings td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #222;
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        .settings tr:hover {
+            background: rgba(0,255,255,0.05);
+        }
+
+        .tips {
+            background: #000;
+            margin: 60px 20px;
+            border: 2px solid #00ffff;
+            position: relative;
+            counter-reset: tip-counter;
+        }
+
+        .tips-title {
+            background: #00ffff;
+            color: #000;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .tip {
+            padding: 20px;
+            border-bottom: 1px solid #111;
+            font-size: 16px;
+            color: #ccc;
+            position: relative;
+            padding-left: 60px;
+        }
+
+        .tip:last-child {
+            border-bottom: none;
+        }
+
+        .tip::before {
+            content: counter(tip-counter, decimal-leading-zero);
+            counter-increment: tip-counter;
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            color: #00ffff;
+            font-weight: 900;
+            font-size: 18px;
+            background: #111;
+            padding: 8px 12px;
+            clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 100%, 6px 100%);
+        }
+
+        .footer {
+            background: #111;
+            padding: 60px 20px;
+            text-align: center;
+            border-top: 2px solid #00ffff;
+            margin-top: 80px;
+        }
+
+        .footer h3 {
+            color: #00ffff;
+            font-size: 28px;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+
+        .footer p {
+            color: #ccc;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+        /* SIDEBAR STYLES */
+        .sidebar-section {
+            padding: 30px;
+            border-bottom: 1px solid #333;
+        }
+
+        .sidebar-section:last-child {
+            border-bottom: none;
+        }
+
+        .sidebar-title {
+            background: #00ffff;
+            color: #000;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: -30px -30px 20px -30px;
+            clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 100%, 8px 100%);
+        }
+
+        .node-screenshot {
+            width: 100%;
+            height: 400px;
+            background: #222;
+            border: 2px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+
+        .screenshot-placeholder {
+            color: #00ffff;
+            font-size: 16px;
+            font-weight: 900;
+            text-transform: uppercase;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        .quick-spec {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #222;
+        }
+
+        .quick-spec:last-child {
+            border-bottom: none;
+        }
+
+        .quick-spec-label {
+            color: #00ffff;
+            font-size: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .quick-spec-value {
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            text-align: right;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                margin: 0 10px;
+            }
+            
+            .sidebar {
+                order: -1;
+                position: relative;
+                border-left: none;
+                border-top: 4px solid #00ffff;
+                border-bottom: 4px solid #00ffff;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 0;
+            }
+            
+            .node-screenshot {
+                height: 250px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .specs {
+                grid-template-columns: 1fr;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .node-title {
+                font-size: 3rem;
+            }
+            
+            .sidebar {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-content">
+            <div class="header">
+                <a href="../index.html" class="back-btn">← BACK</a>
+                <div class="node-category">GENERATOR</div>
+                <h1 class="node-title">PERLIN<br>NOISE</h1>
+                <div class="node-desc">
+                    Advanced Perlin noise generator for organic, natural-sounding textures. 
+                    Creates smooth, coherent variations using fractal algorithms with controllable octaves and persistence.
+                </div>
+            </div>
+
+        <div class="node-visual">
+            <div class="noise-field"></div>
+            
+            <div class="organic-layer"></div>
+            <div class="organic-layer"></div>
+            <div class="organic-layer"></div>
+            
+            <div class="fractal-center"></div>
+            
+            <div class="perlin-octaves">
+                <div class="octave"></div>
+                <div class="octave"></div>
+                <div class="octave"></div>
+                <div class="octave"></div>
+                <div class="octave"></div>
+                <div class="octave"></div>
+            </div>
+        </div>
+
+        <div class="specs">
+            <div class="spec-section">
+                <div class="spec-title">INPUTS</div>
+                
+                <div class="param">
+                    <div class="param-name">duration</div>
+                    <div class="param-type">FLOAT</div>
+                    <div class="param-range">0.1 - 300.0 seconds</div>
+                    <div class="param-desc">Length of generated audio.</div>
+                </div>
+
+                <div class="param">
+                    <div class="param-name">frequency</div>
+                    <div class="param-type">FLOAT</div>
+                    <div class="param-range">0.1 - 100.0 Hz</div>
+                    <div class="param-desc">Base frequency for Perlin noise evolution. Higher = faster changes.</div>
+                </div>
+
+                <div class="param">
+                    <div class="param-name">sample_rate</div>
+                    <div class="param-type">ENUM</div>
+                    <div class="param-range">8000, 16000, 22050, 44100, 48000, 96000 Hz</div>
+                    <div class="param-desc">Audio sample rate.</div>
+                </div>
+
+                <div class="param">
+                    <div class="param-name">amplitude</div>
+                    <div class="param-type">FLOAT</div>
+                    <div class="param-range">0.0 - 2.0</div>
+                    <div class="param-desc">Output amplitude multiplier.</div>
+                </div>
+
+                <div class="param">
+                    <div class="param-name">octaves</div>
+                    <div class="param-type">INT</div>
+                    <div class="param-range">1 - 8</div>
+                    <div class="param-desc">Number of octaves for fractal complexity. Higher = more detail.</div>
+                </div>
+
+                <div class="param">
+                    <div class="param-name">persistence</div>
+                    <div class="param-type">FLOAT</div>
+                    <div class="param-range">0.1 - 2.0</div>
+                    <div class="param-desc">Amplitude scaling factor. Higher = more pronounced variations.</div>
+                </div>
+            </div>
+
+            <div class="spec-section">
+                <div class="spec-title">OUTPUTS</div>
+                
+                <div class="param">
+                    <div class="param-name">audio</div>
+                    <div class="param-type">AUDIO</div>
+                    <div class="param-range">32-bit float, specified sample rate</div>
+                    <div class="param-desc">Organic Perlin noise audio with smooth, natural variations.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature">
+                <h4>FRACTAL OCTAVES</h4>
+                <p>Multiple layers of noise at different frequencies create complex, natural-sounding textures with organic complexity.</p>
+            </div>
+            <div class="feature">
+                <h4>SMOOTH EVOLUTION</h4>
+                <p>Coherent temporal variations without discontinuities. Perfect for wind, water, and atmospheric effects.</p>
+            </div>
+            <div class="feature">
+                <h4>NATURAL TURBULENCE</h4>
+                <p>Mimics real-world turbulence patterns found in nature. Ideal for environmental sound design and ambient music.</p>
+            </div>
+            <div class="feature">
+                <h4>CONTROLLABLE DETAIL</h4>
+                <p>Persistence parameter controls fine detail vs. broad movements. Low values = smooth, high values = detailed.</p>
+            </div>
+        </div>
+
+        <div class="examples">
+            <div class="examples-title">USAGE EXAMPLES</div>
+            
+            <div class="example">
+                <div class="example-title">NATURAL WIND SIMULATION</div>
+                <div class="workflow">
+                    <span class="workflow-node">PERLIN NOISE</span> → 
+                    <span class="workflow-node">HARSH FILTER</span> → 
+                    <span class="workflow-node">CONVOLUTION REVERB</span>
+                </div>
+                <table class="settings">
+                    <tr><th>PARAM</th><th>VALUE</th><th>PURPOSE</th></tr>
+                    <tr><td>frequency</td><td>0.5</td><td>Slow, natural evolution</td></tr>
+                    <tr><td>octaves</td><td>6</td><td>Complex wind turbulence</td></tr>
+                    <tr><td>persistence</td><td>1.2</td><td>Enhanced detail</td></tr>
+                </table>
+            </div>
+
+            <div class="example">
+                <div class="example-title">MEDITATION ATMOSPHERE</div>
+                <div class="workflow">
+                    <span class="workflow-node">PERLIN NOISE</span> → 
+                    <span class="workflow-node">SPECTRAL PROCESSOR</span> → 
+                    <span class="workflow-node">AUDIO SAVE</span>
+                </div>
+                <table class="settings">
+                    <tr><th>PARAM</th><th>VALUE</th><th>PURPOSE</th></tr>
+                    <tr><td>frequency</td><td>0.2</td><td>Very slow changes</td></tr>
+                    <tr><td>octaves</td><td>3</td><td>Simple, peaceful</td></tr>
+                    <tr><td>amplitude</td><td>0.25</td><td>Background level</td></tr>
+                </table>
+            </div>
+
+            <div class="example">
+                <div class="example-title">ORGANIC TEXTURE BASE</div>
+                <div class="workflow">
+                    <span class="workflow-node">PERLIN NOISE</span> → 
+                    <span class="workflow-node">GRANULAR PROCESSOR</span> → 
+                    <span class="workflow-node">MULTI DISTORTION</span>
+                </div>
+                <table class="settings">
+                    <tr><th>PARAM</th><th>VALUE</th><th>PURPOSE</th></tr>
+                    <tr><td>frequency</td><td>2.0</td><td>Active movement</td></tr>
+                    <tr><td>octaves</td><td>8</td><td>Maximum complexity</td></tr>
+                    <tr><td>persistence</td><td>1.8</td><td>Rich harmonic detail</td></tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="tips">
+            <div class="tips-title">PRO TIPS</div>
+            <div class="tip">Low frequencies (0.1-1.0 Hz) create slow, evolving atmospheres perfect for ambient music</div>
+            <div class="tip">High octave counts (6-8) add realistic turbulence and complexity to natural sounds</div>
+            <div class="tip">Combine with filters to simulate specific natural environments and weather conditions</div>
+            <div class="tip">Use persistence > 1.0 to emphasize fine details in the texture</div>
+            <div class="tip">Multiple Perlin generators with different frequencies create layered organic textures</div>
+            <div class="tip">Feed Perlin noise into granular processors for evolving grain clouds</div>
+            <div class="tip">Lower persistence values (0.3-0.7) create smoother, more meditative sounds</div>
+            <div class="tip">Use as modulation source for other parameters to add organic movement</div>
+        </div>
+
+        <div class="footer">
+            <h3>PERLIN NOISE</h3>
+            <p>Organic texture generator for natural-sounding ambient environments</p>
+            <a href="../index.html" class="back-btn">EXPLORE MORE NODES</a>
+        </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">NODE SCREENSHOT</div>
+                <div class="node-screenshot">
+                    <div class="screenshot-placeholder">
+                        9:16 NODE IMAGE<br>
+                        PLACEHOLDER
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-title">QUICK SPECS</div>
+                <div class="quick-spec">
+                    <div class="quick-spec-label">TYPE</div>
+                    <div class="quick-spec-value">GENERATOR</div>
+                </div>
+                <div class="quick-spec">
+                    <div class="quick-spec-label">FREQUENCY</div>
+                    <div class="quick-spec-value">0.1 - 100 Hz</div>
+                </div>
+                <div class="quick-spec">
+                    <div class="quick-spec-label">OCTAVES</div>
+                    <div class="quick-spec-value">1 - 8</div>
+                </div>
+                <div class="quick-spec">
+                    <div class="quick-spec-label">PERSISTENCE</div>
+                    <div class="quick-spec-value">0.1 - 2.0</div>
+                </div>
+                <div class="quick-spec">
+                    <div class="quick-spec-label">AMPLITUDE</div>
+                    <div class="quick-spec-value">0.0 - 2.0</div>
+                </div>
+                <div class="quick-spec">
+                    <div class="quick-spec-label">DURATION</div>
+                    <div class="quick-spec-value">0.1 - 300s</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 
